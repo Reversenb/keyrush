@@ -217,7 +217,7 @@ export default function KeyRushOrangeLandingPage() {
             <div className={`w-10 h-10 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-2xl shadow-md flex items-center justify-center transform -rotate-6 border-2 border-white dark:border-transparent hacker:border-transparent group-hover:rotate-0 transition-all`}>
               <Terminal size={22} strokeWidth={4} />
             </div>
-            <h2 className={`text-2xl font-black tracking-tight text-orange-600 dark:text-yellow-400 hacker:text-green-500 m-0`}>KEYRUSH</h2>
+            <h2 className={`text-2xl font-black tracking-tight text-orange-600 dark:text-yellow-400 hacker:text-green-500 m-0`}>KeyRush</h2>
           </Link>
         </div>
 
