@@ -68,8 +68,10 @@ export default function CampaignPage() {
 
     fetchProfile();
 
-    const savedOs = localStorage.getItem('keyrush_target_os') as 'linux' | 'windows';
-    if (savedOs) setTargetOs(savedOs);
+    // ✅ FIXED: บังคับให้เป็น Linux เป็นค่า Default เสมอเมื่อเปิดเข้ามาหน้านี้ 
+    // ตัดปัญหาการจำค่าเก่าที่ผิดพลาดจากหน้า Leaderboard หรือ Session เก่า
+    setTargetOs('linux');
+    localStorage.setItem('keyrush_target_os', 'linux');
 
   }, [router]);
 

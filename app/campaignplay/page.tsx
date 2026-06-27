@@ -10,7 +10,7 @@ import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck } from 'lucide-react';
 
-// 🌟 Import Components ที่แยกออกไป 🌟
+// 🌟 Import Components 
 import VirtualFileSystemPanel from '@/components/VirtualFileSystemPanel';
 import MissionClearedModal from '@/components/MissionClearedModal';
 import TerminalControls from '@/components/TerminalControls';
@@ -106,6 +106,7 @@ export default function GamePage() {
           setUserData(data.data);
           const activeLevel = os === 'windows' ? data.data.windowsLevel : data.data.linuxLevel;
           setMaxLevel(activeLevel || 1);
+
           const urlParams = new URLSearchParams(window.location.search);
           const requestedLevel = parseInt(urlParams.get('level') || '0', 10);
           setCurrentLevel(requestedLevel > 0 && requestedLevel <= (activeLevel || 1) ? requestedLevel : activeLevel || 1);
@@ -232,15 +233,30 @@ export default function GamePage() {
     if (action !== 'clear' && action !== 'cls' && terminalOutput) terminalRef.current?.writeLine(`\r\n${terminalOutput}`);
 
     const expectedNormalized = (missionData?.expectedCommand || '').trim().replace(/\s+/g, ' ');
+
+    // =======================================================
+    // ✅ จุดแก้หลัก: ระบบเซฟกันโกง (Anti-Cheat) และการอัปเดตเลเวล
+    // =======================================================
     if (normalizedInput.toLowerCase() === expectedNormalized.toLowerCase()) {
       setIsPassed(true); setTimeout(() => playSFX('success'), 300);
-      const newTotalExp = currentExp + (isReplaying ? 0 : missionReward);
+
       const token = localStorage.getItem('keyrush_token');
       if (token) {
+        // ✅ ไม่ส่ง exp ไปแล้ว Backend คำนวณเอง และส่ง level อันเดิมไป (ไม่ต้อง +1)
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ os: targetOs, level: currentLevel + 1, exp: newTotalExp, wpm: wpm, accuracy: accuracy })
-        }).then(res => res.json()).then(result => { if (result.success && result.data) setUserData(result.data); });
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result.success && result.data) {
+              setUserData(result.data);
+              // อัปเดต maxLevel อัตโนมัติหลังเล่นผ่านเพื่อไม่ให้มันคิดว่าเล่นด่านเก่าซ้ำ
+              const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
+              setMaxLevel(newActiveLevel);
+            }
+          });
       }
       terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
       setTimeout(() => setShowProceedButton(true), 1200);
@@ -281,6 +297,7 @@ export default function GamePage() {
 
   if (isInitializing) return <HackerLoadingScreen />;
 
+  // 🌟 หน้าจอถ้าเคลียร์ทุกด่านแล้ว (หรือถ้า Database ไม่มีข้อมูลด่านนั้นๆ)
   if (isAllCleared) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6 relative overflow-hidden font-sans transition-colors duration-500">
@@ -288,7 +305,7 @@ export default function GamePage() {
         <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="z-10 text-center flex flex-col items-center">
           <ShieldCheck className={`mb-6 drop-shadow-sm transition-colors duration-500 ${themeText}`} size={120} strokeWidth={2.5} />
           <h1 className={`text-5xl font-black mb-4 tracking-tighter cute-header transition-colors duration-500 ${isHacker ? 'text-green-500' : isDark ? 'text-white' : 'text-orange-950'}`}>ALL SYSTEMS CLEARED</h1>
-          <p className={`font-bold mb-8 max-w-lg transition-colors duration-500 ${isHacker ? 'text-green-400' : isDark ? 'text-white/70' : 'text-orange-600'}`}>คุณเคลียร์ภารกิจทั้งหมดในสาย {targetOs.toUpperCase()} แล้ว! ภารกิจสำเร็จลุล่วง</p>
+          <p className={`font-bold mb-8 max-w-lg transition-colors duration-500 ${isHacker ? 'text-green-400' : isDark ? 'text-white/70' : 'text-orange-600'}`}>คุณเคลียร์ภารกิจทั้งหมดในสาย {targetOs.toUpperCase()} แล้ว! หรือยังไม่มีการสร้างด่านใหม่ในระบบ</p>
           <Link href="/campaignpage" className={`px-10 py-5 font-black uppercase tracking-widest rounded-[24px] transition-all border-4 btn-squishy shadow-sm ${isHacker ? 'bg-[#0a0a0a] text-green-500 border-green-500 hover:bg-green-900/30' : isDark ? `${themeBg} text-[#1E1B2E] border-transparent hover:opacity-90` : `${themeBg} text-white border-white hover:opacity-90`}`}>Return to Campaign</Link>
         </motion.div>
       </div>
