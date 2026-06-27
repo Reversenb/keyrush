@@ -497,7 +497,7 @@ export default function ProfilePage() {
                 ) : saveSuccess ? (
                   <><CheckCircle size={20} strokeWidth={3} /> Update Complete</>
                 ) : (
-                  <><Save size={20} strokeWidth={3} /> Save Configuration</>
+                  <><Save size={20} strokeWidth={3} /> Save</>
                 )}
               </button>
             </div>

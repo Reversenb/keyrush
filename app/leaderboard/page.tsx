@@ -261,7 +261,10 @@ export default function LeaderboardPage() {
 
                     {/* 🥇 Rank 1 */}
                     <motion.div initial={{ opacity: 0, scale: 0.8, y: 50 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ type: "spring", bounce: 0.5 }} className="flex flex-col items-center w-36 md:w-52 relative z-20 group">
-                      <div className="absolute top-10 w-[150%] h-[150%] bg-yellow-300/40 dark:bg-yellow-400/20 hacker:bg-green-500/20 blur-3xl rounded-full pointer-events-none group-hover:bg-yellow-300/60 transition-colors"></div>
+
+                      {/* 🌟 Glow Effect ด้านหลัง 🌟 */}
+                      <div className={`absolute top-10 w-[150%] h-[150%] blur-3xl rounded-full pointer-events-none transition-colors duration-500 ${isHacker ? 'bg-green-500/20 group-hover:bg-green-500/40' : isDark ? 'bg-yellow-400/20 group-hover:bg-yellow-400/40' : 'bg-yellow-300/40 group-hover:bg-yellow-300/60'}`}></div>
+
                       <motion.div animate={{ y: [0, -8, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="flex flex-col items-center z-10">
                         <Trophy size={40} strokeWidth={2.5} className="text-yellow-400 hacker:text-green-400 mb-2 drop-shadow-sm fill-yellow-200 dark:fill-yellow-600 hacker:fill-green-900" />
                         <Link href={`/u/${leaderboardData[0]?.displayName || leaderboardData[0]?.username.split('@')[0]}`}>
