@@ -1,0 +1,63 @@
+/* 🌟 สลับเอาฟอนต์ขึ้นก่อน Tailwind โค้ดจะได้ไม่ระเบิดทับกัน */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import "tailwindcss";
+
+/* 🌟 เคล็ดลับสำคัญ: บังคับให้ Tailwind v4 เปลี่ยนธีมตามปุ่มกดเท่านั้น (ปิดการดึงธีมจากระบบเครื่อง) 🌟 */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant hacker (&:where(.hacker, .hacker *));
+
+:root {
+  /* 🍊 โหมดสว่าง: โทนสีหลัก ส้มสดใส (อิงตาม bg-orange-50 และ text-orange-950) */
+  --background: #fff7ed;       
+  --foreground: #431407;       
+  --shimmer-base: rgba(249, 115, 22, 0.15); 
+  --shimmer-highlight: rgba(249, 115, 22, 0.35);
+}
+
+.dark {
+  /* 🌙 โหมดมืด: โทนสีกรมท่า/ม่วงพาสเทล (Soft Dark) ดูลึกลับแต่น่ารัก */
+  --background: #2e2946;       
+  --foreground: #FDF2F8;       
+  --shimmer-base: rgba(249, 115, 22, 0.05); 
+  --shimmer-highlight: rgba(249, 115, 22, 0.15);
+}
+.hacker {
+  /* 💻 โหมดแฮกเกอร์: พื้นดำไม่สนิท / ตัวหนังสือเขียว */
+  --background: #001809;       
+  --foreground: #4ade80; /* สี green-400 */     
+}
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-primary: #f97316;       
+  --color-primary-light: #fdba74; 
+  --color-accent: #fbbf24;        
+  --color-peach: #ffedd5;         
+  --color-mint: #38bdf8;          
+  
+  --color-surface-dark: #FFFFFF;  
+  --color-surface-darker: #fff7ed;
+
+  /* 🌟 แก้ตรงนี้! บังคับให้คลาส font-sans ของ Tailwind ใช้ฟอนต์ Prompt */
+  --font-sans: var(--font-prompt), sans-serif;
+  --font-baloo: var(--font-baloo), cursive;
+
+  /* Animations คงเดิม... */
+  --animate-folder-pop-in: folder-pop-in 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6) forwards;
+  --animate-trophy-reveal: trophy-reveal 2s ease-out forwards, neon-pulse-white 2s infinite 2s;
+  --animate-flare: flare 1.5s ease-out forwards;
+  --animate-shimmer: shimmer 2s infinite linear;
+}
+
+/* 👈 เพิ่ม/แก้ไข body ให้รองรับทั้งสองโหมด */
+body {
+  background: var(--background); /* เอา radial-gradient ออกก่อนเพื่อให้สีเปลี่ยนชัดเจน */
+  color: var(--foreground);
+  font-family: var(--font-display);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ส่วนอื่นๆ ด้านล่างของไฟล์ globals.css ให้คงไว้ตามเดิมได้เลยครับ */
