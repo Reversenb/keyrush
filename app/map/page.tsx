@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+
 import {
     Map as MapIcon, Lock, Play, Zap, Trophy,
     Terminal, ShieldCheck, Flag
@@ -76,7 +76,7 @@ export default function ModeSelectionMapPage() {
     };
 
     if (!isMounted) return <div className="min-h-screen bg-background"></div>;
-    if (loading) return <HackerLoadingScreen />;
+
 
     return (
         <div className="min-h-screen bg-background font-sans flex flex-col selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative overflow-hidden text-foreground transition-colors duration-500">

@@ -264,9 +264,9 @@ export default function RanksPage() {
           ) : (
             <div className="text-center mb-20 glass-card py-16 rounded-[40px] relative overflow-hidden">
               <Lock size={64} strokeWidth={2.5} className="text-orange-300 dark:text-white/30 hacker:text-green-800 mx-auto mb-6 transition-colors" />
-              <p className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 font-black text-sm uppercase tracking-widest transition-colors">AUTHENTICATION REQUIRED</p>
+              <p className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 font-black text-sm uppercase tracking-widest transition-colors">กรุณาเข้าสู่ระบบ</p>
               <button onClick={() => router.push('/login')} className="mt-8 px-10 py-4 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] font-black text-sm uppercase tracking-widest border-4 border-white dark:border-yellow-500 hacker:border-green-500 rounded-[24px] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 transition-all shadow-[0_8px_0_rgba(249,115,22,0.2)] dark:shadow-[0_8px_0_rgba(250,204,21,0.2)] hacker:shadow-[0_8px_0_rgba(34,197,94,0.2)] btn-squishy">
-                Identify Operative
+                เข้าสู่ระบบเพื่อดูแรงค์ของคุณ
               </button>
             </div>
           )}
