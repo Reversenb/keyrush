@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
@@ -19,6 +20,7 @@ const DOC_TABS = [
 ];
 
 export default function DatabankPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('getting-started');
 
   // 🌟 State สำหรับเก็บข้อมูลภารกิจทั้งหมดที่ดึงมาจาก Database
@@ -26,6 +28,13 @@ export default function DatabankPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 🌟 เช็คว่ามีการ Login หรือยัง ถ้ายังให้ดีดกลับไปหน้า Login
+    const token = localStorage.getItem('keyrush_token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
     // 🌟 ดึงข้อมูลคำสั่ง (Missions) จาก Database
     const fetchMissions = async () => {
       try {
@@ -44,7 +53,7 @@ export default function DatabankPage() {
     };
 
     fetchMissions();
-  }, []);
+  }, [router]);
 
   if (loading) return <HackerLoadingScreen />;
 
