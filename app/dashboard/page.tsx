@@ -42,6 +42,9 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({ avgWpm: 0, avgAccuracy: 0, recentWpm: [] as number[], recentLessons: [] as any[] });
   const [loading, setLoading] = useState(true);
 
+  // 🌟 ป้องกัน Hydration Mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
   // 🌟 ดึงค่า Theme เพื่อสลับสี SVG กราฟให้รองรับ 3 ธีม
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
@@ -52,6 +55,8 @@ export default function DashboardPage() {
   const primaryHex = isHacker ? '#22c55e' : (isDark ? '#facc15' : '#f97316');
 
   useEffect(() => {
+    setIsMounted(true); // ✅ เซ็ตค่า Mounted เมื่อรันฝั่ง Client สำเร็จ
+
     const fetchDashboardData = async () => {
       const token = localStorage.getItem('keyrush_token');
       if (!token) return router.push('/login');
@@ -177,10 +182,18 @@ export default function DashboardPage() {
     show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
   };
 
+  // ✅ ดักจับเรนเดอร์เปล่าๆ จนกว่าจะเมาท์เสร็จ เพื่อแก้ปัญหา Hydration Error
+  if (!isMounted) {
+    return <div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-orange-500 dark:text-yellow-400 hacker:text-green-500 font-black">LOADING DATA...</div></div>;
+  }
+
   return (
     <div className="bg-background font-sans font-black text-foreground min-h-screen flex flex-col overflow-x-hidden selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative transition-colors duration-500">
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;700;900&display=swap');
+        .font-prompt { font-family: 'Prompt', sans-serif; }
+
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
           50% { transform: translateY(-15px) rotate(2deg); }
@@ -203,10 +216,9 @@ export default function DashboardPage() {
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        /* 🌟 สีกล่องการ์ดโหมด Hacker (มืดเหมือน Dark แต่กรอบเขียว) 🌟 */
         .hacker .glass-card {
           background: rgba(10, 10, 10, 0.85); 
-          border-color: #166534; /* green-800 */
+          border-color: #166534; 
           box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15);
         }
         
@@ -246,7 +258,7 @@ export default function DashboardPage() {
         .hacker ::-webkit-scrollbar-thumb:hover { background: #22c55e; }
       `}</style>
 
-      {/* 🎈 Background Blobs เปลี่ยนเป็นสีเขียวใน Hacker Mode 🎈 */}
+      {/* 🎈 Background Blobs 🎈 */}
       <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-400 dark:bg-yellow-500 hacker:bg-green-600 rounded-full blur-[100px] opacity-20 dark:opacity-5 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors" />
       <div className="fixed bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-20 dark:opacity-5 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors" />
       <div className="fixed top-[40%] left-[20%] w-[300px] h-[300px] bg-yellow-300 dark:bg-yellow-400 hacker:bg-green-500 rounded-full blur-[100px] opacity-20 dark:opacity-5 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors" style={{ animationDelay: '2s' }} />
@@ -270,7 +282,6 @@ export default function DashboardPage() {
             {/* 🌟 Welcome Card 🌟 */}
             <motion.div variants={itemVariants} className="glass-card p-8 md:p-10 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end gap-6 shadow-sm">
               <div className="flex flex-col gap-2 w-full z-10">
-                {/* 🌟 รายละเอียดสีขาวใน Hacker Mode 🌟 */}
                 <h1 className="text-black-600 dark:text-white hacker:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight cute-header transition-colors">
                   Welcome back, <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">{getShowName()}</span> ✨
                 </h1>
@@ -281,7 +292,7 @@ export default function DashboardPage() {
 
               <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0 z-10">
                 <button
-                  onClick={() => router.push('/campaignpage')}
+                  onClick={() => router.push('/map')}
                   className="btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-white dark:bg-[#2D223B] hacker:bg-[#111] text-orange-600 dark:text-yellow-400 hacker:text-green-500 rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#0a0a0a] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
                 >
                   <Map size={20} strokeWidth={3} /> ดูแผนที่ภารกิจ
@@ -310,7 +321,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div>
-                    {/* 🌟 รายละเอียดเป็นสีขาวโปร่งแสง 🌟 */}
                     <p className="text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest mb-1 transition-colors">{stat.label}</p>
                     {stat.title ? (
                       <p className={`text-2xl lg:text-3xl font-black tracking-tight cute-header transition-colors ${getLightModeRankColor(stat.rankColor!)}`}>
@@ -423,7 +433,6 @@ export default function DashboardPage() {
                 >
                   ดูทั้งหมด <span className="material-symbols-outlined text-[18px] font-bold">arrow_forward</span>
                 </button>
-
               </div>
 
               <div className="overflow-x-auto w-full">
