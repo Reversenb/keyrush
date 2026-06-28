@@ -299,7 +299,7 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
                 {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
                 {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
                 {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}
-                Switch to {currentTheme === 'dark' ? 'Hacker Mode' : currentTheme === 'hacker' ? 'Cute Mode' : 'Dark Mode'}
+                Switch to {currentTheme === 'cute' ? 'Cute Mode' : currentTheme === 'dark' ? 'Hacker Mode' : currentTheme === 'hacker' ? 'Cute Mode' : 'Dark Mode'}
               </div>
             </button>
           </motion.div>
