@@ -393,15 +393,32 @@ export default function KeyRushOrangeLandingPage() {
               </div>
             </div>
 
-            <div className="p-6 md:p-8 font-mono text-orange-800 dark:text-white/80 hacker:text-white/80 text-sm md:text-base relative z-10 min-h-[280px] font-black bg-white/60 dark:bg-black/30 hacker:bg-black/60 transition-colors">
-              <div className="mb-3"><span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">student@keyrush</span>:<span className="text-orange-400 dark:text-yellow-600 hacker:text-green-600">~</span>$ <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>./start_magic.sh</motion.span></div>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="mb-3 text-orange-500 dark:text-yellow-300 hacker:text-green-400 drop-shadow-sm font-black">[SYSTEM] 🪄 กำลังร่ายมนตร์สร้างเซิร์ฟเวอร์จำลอง...</motion.div>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2 }} className="mb-3">โหลดโมดูล 1: จัดการไฟล์น่ารักๆ... <span className="text-green-500 dark:text-green-400 hacker:text-green-400 font-black">[สำเร็จ 💖]</span></motion.div>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.7 }} className="mb-3">เชื่อมต่อกับโลกไซเบอร์... <span className="text-green-500 dark:text-green-400 hacker:text-green-400 font-black">[เรียบร้อย ☁️]</span></motion.div>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.2 }} className="mb-8 text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">Status: พร้อมแล้ว! รอรับคำสั่งจ้า 🚀</motion.div>
+            <div className="p-6 md:p-8 font-prompt font-black text-orange-800 dark:text-white/80 hacker:text-white/80 text-sm md:text-base relative z-10 min-h-[280px] bg-white/60 dark:bg-black/30 hacker:bg-black/60 transition-colors">
+              <div className="mb-3">
+                <span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">student@keyrush</span>:
+                <span className="text-orange-400 dark:text-yellow-600 hacker:text-green-600">~</span>$
+                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}> ./init_system.sh</motion.span>
+              </div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="mb-3 text-orange-500 dark:text-yellow-300 hacker:text-green-400 drop-shadow-sm font-black">
+                [SYSTEM] Initializing simulated server environment...
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.2 }} className="mb-3">
+                Loading File System Management module... <span className="text-green-500 dark:text-green-400 hacker:text-green-400 font-black">[SUCCESS]</span>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.7 }} className="mb-3">
+                Establishing connection to the main network... <span className="text-green-500 dark:text-green-400 hacker:text-green-400 font-black">[SUCCESS]</span>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.2 }} className="mb-8 text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">
+                Status: System ready. Awaiting commands.
+              </motion.div>
 
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 4 }} className="flex items-center">
-                <span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black mr-2">student@keyrush</span>:<span className="text-orange-400 dark:text-yellow-600 hacker:text-green-600">~</span>$
+                <span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black mr-2">student@keyrush</span>:
+                <span className="text-orange-400 dark:text-yellow-600 hacker:text-green-600">~</span>$
                 <motion.span animate={{ opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-3 h-6 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 ml-2 block rounded-sm"></motion.span>
               </motion.div>
             </div>
