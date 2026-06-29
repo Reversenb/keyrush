@@ -8,8 +8,7 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
-  Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw,
-  Trophy, LogIn, Zap, Target, Swords, Moon, Crown, Lock, Bot
+  Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw, Bot
 } from 'lucide-react';
 
 const AVATAR_OPTIONS = [
@@ -23,16 +22,6 @@ const AVATAR_OPTIONS = [
   "Viper", "Wire", "Xerox", "Yoshi", "Zero", "Alpha", "Beta", "Gamma", "Delta", "Epsilon",
   "Zeta", "Omega", "Sigma", "Rider", "Scout", "Tracker", "Warden", "Hunter", "Ranger", "Striker",
   "Falcon", "Raven", "Eagle", "Hawk", "Wolf", "Bear", "Lion", "Tiger", "Fox", "Panda"
-];
-
-// 🌟 ข้อมูล Achievements 
-const ACHIEVEMENTS = [
-  { id: 'first_login', title: 'System Breach', desc: 'ล็อกอินเข้าสู่ระบบ KeyRush เป็นครั้งแรก', icon: <LogIn size={32} strokeWidth={2.5} />, color: 'green', unlocked: true },
-  { id: 'speed_demon', title: 'Speed Demon', desc: 'ทำความเร็วการพิมพ์ได้เกิน 100 WPM ในโหมด Time Attack', icon: <Zap size={32} strokeWidth={2.5} fill="currentColor" />, color: 'amber', unlocked: true },
-  { id: 'sniper', title: 'Sniper', desc: 'พิมพ์คำสั่งต่อเนื่องโดยไม่ผิดเลย 5 ภารกิจ (Accuracy 100%)', icon: <Target size={32} strokeWidth={2.5} />, color: 'blue', unlocked: true },
-  { id: 'first_blood', title: 'First Blood', desc: 'เอาชนะผู้เล่นคนอื่นในโหมด Cyber Duel ครั้งแรก', icon: <Swords size={32} strokeWidth={2.5} />, color: 'rose', unlocked: false },
-  { id: 'night_owl', title: 'Night Owl', desc: 'ทำภารกิจสำเร็จในช่วงเวลา 00:00 - 04:00 AM', icon: <Moon size={32} strokeWidth={2.5} fill="currentColor" />, color: 'purple', unlocked: false },
-  { id: 'root_master', title: 'Root Access', desc: 'ไต่แรงค์จนถึงระดับสูงสุด (Root Master)', icon: <Crown size={32} strokeWidth={2.5} />, color: 'pink', unlocked: false }
 ];
 
 export default function ProfilePage() {
@@ -187,42 +176,6 @@ export default function ProfilePage() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
-  };
-
-  // 🌟 ฟังก์ชันหา Theme Color ของเหรียญแต่ละสี
-  const getBadgeColors = (color: string) => {
-    if (isHacker) {
-      return {
-        text: 'text-green-500',
-        bg: 'bg-green-900/20',
-        border: 'border-green-800',
-        shadow: 'shadow-[0_4px_15px_rgba(34,197,94,0.15)]'
-      };
-    }
-
-    if (isDark) {
-      const colorMap: any = {
-        green: { text: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/30' },
-        amber: { text: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/30' },
-        blue: { text: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/30' },
-        rose: { text: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/30' },
-        purple: { text: 'text-purple-400', bg: 'bg-purple-400/10', border: 'border-purple-400/30' },
-        pink: { text: 'text-pink-400', bg: 'bg-pink-400/10', border: 'border-pink-400/30' },
-      };
-      return { ...colorMap[color], shadow: 'shadow-[0_4px_15px_rgba(0,0,0,0.3)]' };
-    }
-
-    return {
-      text: `text-${color}-500`,
-      bg: `bg-${color}-100`,
-      border: 'border-white',
-      shadow: 'shadow-sm'
-    };
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground font-sans font-black flex flex-col selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative overflow-x-hidden transition-colors duration-500">
 
@@ -261,8 +214,8 @@ export default function ProfilePage() {
         .btn-squishy {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .btn-squishy:hover { transform: scale(1.05) translateY(-4px); }
-        .btn-squishy:active { transform: scale(0.95) translateY(0); box-shadow: none !important; }
+        .btn-squishy:hover { transform: scale(1.03) translateY(-2px); }
+        .btn-squishy:active { transform: scale(0.97) translateY(0); box-shadow: none !important; }
 
         .cute-header {
           text-shadow: 3px 3px 0px rgba(255, 255, 255, 1), 
@@ -321,21 +274,57 @@ export default function ProfilePage() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="w-full max-w-5xl mx-auto relative z-10 pb-20 mt-4 md:mt-8"
+          className="w-full max-w-5xl mx-auto relative z-10 mt-4 md:mt-8"
         >
 
-          <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 relative">
+          {/* ========================================================= */}
+          {/* 🎯 HEADER & ACTION BUTTONS (ย้ายปุ่มขึ้นมาตรงนี้) 🎯 */}
+          {/* ========================================================= */}
+          <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 md:mb-8 gap-4 relative">
             <div>
-              <h1 className="text-4xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter drop-shadow-sm leading-none cute-header transition-colors duration-500">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter drop-shadow-sm leading-none cute-header transition-colors duration-500">
                 USER <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 transition-colors duration-500">PROFILE</span> ✨
               </h1>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-row w-full lg:w-auto gap-3">
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="flex-1 lg:flex-none px-4 md:px-6 py-3 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] text-orange-600 dark:text-white hacker:text-green-500 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#000] hacker:shadow-[0_4px_0_#000] rounded-2xl md:rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 btn-squishy text-xs md:text-sm"
+              >
+                <LayoutDashboard size={18} strokeWidth={3} className="hidden sm:block" /> Dashboard
+              </button>
+
+              <button
+                onClick={handleSave}
+                disabled={saving || saveSuccess}
+                className={`flex-1 lg:flex-none px-4 md:px-8 py-3 rounded-2xl md:rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 border-4 disabled:cursor-not-allowed btn-squishy text-xs md:text-sm
+                  ${saveSuccess
+                    ? 'bg-green-100 dark:bg-green-900/30 hacker:bg-green-900/30 text-green-600 dark:text-green-400 hacker:text-green-400 border-white dark:border-green-800 hacker:border-green-800 shadow-sm'
+                    : isHacker
+                      ? 'bg-green-500 border-green-400 text-[#0a0a0a] shadow-[0_6px_0_#14532d] disabled:opacity-50 disabled:shadow-none'
+                      : isDark
+                        ? 'bg-yellow-400 border-yellow-300 text-[#1E1B2E] shadow-[0_6px_0_#ca8a04] disabled:opacity-50 disabled:shadow-none'
+                        : 'bg-orange-500 border-white text-white shadow-[0_6px_0_rgba(249,115,22,0.2)] disabled:opacity-50 disabled:shadow-none'
+                  }
+                `}
+              >
+                {saving ? (
+                  <><RefreshCw className="animate-spin" size={18} strokeWidth={3} /> <span className="hidden sm:inline">Saving</span></>
+                ) : saveSuccess ? (
+                  <><CheckCircle size={18} strokeWidth={3} /> <span className="hidden sm:inline">Saved</span></>
+                ) : (
+                  <><Save size={18} strokeWidth={3} /> Save <span className="hidden sm:inline">Profile</span></>
+                )}
+              </button>
             </div>
           </header>
 
           {/* ========================================================= */}
           {/* 🌟 1. PROFILE SETTINGS (บอร์ดตั้งค่า Profile) 🌟 */}
           {/* ========================================================= */}
-          <div className="glass-card p-6 md:p-10 mb-12 shadow-sm relative overflow-hidden group">
+          <div className="glass-card p-6 md:p-10 mb-8 shadow-sm relative overflow-hidden group">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 relative z-30">
 
               {/* ซ้าย: ส่วนจัดการรูปภาพ */}
@@ -471,98 +460,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-
-            {/* ปุ่มบันทึก */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-10 pt-8 border-t-4 border-white dark:border-[#382E54] hacker:border-green-800 relative z-30 transition-colors duration-500">
-              <button onClick={() => router.push('/dashboard')} className="flex-1 py-4 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] text-orange-600 dark:text-white hacker:text-green-500 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#000] hacker:shadow-[0_6px_0_#000] rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 btn-squishy">
-                <LayoutDashboard size={20} strokeWidth={3} /> Return to Dashboard
-              </button>
-
-              <button
-                onClick={handleSave}
-                disabled={saving || saveSuccess}
-                className={`flex-1 py-4 rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 border-4 disabled:cursor-not-allowed btn-squishy 
-                  ${saveSuccess
-                    ? 'bg-green-100 dark:bg-green-900/30 hacker:bg-green-900/30 text-green-600 dark:text-green-400 hacker:text-green-400 border-white dark:border-green-800 hacker:border-green-800 shadow-sm'
-                    : isHacker
-                      ? 'bg-green-500 border-green-400 text-[#0a0a0a] shadow-[0_8px_0_#14532d] disabled:opacity-50 disabled:shadow-none'
-                      : isDark
-                        ? 'bg-yellow-400 border-yellow-300 text-[#1E1B2E] shadow-[0_8px_0_#ca8a04] disabled:opacity-50 disabled:shadow-none'
-                        : 'bg-orange-500 border-white text-white shadow-[0_8px_0_rgba(249,115,22,0.2)] disabled:opacity-50 disabled:shadow-none'
-                  }
-                `}
-              >
-                {saving ? (
-                  <><RefreshCw className="animate-spin" size={20} strokeWidth={3} /> Saving ...</>
-                ) : saveSuccess ? (
-                  <><CheckCircle size={20} strokeWidth={3} /> Update Complete</>
-                ) : (
-                  <><Save size={20} strokeWidth={3} /> Save</>
-                )}
-              </button>
-            </div>
           </div>
-
-          {/* ========================================================= */}
-          {/* 🏆 2. ACHIEVEMENTS & SERVICE MEDALS (ตู้โชว์เหรียญ) 🏆 */}
-          {/* ========================================================= */}
-          <motion.section
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full flex flex-col gap-6"
-          >
-            <div className="flex items-center gap-4">
-              <span className="w-8 h-1 bg-orange-300 dark:bg-yellow-600 hacker:bg-green-800 rounded-full transition-colors duration-500"></span>
-              <h2 className="text-2xl font-black text-orange-950 dark:text-white hacker:text-white tracking-widest uppercase flex items-center gap-3 cute-header transition-colors duration-500">
-                <Trophy className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 transition-colors duration-500" size={28} strokeWidth={3} />
-                Service <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 transition-colors duration-500">Medals</span>
-              </h2>
-              <span className="flex-1 h-1 bg-orange-200 dark:bg-[#382E54] hacker:bg-green-900 rounded-full transition-colors duration-500"></span>
-            </div>
-
-            <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ACHIEVEMENTS.map((achieve, i) => {
-                const bTheme = getBadgeColors(achieve.color);
-
-                return (
-                  <motion.div
-                    key={achieve.id}
-                    variants={itemVariants}
-                    className={`relative flex flex-col items-center text-center p-8 rounded-[32px] border-4 transition-all duration-500 overflow-hidden
-                      ${achieve.unlocked
-                        ? `bg-white/90 dark:bg-[#1E1B2E]/90 hacker:bg-[#0a0a0a]/90 backdrop-blur-xl ${bTheme.border} hover:scale-105 hover:-translate-y-2 ${bTheme.shadow} z-10 cursor-default group`
-                        : 'bg-white/40 dark:bg-[#1E1B2E]/40 hacker:bg-[#111]/40 border-white dark:border-[#382E54] hacker:border-[#166534] opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all cursor-not-allowed shadow-sm'
-                      }
-                    `}
-                  >
-                    <div className={`w-20 h-20 rounded-[24px] flex items-center justify-center border-4 mb-5 relative z-10 transition-transform duration-500 group-hover:rotate-6
-                      ${achieve.unlocked ? `${bTheme.border} ${bTheme.bg} shadow-sm` : 'border-white dark:border-[#382E54] hacker:border-[#166534] bg-white dark:bg-[#2D223B] hacker:bg-[#1a1a1a]'}
-                    `}>
-                      <span className={`${achieve.unlocked ? bTheme.text : 'text-slate-400 dark:text-slate-600 hacker:text-green-800'}`}>
-                        {achieve.icon}
-                      </span>
-                    </div>
-
-                    <h3 className={`text-base font-black uppercase tracking-widest mb-3 relative z-10 ${achieve.unlocked ? 'text-orange-950 dark:text-white hacker:text-green-400 cute-header' : 'text-slate-500 dark:text-slate-500 hacker:text-green-800'}`}>
-                      {achieve.title}
-                    </h3>
-
-                    <p className="text-xs text-orange-950/60 dark:text-white/60 hacker:text-green-600/60 font-bold leading-relaxed relative z-10">
-                      {achieve.desc}
-                    </p>
-
-                    {/* แม่กุญแจสำหรับอันที่ยังไม่ปลดล็อก */}
-                    {!achieve.unlocked && (
-                      <div className="absolute top-5 right-5 text-slate-400 dark:text-slate-500 hacker:text-green-800 bg-white dark:bg-[#2D223B] hacker:bg-[#111] p-2 rounded-xl border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm">
-                        <Lock size={18} strokeWidth={3} />
-                      </div>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </motion.section>
 
         </motion.div>
       </main>
