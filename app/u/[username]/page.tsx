@@ -49,7 +49,7 @@ export default function PublicProfilePage() {
 
     const fetchPublicProfile = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile/${encodeURIComponent(username)}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile/public/${encodeURIComponent(username)}`);
 
         const contentType = res.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
