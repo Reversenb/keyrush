@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { useGoogleLogin } from '@react-oauth/google'; // 🌟 เพิ่ม Import Google Login
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+
 import {
   Map as MapIcon, Lock, Play, Zap, Trophy,
   Terminal, ShieldCheck, Flag, Sparkles, Code, ChevronRight,
@@ -249,9 +249,7 @@ export default function KeyRushOrangeLandingPage() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-30 dark:opacity-10 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors duration-500" style={{ animationDelay: '1.5s' }} />
       <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-orange-300 dark:bg-yellow-400 hacker:bg-green-500 rounded-full blur-[100px] opacity-30 dark:opacity-10 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors duration-500" style={{ animationDelay: '2s' }} />
 
-      <AnimatePresence>
-        {loading && <HackerLoadingScreen />}
-      </AnimatePresence>
+
 
       {/* 🌟 Custom Toast Pop-up 🌟 */}
       <AnimatePresence>

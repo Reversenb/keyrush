@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
-  Target, Trophy, Zap
+  Target, Trophy, ChevronRight
 } from 'lucide-react';
 
-// 🌟 ข้อมูลเมนูด้านซ้าย (ปรับสีให้รองรับ Dark และ Hacker Mode)
+// 🌟 ข้อมูลเมนูด้านซ้าย
 const DOC_TABS = [
   { id: 'getting-started', label: 'Getting Started', icon: <Rocket size={20} strokeWidth={3} />, color: 'text-orange-500 dark:text-yellow-400 hacker:text-green-500' },
   { id: 'linux-cheat-sheet', label: 'Linux Commands', icon: <Terminal size={20} strokeWidth={3} />, color: 'text-orange-600 dark:text-orange-400 hacker:text-green-500' },
@@ -23,91 +24,67 @@ export default function DatabankPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('getting-started');
 
-  // 🌟 State สำหรับเก็บข้อมูลภารกิจทั้งหมดที่ดึงมาจาก Database
-  const [missions, setMissions] = useState<any[]>([]);
+  // 🌟 States
+  const [linuxDocs, setLinuxDocs] = useState<any[]>([]);
+  const [windowsDocs, setWindowsDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🌟 เช็คว่ามีการ Login หรือยัง ถ้ายังให้ดีดกลับไปหน้า Login
     const token = localStorage.getItem('keyrush_token');
     if (!token) {
       router.push('/login');
       return;
     }
 
-    // 🌟 ดึงข้อมูลคำสั่ง (Missions) จาก Database
-    const fetchMissions = async () => {
+    // 🌟 ดึงข้อมูล Docs (Linux & Windows) ไปพร้อมๆ กัน
+    const fetchDatabankData = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/missions/all`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            setMissions(data.data);
-          }
-        }
+        const [linuxDocsRes, windowsDocsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/linux`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/windows`)
+        ]);
+
+        // 🛡️ ระบบป้องกันเว็บพัง! ถ้าอันไหนไม่โอเค ให้โชว์ Error ใน Console
+        if (!linuxDocsRes.ok) console.error("🚨 Linux Docs API Error:", await linuxDocsRes.text());
+        if (!windowsDocsRes.ok) console.error("🚨 Windows Docs API Error:", await windowsDocsRes.text());
+
+        // แปลงเป็น JSON เฉพาะตัวที่ผ่าน (res.ok = true)
+        const linuxDocsData = linuxDocsRes.ok ? await linuxDocsRes.json() : { success: false, data: [] };
+        const windowsDocsData = windowsDocsRes.ok ? await windowsDocsRes.json() : { success: false, data: [] };
+
+        if (linuxDocsData.success) setLinuxDocs(linuxDocsData.data);
+        if (windowsDocsData.success) setWindowsDocs(windowsDocsData.data);
+
       } catch (error) {
-        console.error("Failed to fetch missions for docs", error);
+        console.error("Failed to fetch Databank data", error);
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 500);
       }
     };
 
-    fetchMissions();
+    fetchDatabankData();
   }, [router]);
 
   if (loading) return <HackerLoadingScreen />;
-
-  // แยกโจทย์ของแต่ละ OS ออกจากกัน
-  const linuxMissions = missions.filter(m => m.os === 'linux');
-  const windowsMissions = missions.filter(m => m.os === 'windows');
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans font-black flex flex-col selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative overflow-hidden transition-colors duration-500">
       <Navbar theme="linux" />
 
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(2deg); }
-        }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
         .float-element { animation: float 6s ease-in-out infinite; }
         .float-delayed { animation: float 7s ease-in-out infinite 1.5s; }
         
-        .glass-card {
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(16px);
-          border: 4px solid white;
-          border-radius: 40px;
-          box-shadow: 0 10px 30px rgba(249, 115, 22, 0.1);
-          transition: all 0.3s ease;
-        }
-
-        .dark .glass-card {
-          background: rgba(45, 34, 59, 0.7); 
-          border-color: #382E54;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .hacker .glass-card {
-          background: rgba(10, 10, 10, 0.85); 
-          border-color: #166534; 
-          box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15);
-        }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); border: 4px solid white; border-radius: 40px; box-shadow: 0 10px 30px rgba(249, 115, 22, 0.1); transition: all 0.3s ease; }
+        .dark .glass-card { background: rgba(45, 34, 59, 0.7); border-color: #382E54; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .hacker .glass-card { background: rgba(10, 10, 10, 0.85); border-color: #166534; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15); }
         
-        .btn-squishy {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .btn-squishy { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .btn-squishy:hover { transform: scale(1.05) translateY(-2px); }
         .btn-squishy:active { transform: scale(0.95) translateY(0); box-shadow: none !important; }
 
-        .cute-header {
-          text-shadow: 2px 2px 0px rgba(255, 255, 255, 1), 
-                       -1px -1px 0px rgba(255, 255, 255, 1), 
-                       1px -1px 0px rgba(255, 255, 255, 1), 
-                       -1px 1px 0px rgba(255, 255, 255, 1);
-          letter-spacing: -0.02em;
-        }
-
+        .cute-header { text-shadow: 2px 2px 0px rgba(255, 255, 255, 1), -1px -1px 0px rgba(255, 255, 255, 1), 1px -1px 0px rgba(255, 255, 255, 1), -1px 1px 0px rgba(255, 255, 255, 1); letter-spacing: -0.02em; }
         .dark .cute-header { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3); }
         .hacker .cute-header { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8); }
 
@@ -121,12 +98,13 @@ export default function DatabankPage() {
         .hacker .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(34,197,94,0.6); }
       `}</style>
 
-      {/* 🎈 Background Blobs เปลี่ยนสีตามธีม 🎈 */}
+      {/* 🎈 Background Blobs 🎈 */}
       <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-400 dark:bg-yellow-500 hacker:bg-green-600 rounded-full blur-[100px] opacity-20 dark:opacity-10 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors duration-500" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-20 dark:opacity-10 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors duration-500" style={{ animationDelay: '1.5s' }} />
 
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 relative z-10 flex flex-col md:flex-row gap-8 pt-8 md:pt-12 pb-20">
 
+        {/* Sidebar */}
         <aside className="w-full md:w-72 flex-shrink-0">
           <div className="mb-6 px-2">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] rounded-[16px] shadow-sm btn-squishy transition-colors">
@@ -158,7 +136,8 @@ export default function DatabankPage() {
           </nav>
         </aside>
 
-        <section className="flex-1 glass-card p-6 md:p-10 min-h-[500px]">
+        {/* Content Area */}
+        <section className="flex-1 glass-card p-6 md:p-10 min-h-[500px] overflow-hidden flex flex-col">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -166,11 +145,11 @@ export default function DatabankPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="h-full"
+              className="h-full flex flex-col"
             >
               {activeTab === 'getting-started' && <GettingStartedContent />}
-              {activeTab === 'linux-cheat-sheet' && <LinuxContent missions={linuxMissions} />}
-              {activeTab === 'windows-cheat-sheet' && <WindowsContent missions={windowsMissions} />}
+              {activeTab === 'linux-cheat-sheet' && <LinuxContent docs={linuxDocs} />}
+              {activeTab === 'windows-cheat-sheet' && <WindowsContent docs={windowsDocs} />}
               {activeTab === 'clearance-levels' && <ClearanceContent />}
               {activeTab === 'faq' && <FaqContent />}
             </motion.div>
@@ -183,7 +162,7 @@ export default function DatabankPage() {
 }
 
 // =========================================================================
-// 🌟 Content Components (เนื้อหาแต่ละหน้า)
+// 🌟 Content Components
 // =========================================================================
 
 function GettingStartedContent() {
@@ -213,136 +192,154 @@ function GettingStartedContent() {
             </li>
           </ul>
         </div>
-        <p className="bg-orange-100 dark:bg-[#2D223B] hacker:bg-[#111] p-5 rounded-[20px] border-4 border-white dark:border-[#4B3965] hacker:border-green-800 shadow-sm inline-block transition-colors">
-          💡 คุณสามารถเริ่มต้นฝึกฝนได้โดยไปที่เมนู <strong>Dashboard</strong> เลือกสายปฏิบัติการที่ต้องการ และเริ่มภารกิจแรกของคุณได้ทันที!
-        </p>
       </div>
     </div>
   );
 }
 
-// 🌟 Component สำหรับโชว์คำสั่ง Linux จากฐานข้อมูล
-function LinuxContent({ missions }: { missions: any[] }) {
+// 🌟 Component: LINUX CONTENT (เฉพาะ Docs)
+function LinuxContent({ docs }: { docs: any[] }) {
+  const { theme: activeTheme, resolvedTheme } = useTheme();
+  const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
+  const isDark = currentTheme === 'dark';
+  const isHacker = currentTheme === 'hacker';
+
+  // จัดกลุ่ม Docs ตามหมวดหมู่
+  const groupedDocs = docs.reduce((acc, doc) => {
+    if (!acc[doc.category]) acc[doc.category] = [];
+    acc[doc.category].push(doc);
+    return acc;
+  }, {} as Record<string, any[]>);
+
   return (
-    <div className="space-y-6 flex flex-col h-full">
+    <div className="space-y-8 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2">
       <div>
         <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-3 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 cute-header transition-colors">
           <Terminal className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
           Linux Databank
         </h2>
-        <p className="text-orange-600 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">รวบรวมคำสั่งพื้นฐานจากการปฏิบัติการบนเซิร์ฟเวอร์ Unix/Linux (อัปเดตจาก Database อัตโนมัติ)</p>
+        <p className="text-orange-600 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">
+          รวบรวมคำสั่งพื้นฐานและการปฏิบัติการบนเซิร์ฟเวอร์ Unix/Linux
+        </p>
       </div>
 
-      <div className="overflow-auto flex-1 custom-scrollbar pr-2 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] bg-white/50 dark:bg-[#1E1B2E]/50 hacker:bg-[#0a0a0a]/50 shadow-sm transition-colors">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-orange-100 dark:bg-[#2D223B] hacker:bg-[#111] text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black text-xs uppercase tracking-widest sticky top-0 z-10 transition-colors">
-            <tr>
-              <th className="px-6 py-5 text-center w-16 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800">Level</th>
-              <th className="px-6 py-5 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800">Command <span className="text-[10px] text-orange-400/80 dark:text-white/40 hacker:text-green-600/60 lowercase tracking-normal ml-1 font-bold">(Hover to Decrypt)</span></th>
-              <th className="px-6 py-5 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800">Operation Details</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y-4 divide-white dark:divide-[#382E54] hacker:divide-green-800 transition-colors">
-            {missions.length > 0 ? (
-              missions.map((m, i) => (
-                <tr key={i} className="hover:bg-white dark:hover:bg-white/5 hacker:hover:bg-green-900/10 transition-colors group">
-                  <td className="px-6 py-5 font-black text-orange-400 dark:text-white/50 hacker:text-green-600 text-center group-hover:text-orange-600 dark:group-hover:text-yellow-400 hacker:group-hover:text-green-400 transition-colors text-base">{m.level}</td>
-                  <td className="px-6 py-5 font-mono text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black whitespace-nowrap bg-orange-50 dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-x-4 border-white dark:border-[#382E54] hacker:border-green-800 transition-colors">
-                    {/* 🌟 ลูกเล่นเซนเซอร์ (Blur) ตรงนี้! */}
-                    <span className="blur-[6px] hover:blur-none transition-all duration-300 cursor-crosshair select-none block w-fit">
-                      {m.expectedCommand}
-                    </span>
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className="font-black text-orange-950 dark:text-white hacker:text-white block mb-1 text-base transition-colors">{m.title}</span>
-                    <span className="text-orange-800 dark:text-white/70 hacker:text-white/70 text-xs font-bold leading-relaxed transition-colors">{m.description}</span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr><td colSpan={3} className="text-center py-12 text-orange-400 dark:text-white/50 hacker:text-green-600 font-black uppercase tracking-widest transition-colors">No Linux commands registered in database.</td></tr>
-            )}
-          </tbody>
-        </table>
+      <div className="space-y-6">
+        <h3 className="text-xl font-black flex items-center gap-2 uppercase tracking-widest text-orange-950 dark:text-white hacker:text-white">
+          <BookOpen className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" size={24} strokeWidth={3} /> Command Library
+        </h3>
+
+        {Object.keys(groupedDocs).length > 0 ? (
+          <div className="space-y-6">
+            {Object.keys(groupedDocs).map((category, idx) => (
+              <div key={idx} className={`p-6 rounded-[24px] border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900/50' : isDark ? 'bg-[#1E1B2E] border-[#382E54]' : 'bg-orange-50/50 border-white'}`}>
+                <h4 className={`text-sm font-black uppercase tracking-widest mb-4 border-b-4 pb-2 inline-block ${isHacker ? 'border-[#166534] text-green-500' : isDark ? 'border-[#4B3965] text-yellow-400' : 'border-orange-200 text-orange-800'}`}>
+                  {category}
+                </h4>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {groupedDocs[category].map((doc: any) => (
+                    <div key={doc.id} className={`p-4 rounded-[16px] border-2 shadow-sm transition-all ${isHacker ? 'bg-[#111] border-[#166534]' : isDark ? 'bg-[#2D223B] border-white/10' : 'bg-white border-orange-100'}`}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className={`px-2 py-1 rounded-[8px] text-xs font-black font-prompt border-2 ${isHacker ? 'bg-green-900/40 text-green-400 border-green-600' : isDark ? 'bg-black/30 text-yellow-400 border-[#4B3965]' : 'bg-orange-100 text-orange-600 border-orange-200'}`}>
+                          {doc.command}
+                        </span>
+                      </div>
+                      <p className={`text-xs font-bold leading-relaxed mb-3 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-900/70'}`}>
+                        {doc.description}
+                      </p>
+                      {doc.example && (
+                        <div className={`p-2 rounded-[12px] text-[10px] font-bold font-prompt flex items-center gap-2 border-2 ${isHacker ? 'bg-black text-green-500 border-[#166534]' : isDark ? 'bg-black/50 text-white border-black/20' : 'bg-orange-50 text-orange-800 border-orange-200/50'}`}>
+                          <ChevronRight size={12} strokeWidth={3} className="shrink-0" />
+                          {doc.example}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-sm font-black uppercase tracking-widest opacity-50">No library records found.</div>
+        )}
       </div>
     </div>
   );
 }
 
-// 🌟 Component สำหรับโชว์คำสั่ง Windows จากฐานข้อมูล
-function WindowsContent({ missions }: { missions: any[] }) {
+// 🌟 Component: WINDOWS CONTENT (เฉพาะ Docs)
+function WindowsContent({ docs }: { docs: any[] }) {
+  const { theme: activeTheme, resolvedTheme } = useTheme();
+  const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
+  const isDark = currentTheme === 'dark';
+  const isHacker = currentTheme === 'hacker';
+
+  // จัดกลุ่ม Docs ตามหมวดหมู่
+  const groupedDocs = docs.reduce((acc, doc) => {
+    if (!acc[doc.category]) acc[doc.category] = [];
+    acc[doc.category].push(doc);
+    return acc;
+  }, {} as Record<string, any[]>);
+
   return (
-    <div className="space-y-6 flex flex-col h-full">
+    <div className="space-y-8 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2">
       <div>
         <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-3 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 cute-header transition-colors">
           <Monitor className="text-blue-500 dark:text-blue-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
           Windows CMD Databank
         </h2>
-        <p className="text-blue-500 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">รวบรวมคำสั่งพื้นฐานสำหรับการดูแลระบบ Windows Command Prompt (อัปเดตจาก Database อัตโนมัติ)</p>
+        <p className="text-blue-500 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">
+          รวบรวมคำสั่งพื้นฐานสำหรับการดูแลระบบ Windows Command Prompt
+        </p>
       </div>
 
-      <div className="overflow-auto flex-1 custom-scrollbar pr-2 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] bg-white/50 dark:bg-[#1E1B2E]/50 hacker:bg-[#0a0a0a]/50 shadow-sm transition-colors">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-blue-100 dark:bg-[#2D223B] hacker:bg-[#111] text-blue-600 dark:text-blue-400 hacker:text-green-500 font-black text-xs uppercase tracking-widest sticky top-0 z-10 transition-colors">
-            <tr>
-              <th className="px-6 py-5 text-center w-16 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800">Level</th>
-              <th className="px-6 py-5 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800">Command <span className="text-[10px] text-blue-400/80 dark:text-white/40 hacker:text-green-600/60 lowercase tracking-normal ml-1 font-bold">(Hover to Decrypt)</span></th>
-              <th className="px-6 py-5 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800">Operation Details</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y-4 divide-white dark:divide-[#382E54] hacker:divide-green-800 transition-colors">
-            {missions.length > 0 ? (
-              missions.map((m, i) => (
-                <tr key={i} className="hover:bg-white dark:hover:bg-white/5 hacker:hover:bg-green-900/10 transition-colors group">
-                  <td className="px-6 py-5 font-black text-blue-400 dark:text-white/50 hacker:text-green-600 text-center group-hover:text-blue-600 dark:group-hover:text-blue-400 hacker:group-hover:text-green-400 transition-colors text-base">{m.level}</td>
-                  <td className="px-6 py-5 font-mono text-blue-600 dark:text-blue-400 hacker:text-green-500 font-black whitespace-nowrap bg-blue-50 dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-x-4 border-white dark:border-[#382E54] hacker:border-green-800 transition-colors">
-                    {/* 🌟 ลูกเล่นเซนเซอร์ (Blur) ตรงนี้! */}
-                    <span className="blur-[6px] hover:blur-none transition-all duration-300 cursor-crosshair select-none block w-fit">
-                      {m.expectedCommand}
-                    </span>
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className="font-black text-orange-950 dark:text-white hacker:text-white block mb-1 text-base transition-colors">{m.title}</span>
-                    <span className="text-orange-800 dark:text-white/70 hacker:text-white/70 text-xs font-bold leading-relaxed transition-colors">{m.description}</span>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr><td colSpan={3} className="text-center py-12 text-blue-400 dark:text-white/50 hacker:text-green-600 font-black uppercase tracking-widest transition-colors">No Windows commands registered in database.</td></tr>
-            )}
-          </tbody>
-        </table>
+      <div className="space-y-6">
+        <h3 className="text-xl font-black flex items-center gap-2 uppercase tracking-widest text-orange-950 dark:text-white hacker:text-white">
+          <BookOpen className="text-blue-500 dark:text-blue-400 hacker:text-green-500" size={24} strokeWidth={3} /> Command Library
+        </h3>
+
+        {Object.keys(groupedDocs).length > 0 ? (
+          <div className="space-y-6">
+            {Object.keys(groupedDocs).map((category, idx) => (
+              <div key={idx} className={`p-6 rounded-[24px] border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900/50' : isDark ? 'bg-[#1E1B2E] border-[#382E54]' : 'bg-blue-50/50 border-white'}`}>
+                <h4 className={`text-sm font-black uppercase tracking-widest mb-4 border-b-4 pb-2 inline-block ${isHacker ? 'border-[#166534] text-green-500' : isDark ? 'border-[#4B3965] text-blue-400' : 'border-blue-200 text-blue-800'}`}>
+                  {category}
+                </h4>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {groupedDocs[category].map((doc: any) => (
+                    <div key={doc.id} className={`p-4 rounded-[16px] border-2 shadow-sm transition-all ${isHacker ? 'bg-[#111] border-[#166534]' : isDark ? 'bg-[#2D223B] border-white/10' : 'bg-white border-blue-100'}`}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className={`px-2 py-1 rounded-[8px] text-xs font-black font-prompt border-2 ${isHacker ? 'bg-green-900/40 text-green-400 border-green-600' : isDark ? 'bg-black/30 text-blue-400 border-[#4B3965]' : 'bg-blue-100 text-blue-600 border-blue-200'}`}>
+                          {doc.command}
+                        </span>
+                      </div>
+                      <p className={`text-xs font-bold leading-relaxed mb-3 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-900/70'}`}>
+                        {doc.description}
+                      </p>
+                      {doc.example && (
+                        <div className={`p-2 rounded-[12px] text-[10px] font-bold font-prompt flex items-center gap-2 border-2 ${isHacker ? 'bg-black text-green-500 border-[#166534]' : isDark ? 'bg-black/50 text-white border-black/20' : 'bg-blue-50 text-blue-800 border-blue-200/50'}`}>
+                          <ChevronRight size={12} strokeWidth={3} className="shrink-0" />
+                          {doc.example}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-sm font-black uppercase tracking-widest opacity-50">No library records found.</div>
+        )}
       </div>
     </div>
   );
 }
 
 function ClearanceContent() {
-  // สร้างฟังก์ชันช่วยเลือกสี Rank ตาม Theme
   const getRankThemeColors = (id: number) => {
-    // โหมด Hacker: เขียวล้วนทั้งหมด
     const baseHackerColor = 'text-green-400 border-green-900 bg-[#0a0a0a]';
-    // โหมด Dark: สีจัดจ้าน
-    const darkMap: any = {
-      1: 'dark:text-slate-300 dark:border-[#382E54] dark:bg-[#2D223B]',
-      2: 'dark:text-green-400 dark:border-[#382E54] dark:bg-[#2D223B]',
-      3: 'dark:text-yellow-400 dark:border-[#382E54] dark:bg-[#2D223B]',
-      4: 'dark:text-blue-400 dark:border-[#382E54] dark:bg-[#2D223B]',
-      5: 'dark:text-purple-400 dark:border-[#382E54] dark:bg-[#2D223B]',
-      6: 'dark:text-pink-400 dark:border-[#382E54] dark:bg-[#2D223B]',
-      7: 'dark:text-rose-400 dark:border-[#382E54] dark:bg-[#2D223B]',
-    };
-    // โหมด Cute (Light): สีพาสเทล
-    const lightMap: any = {
-      1: 'text-slate-500 border-slate-100 bg-white',
-      2: 'text-green-500 border-green-100 bg-white',
-      3: 'text-amber-500 border-amber-100 bg-white',
-      4: 'text-blue-500 border-blue-100 bg-white',
-      5: 'text-purple-500 border-purple-100 bg-white',
-      6: 'text-pink-500 border-pink-100 bg-white',
-      7: 'text-rose-500 border-rose-100 bg-white',
-    };
-
+    const darkMap: any = { 1: 'dark:text-slate-300 dark:border-[#382E54] dark:bg-[#2D223B]', 2: 'dark:text-green-400 dark:border-[#382E54] dark:bg-[#2D223B]', 3: 'dark:text-yellow-400 dark:border-[#382E54] dark:bg-[#2D223B]', 4: 'dark:text-blue-400 dark:border-[#382E54] dark:bg-[#2D223B]', 5: 'dark:text-purple-400 dark:border-[#382E54] dark:bg-[#2D223B]', 6: 'dark:text-pink-400 dark:border-[#382E54] dark:bg-[#2D223B]', 7: 'dark:text-rose-400 dark:border-[#382E54] dark:bg-[#2D223B]', };
+    const lightMap: any = { 1: 'text-slate-500 border-slate-100 bg-white', 2: 'text-green-500 border-green-100 bg-white', 3: 'text-amber-500 border-amber-100 bg-white', 4: 'text-blue-500 border-blue-100 bg-white', 5: 'text-purple-500 border-purple-100 bg-white', 6: 'text-pink-500 border-pink-100 bg-white', 7: 'text-rose-500 border-rose-100 bg-white', };
     return `${lightMap[id]} ${darkMap[id]} hacker:${baseHackerColor.replace(/ /g, ' hacker:')}`;
   };
 
