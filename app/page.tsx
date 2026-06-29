@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
+import { useGoogleLogin } from '@react-oauth/google'; // 🌟 เพิ่ม Import Google Login
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import {
   Map as MapIcon, Lock, Play, Zap, Trophy,
   Terminal, ShieldCheck, Flag, Sparkles, Code, ChevronRight,
-  MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon
+  MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon,
+  CheckCircle, AlertTriangle, RefreshCw // 🌟 เพิ่ม Icon สำหรับ Toast และ Loading
 } from 'lucide-react';
 
 // =========================================================================
@@ -60,6 +62,10 @@ export default function KeyRushOrangeLandingPage() {
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false); // 🌟 State ตอนกำลังล็อกอิน
+
+  // 🌟 Toast State
+  const [toast, setToast] = useState({ show: false, msg: '', type: 'success' as 'success' | 'error' });
 
   // 🌟 Navbar State
   const [showDropdown, setShowDropdown] = useState(false);
@@ -102,6 +108,49 @@ export default function KeyRushOrangeLandingPage() {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  const showToast = (msg: string, type: 'success' | 'error') => {
+    setToast({ show: true, msg, type });
+    setTimeout(() => setToast({ show: false, msg: '', type: 'success' }), 4000);
+  };
+
+  // 🌟 ฟังก์ชัน Login ด้วย Google 🌟
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoggingIn(true);
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ access_token: tokenResponse.access_token }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem('keyrush_token', data.token);
+          localStorage.setItem('keyrush_user', JSON.stringify(data.user));
+          setUser(data.user);
+          showToast('เข้าสู่ระบบสำเร็จ! 🚀', 'success');
+
+          // 🌟 พาลุยหน้า Welcome หลังจากล็อกอินเสร็จ 🌟
+          setTimeout(() => {
+            router.push('/welcome');
+          }, 800);
+        } else {
+          showToast(data.message, 'error');
+          setIsLoggingIn(false);
+        }
+      } catch (err: any) {
+        showToast(err.message || 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้', 'error');
+        setIsLoggingIn(false);
+      }
+    },
+    onError: () => {
+      showToast('ยกเลิกการเข้าสู่ระบบด้วย Google', 'error');
+      setIsLoggingIn(false);
+    },
+  });
+
   const getShowName = () => {
     if (!user) return 'เพื่อนใหม่';
     if (user.displayName && user.displayName.trim() !== '') return user.displayName;
@@ -115,10 +164,8 @@ export default function KeyRushOrangeLandingPage() {
     localStorage.removeItem('keyrush_user');
     setUser(null);
     setShowDropdown(false);
-    router.push('/login');
   };
 
-  // 🌟 ฟังก์ชันสลับ 3 ธีม (Cute -> Dark -> Hacker -> Cute)
   const cycleTheme = () => {
     if (currentTheme === 'light') setTheme('dark');
     else if (currentTheme === 'dark') setTheme('hacker');
@@ -140,13 +187,11 @@ export default function KeyRushOrangeLandingPage() {
     ? user.avatar
     : `https://api.dicebear.com/7.x/bottts/svg?seed=${user?.avatar || 'Felix'}`;
 
-  // 🌟 สไตล์ปุ่ม 3D ใน Dropdown 🌟
   const dropdownBtnStyle = "w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center justify-between group nav-squishy border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-[#0a0a0a] border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400";
 
   return (
     <div className="min-h-screen bg-background font-sans font-black overflow-x-hidden relative selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 scroll-smooth text-foreground transition-colors duration-500">
 
-      {/* 🌸 สไตล์ 3D และ แอนิเมชัน 🌸 */}
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -208,10 +253,28 @@ export default function KeyRushOrangeLandingPage() {
         {loading && <HackerLoadingScreen />}
       </AnimatePresence>
 
+      {/* 🌟 Custom Toast Pop-up 🌟 */}
+      <AnimatePresence>
+        {toast.show && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.9 }}
+            className={`fixed top-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-6 py-4 border-4 rounded-[24px] backdrop-blur-xl shadow-xl transition-colors duration-500
+              ${toast.type === 'success'
+                ? 'bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-green-300 dark:border-green-400 hacker:border-green-600 text-green-600 dark:text-green-400 hacker:text-green-500'
+                : 'bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-red-300 dark:border-rose-500 hacker:border-rose-700 text-red-600 dark:text-rose-400 hacker:text-rose-500'
+              }`}
+          >
+            {toast.type === 'success' ? <CheckCircle size={24} strokeWidth={3} /> : <AlertTriangle size={24} strokeWidth={3} />}
+            <p className="font-black text-sm md:text-base tracking-wide">{toast.msg}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ================= EMBEDDED HEADER ================= */}
       <header className="relative z-50 flex items-center justify-between border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 bg-white/70 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 backdrop-blur-md px-6 md:px-10 py-4 sticky top-0 shadow-sm transition-colors duration-500">
 
-        {/* 🌟 โลโก้ KEYRUSH (ไม่มีกรอบ) 🌟 */}
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group no-underline">
             <div className={`w-10 h-10 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-2xl shadow-md flex items-center justify-center transform -rotate-6 border-2 border-white dark:border-transparent hacker:border-transparent group-hover:rotate-0 transition-all`}>
@@ -222,7 +285,6 @@ export default function KeyRushOrangeLandingPage() {
         </div>
 
         <div className="flex items-center gap-4 md:gap-8">
-          {/* เมนูหลักบน Landing Page */}
           <nav className="hidden lg:flex items-center gap-2">
             {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => (
               <a key={name} href={name === 'จุดเด่น ✨' ? '#features' : '#path'} className="relative px-5 py-2.5 text-sm font-black transition-all duration-300 rounded-2xl group nav-squishy border-4 border-transparent text-orange-800 dark:text-white/60 hacker:text-white/70 hover:bg-white dark:hover:bg-yellow-400 hacker:hover:bg-[#111] hover:text-orange-600 dark:hover:text-[#1E1B2E] hacker:hover:text-green-400 hover:border-orange-200 dark:hover:border-yellow-500 hacker:hover:border-green-600 hover:shadow-[0_4px_0_#fed7aa] dark:hover:shadow-[0_4px_0_#ca8a04] hacker:hover:shadow-[0_4px_0_#15803d] hover:-translate-y-1">
@@ -233,7 +295,6 @@ export default function KeyRushOrangeLandingPage() {
 
           <div className="flex items-center gap-2 md:gap-4 ml-4 border-l-4 border-white dark:border-[#382E54] hacker:border-green-800 pl-4 md:pl-6 transition-colors">
 
-            {/* 🌟 ปุ่มสลับธีม 3D 🌟 */}
             <button onClick={cycleTheme} className="btn-squishy hidden md:flex items-center justify-center p-2.5 rounded-2xl border-4 bg-white dark:bg-yellow-400 hacker:bg-[#0a0a0a] text-orange-600 dark:text-[#1E1B2E] hacker:text-green-500 border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hover:bg-[#111]">
               {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
               {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
@@ -281,7 +342,6 @@ export default function KeyRushOrangeLandingPage() {
                           </div>
                         </button>
 
-                        {/* 🌟 ปุ่ม Theme Toggle ใน Dropdown 🌟 */}
                         <button onClick={cycleTheme} className={dropdownBtnStyle}>
                           <div className="flex items-center gap-3">
                             {currentTheme === 'dark' && <Moon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />}
@@ -305,9 +365,26 @@ export default function KeyRushOrangeLandingPage() {
                 </AnimatePresence>
               </div>
             ) : (
-              <Link href="/login" className="btn-squishy flex items-center justify-center px-6 py-2.5 font-black transition-all border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-[#0a0a0a] border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 rounded-2xl text-sm">
-                เข้าสู่ระบบ 🚀
-              </Link>
+              /* 🌟 เปลี่ยน Link เป็นปุ่ม Google Login 🌟 */
+              <button
+                onClick={() => loginWithGoogle()}
+                disabled={isLoggingIn}
+                className={`btn-squishy flex items-center justify-center gap-2 px-4 md:px-6 py-2.5 font-black transition-all border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-[#0a0a0a] border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 rounded-2xl text-xs md:text-sm ${isLoggingIn ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isLoggingIn ? (
+                  <RefreshCw className="animate-spin" size={18} strokeWidth={3} />
+                ) : (
+                  <>
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="h-4 w-4 md:h-5 md:w-5">
+                      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                      <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                      <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                    </svg>
+                    <span className="hidden sm:inline">เข้าสู่ระบบ</span>
+                  </>
+                )}
+              </button>
             )}
 
             <button id="mobile-menu-toggle" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden btn-squishy flex items-center justify-center p-2.5 font-black transition-all border-4 bg-white dark:bg-yellow-400 hacker:bg-[#0a0a0a] text-orange-600 dark:text-[#1E1B2E] hacker:text-green-500 border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-[#111] rounded-2xl">
@@ -367,12 +444,22 @@ export default function KeyRushOrangeLandingPage() {
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            {/* 🌟 ปุ่ม 3D เริ่มฝึกพิมพ์ 🌟 */}
-            <Link href={user ? "/dashboard" : "/login"} className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors">
-              <Play size={20} fill="currentColor" /> เริ่มฝึกพิมพ์เลย!
-            </Link>
+            {/* 🌟 ปุ่ม 3D เริ่มฝึกพิมพ์ (แก้ให้กดปุ๊บล็อกอินปั๊บ) 🌟 */}
+            {user ? (
+              <Link href="/dashboard" className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors">
+                <Play size={20} fill="currentColor" /> เริ่มฝึกพิมพ์เลย!
+              </Link>
+            ) : (
+              <button
+                onClick={() => loginWithGoogle()}
+                disabled={isLoggingIn}
+                className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors"
+              >
+                {isLoggingIn ? <RefreshCw className="animate-spin" size={20} /> : <Play size={20} fill="currentColor" />}
+                {isLoggingIn ? 'กำลังเชื่อมต่อ...' : 'เข้าสู่ระบบเพื่อเริ่มฝึก!'}
+              </button>
+            )}
 
-            {/* 🌟 ปุ่ม 3D ดูด่าน 🌟 */}
             <a href="#path" className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111] transition-colors">
               🎯 ดูด่านทั้งหมด
             </a>
@@ -521,10 +608,21 @@ export default function KeyRushOrangeLandingPage() {
         <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.1 }} className="text-orange-800 dark:text-white/70 hacker:text-white/70 mb-10 max-w-xl mx-auto font-black text-xl transition-colors">ระบบพร้อมใช้งานแล้ว เข้าสู่ระบบเพื่อเริ่มการเรียนรู้ของคุณได้เลย ✨</motion.p>
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.2 }}>
-          {/* 🌟 ปุ่ม 3D ใหญ่สุด 🌟 */}
-          <Link href={user ? "/dashboard" : "/login"} className="btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400">
-            เริ่มฝึกกันเลย! <ChevronRight size={28} strokeWidth={4} />
-          </Link>
+          {/* 🌟 ปุ่ม 3D ใหญ่สุดด้านล่าง 🌟 */}
+          {user ? (
+            <Link href="/dashboard" className="btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400">
+              เริ่มฝึกกันเลย! <ChevronRight size={28} strokeWidth={4} />
+            </Link>
+          ) : (
+            <button
+              onClick={() => loginWithGoogle()}
+              disabled={isLoggingIn}
+              className="btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400"
+            >
+              {isLoggingIn ? <RefreshCw className="animate-spin" size={28} /> : <Play size={28} fill="currentColor" />}
+              {isLoggingIn ? 'กำลังเชื่อมต่อ...' : 'เข้าสู่ระบบเพื่อเริ่มฝึก!'}
+            </button>
+          )}
         </motion.div>
       </section>
 
