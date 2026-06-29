@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
-  Target, Trophy, ChevronRight
+  Target, Trophy, ChevronRight, Search, X
 } from 'lucide-react';
 
 // 🌟 ข้อมูลเมนูด้านซ้าย
@@ -24,10 +24,19 @@ export default function DatabankPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('getting-started');
 
-  // 🌟 States
+  // 🌟 States ข้อมูลระบบ
   const [linuxDocs, setLinuxDocs] = useState<any[]>([]);
   const [windowsDocs, setWindowsDocs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // 🌟 ย้ายมาไว้ชั้นนอกสุด: State สำหรับคุม Pop-up ตัวขยายคำสั่ง
+  const [selectedDoc, setSelectedDoc] = useState<any | null>(null);
+
+  // 🌟 ดึงข้อมูลธีมมาไว้ชั้นนอกสุด เพื่อใช้ร่วมกันกับ Pop-up ข้างล่าง
+  const { theme: activeTheme, resolvedTheme } = useTheme();
+  const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
+  const isDark = currentTheme === 'dark';
+  const isHacker = currentTheme === 'hacker';
 
   useEffect(() => {
     const token = localStorage.getItem('keyrush_token');
@@ -36,7 +45,6 @@ export default function DatabankPage() {
       return;
     }
 
-    // 🌟 ดึงข้อมูล Docs (Linux & Windows) ไปพร้อมๆ กัน
     const fetchDatabankData = async () => {
       try {
         const [linuxDocsRes, windowsDocsRes] = await Promise.all([
@@ -44,11 +52,9 @@ export default function DatabankPage() {
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/windows`)
         ]);
 
-        // 🛡️ ระบบป้องกันเว็บพัง! ถ้าอันไหนไม่โอเค ให้โชว์ Error ใน Console
         if (!linuxDocsRes.ok) console.error("🚨 Linux Docs API Error:", await linuxDocsRes.text());
         if (!windowsDocsRes.ok) console.error("🚨 Windows Docs API Error:", await windowsDocsRes.text());
 
-        // แปลงเป็น JSON เฉพาะตัวที่ผ่าน (res.ok = true)
         const linuxDocsData = linuxDocsRes.ok ? await linuxDocsRes.json() : { success: false, data: [] };
         const windowsDocsData = windowsDocsRes.ok ? await windowsDocsRes.json() : { success: false, data: [] };
 
@@ -137,7 +143,7 @@ export default function DatabankPage() {
         </aside>
 
         {/* Content Area */}
-        <section className="flex-1 glass-card p-6 md:p-10 min-h-[500px] overflow-hidden flex flex-col">
+        <section className="flex-1 glass-card p-6 md:p-10 min-h-[500px] overflow-hidden flex flex-col relative z-20">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -148,23 +154,70 @@ export default function DatabankPage() {
               className="h-full flex flex-col"
             >
               {activeTab === 'getting-started' && <GettingStartedContent />}
-              {activeTab === 'linux-cheat-sheet' && <LinuxContent docs={linuxDocs} />}
-              {activeTab === 'windows-cheat-sheet' && <WindowsContent docs={windowsDocs} />}
+              {activeTab === 'linux-cheat-sheet' && <LinuxContent docs={linuxDocs} onSelect={setSelectedDoc} />}
+              {activeTab === 'windows-cheat-sheet' && <WindowsContent docs={windowsDocs} onSelect={setSelectedDoc} />}
               {activeTab === 'clearance-levels' && <ClearanceContent />}
               {activeTab === 'faq' && <FaqContent />}
             </motion.div>
           </AnimatePresence>
         </section>
-
       </main>
+
+      {/* 🌟 Pop-up ขยายคำสั่งแสดงผลตรงกลางจอ 🌟 */}
+      <AnimatePresence>
+        {selectedDoc && (
+          <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setSelectedDoc(null)}
+              className={`fixed inset-0 backdrop-blur-md ${isHacker ? 'bg-black/80' : isDark ? 'bg-black/70' : 'bg-orange-950/40'}`}
+            ></motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 25 } }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              className={`relative w-full max-w-2xl border-4 rounded-[32px] shadow-2xl flex flex-col z-10 ${isHacker ? 'bg-[#0a0a0a] border-green-500' : isDark ? 'bg-[#1E1B2E] border-yellow-400' : 'bg-white border-orange-400'}`}
+            >
+              <div className="p-8 md:p-10 space-y-6">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className={`text-xs font-black uppercase tracking-widest block mb-3 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>Category: {selectedDoc.category}</span>
+                    <h3 className={`text-4xl md:text-5xl font-black font-prompt break-all ${isHacker ? 'text-green-400' : isDark ? 'text-yellow-400' : 'text-orange-600'}`}>
+                      {selectedDoc.command}
+                    </h3>
+                  </div>
+                  <button onClick={() => setSelectedDoc(null)} className={`p-2 rounded-xl border-2 transition-colors btn-squishy shrink-0 ${isHacker ? 'bg-[#111] border-green-800 text-green-500 hover:text-green-400' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/50 hover:text-white' : 'bg-orange-50 border-orange-200 text-orange-400 hover:text-orange-600'}`}>
+                    <X size={24} strokeWidth={3} />
+                  </button>
+                </div>
+
+                <div className={`p-6 rounded-[20px] border-l-8 border-r-2 border-y-2 text-lg font-bold leading-relaxed shadow-inner
+                  ${isHacker ? 'bg-[#111] border-l-green-500 border-green-900 text-green-500' : isDark ? 'bg-[#2D223B]/50 border-l-yellow-400 border-[#382E54] text-white' : 'bg-orange-50 border-l-orange-500 border-white text-orange-950'}`}>
+                  {selectedDoc.description}
+                </div>
+
+                {selectedDoc.example && (
+                  <div>
+                    <span className={`text-xs font-black uppercase tracking-widest block mb-2 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>Example Usage</span>
+                    <div className={`p-5 rounded-[20px] font-bold font-prompt flex items-start gap-3 border-4 text-xl
+                      ${isHacker ? 'bg-black text-green-400 border-[#166534]' : isDark ? 'bg-black/50 text-white border-black/20' : 'bg-white text-orange-800 border-orange-200'}`}>
+                      <ChevronRight size={24} strokeWidth={3} className={`shrink-0 mt-0.5 ${isHacker ? 'text-green-600' : isDark ? 'text-yellow-500' : 'text-orange-400'}`} />
+                      <span className="break-all">{selectedDoc.example}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
 // =========================================================================
-// 🌟 Content Components
+// 🌟 Component: GETTING STARTED CONTENT
 // =========================================================================
-
 function GettingStartedContent() {
   return (
     <div className="space-y-6">
@@ -196,31 +249,63 @@ function GettingStartedContent() {
     </div>
   );
 }
-
-// 🌟 Component: LINUX CONTENT (เฉพาะ Docs)
-function LinuxContent({ docs }: { docs: any[] }) {
+// =========================================================================
+// 🌟 Component: LINUX CONTENT
+// =========================================================================
+function LinuxContent({ docs, onSelect }: { docs: any[], onSelect: (doc: any) => void }) {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
   const isHacker = currentTheme === 'hacker';
 
-  // จัดกลุ่ม Docs ตามหมวดหมู่
-  const groupedDocs = docs.reduce((acc, doc) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredDocs = docs.filter(doc => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      doc.command.toLowerCase().includes(searchLower) ||
+      doc.category.toLowerCase().includes(searchLower) ||
+      doc.description.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const groupedDocs = filteredDocs.reduce((acc, doc) => {
     if (!acc[doc.category]) acc[doc.category] = [];
     acc[doc.category].push(doc);
     return acc;
   }, {} as Record<string, any[]>);
 
   return (
-    <div className="space-y-8 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2">
-      <div>
-        <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-3 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 cute-header transition-colors">
-          <Terminal className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
-          Linux Databank
-        </h2>
-        <p className="text-orange-600 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">
-          รวบรวมคำสั่งพื้นฐานและการปฏิบัติการบนเซิร์ฟเวอร์ Unix/Linux
-        </p>
+    <div className="space-y-8 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2 relative">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 transition-colors">
+        <div>
+          <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-3 cute-header transition-colors">
+            <Terminal className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
+            Linux Databank
+          </h2>
+          <p className="text-orange-600 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">
+            รวบรวมคำสั่งพื้นฐานและการปฏิบัติการบนเซิร์ฟเวอร์ Unix/Linux
+          </p>
+        </div>
+
+        {/* 🔍 ช่องค้นหา */}
+        <div className="relative w-full lg:w-80">
+          <span className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none ${isHacker ? 'text-green-600' : isDark ? 'text-white/40' : 'text-orange-400'}`}>
+            <Search size={18} strokeWidth={3} />
+          </span>
+          <input
+            type="text"
+            placeholder="ค้นหาคำสั่ง, หมวดหมู่..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`w-full border-4 rounded-[20px] pl-11 pr-10 py-3 text-sm font-black shadow-sm outline-none transition-all duration-300 focus:scale-[1.02] focus:-translate-y-1 focus:shadow-xl ${isHacker ? 'bg-[#111] border-[#166534] text-green-400 placeholder-green-800 focus:border-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white placeholder-white/30 focus:border-yellow-400' : 'bg-white border-white text-orange-950 placeholder-orange-300 focus:border-orange-300'}`}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors ${isHacker ? 'text-green-600 hover:text-green-400' : isDark ? 'text-white/40 hover:text-white' : 'text-orange-300 hover:text-orange-600'}`}>
+              <X size={18} strokeWidth={3} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -229,29 +314,29 @@ function LinuxContent({ docs }: { docs: any[] }) {
         </h3>
 
         {Object.keys(groupedDocs).length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-6 pb-20">
             {Object.keys(groupedDocs).map((category, idx) => (
               <div key={idx} className={`p-6 rounded-[24px] border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900/50' : isDark ? 'bg-[#1E1B2E] border-[#382E54]' : 'bg-orange-50/50 border-white'}`}>
                 <h4 className={`text-sm font-black uppercase tracking-widest mb-4 border-b-4 pb-2 inline-block ${isHacker ? 'border-[#166534] text-green-500' : isDark ? 'border-[#4B3965] text-yellow-400' : 'border-orange-200 text-orange-800'}`}>
                   {category}
                 </h4>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                   {groupedDocs[category].map((doc: any) => (
-                    <div key={doc.id} className={`p-4 rounded-[16px] border-2 shadow-sm transition-all ${isHacker ? 'bg-[#111] border-[#166534]' : isDark ? 'bg-[#2D223B] border-white/10' : 'bg-white border-orange-100'}`}>
+                    <div
+                      key={doc.id}
+                      onClick={() => onSelect(doc)}
+                      className={`p-4 rounded-[16px] border-2 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300 
+                        ${isHacker ? 'bg-[#111] border-[#166534]' : isDark ? 'bg-[#2D223B] border-white/10' : 'bg-white border-orange-100'}
+                      `}
+                    >
                       <div className="flex items-center gap-3 mb-2">
                         <span className={`px-2 py-1 rounded-[8px] text-xs font-black font-prompt border-2 ${isHacker ? 'bg-green-900/40 text-green-400 border-green-600' : isDark ? 'bg-black/30 text-yellow-400 border-[#4B3965]' : 'bg-orange-100 text-orange-600 border-orange-200'}`}>
                           {doc.command}
                         </span>
                       </div>
-                      <p className={`text-xs font-bold leading-relaxed mb-3 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-900/70'}`}>
+                      <p className={`text-xs font-bold leading-relaxed mb-1 line-clamp-2 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-900/70'}`}>
                         {doc.description}
                       </p>
-                      {doc.example && (
-                        <div className={`p-2 rounded-[12px] text-[10px] font-bold font-prompt flex items-center gap-2 border-2 ${isHacker ? 'bg-black text-green-500 border-[#166534]' : isDark ? 'bg-black/50 text-white border-black/20' : 'bg-orange-50 text-orange-800 border-orange-200/50'}`}>
-                          <ChevronRight size={12} strokeWidth={3} className="shrink-0" />
-                          {doc.example}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -259,37 +344,73 @@ function LinuxContent({ docs }: { docs: any[] }) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-6 text-sm font-black uppercase tracking-widest opacity-50">No library records found.</div>
+          <div className="text-center py-12 border-4 rounded-[24px] border-dashed opacity-50 flex flex-col items-center justify-center gap-3 transition-colors">
+            <Search size={40} strokeWidth={2} className="animate-bounce" />
+            <span className="text-sm font-black uppercase tracking-widest">ไม่พบคำสั่งที่ตรงกับการค้นหา</span>
+          </div>
         )}
       </div>
     </div>
   );
 }
 
-// 🌟 Component: WINDOWS CONTENT (เฉพาะ Docs)
-function WindowsContent({ docs }: { docs: any[] }) {
+// =========================================================================
+// 🌟 Component: WINDOWS CONTENT
+// =========================================================================
+function WindowsContent({ docs, onSelect }: { docs: any[], onSelect: (doc: any) => void }) {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
   const isHacker = currentTheme === 'hacker';
 
-  // จัดกลุ่ม Docs ตามหมวดหมู่
-  const groupedDocs = docs.reduce((acc, doc) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredDocs = docs.filter(doc => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      doc.command.toLowerCase().includes(searchLower) ||
+      doc.category.toLowerCase().includes(searchLower) ||
+      doc.description.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const groupedDocs = filteredDocs.reduce((acc, doc) => {
     if (!acc[doc.category]) acc[doc.category] = [];
     acc[doc.category].push(doc);
     return acc;
   }, {} as Record<string, any[]>);
 
   return (
-    <div className="space-y-8 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2">
-      <div>
-        <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-3 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 cute-header transition-colors">
-          <Monitor className="text-blue-500 dark:text-blue-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
-          Windows CMD Databank
-        </h2>
-        <p className="text-blue-500 dark:text-white/50 hacker:text-green-600 text-sm font-bold mt-4 uppercase tracking-widest transition-colors">
-          รวบรวมคำสั่งพื้นฐานสำหรับการดูแลระบบ Windows Command Prompt
-        </p>
+    <div className="space-y-8 flex flex-col h-full overflow-y-auto custom-scrollbar pr-2 relative">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 transition-colors">
+        <div>
+          <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-3 cute-header transition-colors">
+            <Monitor className="text-blue-500 dark:text-blue-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
+            Windows CMD Databank
+          </h2>
+          <p className="text-blue-500 dark:text-white/50 hacker:text-green-600 text-sm font-bold uppercase tracking-widest transition-colors">
+            รวบรวมคำสั่งพื้นฐานสำหรับการดูแลระบบ Windows Command Prompt
+          </p>
+        </div>
+
+        {/* 🔍 ช่องค้นหา */}
+        <div className="relative w-full lg:w-80">
+          <span className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none ${isHacker ? 'text-green-600' : isDark ? 'text-white/40' : 'text-blue-400'}`}>
+            <Search size={18} strokeWidth={3} />
+          </span>
+          <input
+            type="text"
+            placeholder="ค้นหาคำสั่ง, หมวดหมู่..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className={`w-full border-4 rounded-[20px] pl-11 pr-10 py-3 text-sm font-black shadow-sm outline-none transition-all duration-300 focus:scale-[1.02] focus:-translate-y-1 focus:shadow-xl ${isHacker ? 'bg-[#111] border-[#166534] text-green-400 placeholder-green-800 focus:border-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white placeholder-white/30 focus:border-blue-400' : 'bg-white border-white text-blue-950 placeholder-blue-300 focus:border-blue-300'}`}
+          />
+          {searchQuery && (
+            <button onClick={() => setSearchQuery('')} className={`absolute inset-y-0 right-0 pr-4 flex items-center transition-colors ${isHacker ? 'text-green-600 hover:text-green-400' : isDark ? 'text-white/40 hover:text-white' : 'text-blue-300 hover:text-blue-600'}`}>
+              <X size={18} strokeWidth={3} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -298,29 +419,29 @@ function WindowsContent({ docs }: { docs: any[] }) {
         </h3>
 
         {Object.keys(groupedDocs).length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-6 pb-20">
             {Object.keys(groupedDocs).map((category, idx) => (
               <div key={idx} className={`p-6 rounded-[24px] border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900/50' : isDark ? 'bg-[#1E1B2E] border-[#382E54]' : 'bg-blue-50/50 border-white'}`}>
                 <h4 className={`text-sm font-black uppercase tracking-widest mb-4 border-b-4 pb-2 inline-block ${isHacker ? 'border-[#166534] text-green-500' : isDark ? 'border-[#4B3965] text-blue-400' : 'border-blue-200 text-blue-800'}`}>
                   {category}
                 </h4>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                   {groupedDocs[category].map((doc: any) => (
-                    <div key={doc.id} className={`p-4 rounded-[16px] border-2 shadow-sm transition-all ${isHacker ? 'bg-[#111] border-[#166534]' : isDark ? 'bg-[#2D223B] border-white/10' : 'bg-white border-blue-100'}`}>
+                    <div
+                      key={doc.id}
+                      onClick={() => onSelect(doc)}
+                      className={`p-4 rounded-[16px] border-2 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all duration-300 
+                        ${isHacker ? 'bg-[#111] border-[#166534]' : isDark ? 'bg-[#2D223B] border-white/10' : 'bg-white border-blue-100'}
+                      `}
+                    >
                       <div className="flex items-center gap-3 mb-2">
                         <span className={`px-2 py-1 rounded-[8px] text-xs font-black font-prompt border-2 ${isHacker ? 'bg-green-900/40 text-green-400 border-green-600' : isDark ? 'bg-black/30 text-blue-400 border-[#4B3965]' : 'bg-blue-100 text-blue-600 border-blue-200'}`}>
                           {doc.command}
                         </span>
                       </div>
-                      <p className={`text-xs font-bold leading-relaxed mb-3 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-900/70'}`}>
+                      <p className={`text-xs font-bold leading-relaxed mb-1 line-clamp-2 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-900/70'}`}>
                         {doc.description}
                       </p>
-                      {doc.example && (
-                        <div className={`p-2 rounded-[12px] text-[10px] font-bold font-prompt flex items-center gap-2 border-2 ${isHacker ? 'bg-black text-green-500 border-[#166534]' : isDark ? 'bg-black/50 text-white border-black/20' : 'bg-blue-50 text-blue-800 border-blue-200/50'}`}>
-                          <ChevronRight size={12} strokeWidth={3} className="shrink-0" />
-                          {doc.example}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -328,12 +449,19 @@ function WindowsContent({ docs }: { docs: any[] }) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-6 text-sm font-black uppercase tracking-widest opacity-50">No library records found.</div>
+          <div className="text-center py-12 border-4 rounded-[24px] border-dashed opacity-50 flex flex-col items-center justify-center gap-3 transition-colors">
+            <Search size={40} strokeWidth={2} className="animate-bounce" />
+            <span className="text-sm font-black uppercase tracking-widest">ไม่พบคำสั่งที่ตรงกับการค้นหา</span>
+          </div>
         )}
       </div>
     </div>
   );
 }
+
+// =========================================================================
+// 🌟 Content Components เพิ่มเติม (คงไว้เหมือนเดิม)
+// =========================================================================
 
 function ClearanceContent() {
   const getRankThemeColors = (id: number) => {
