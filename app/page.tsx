@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { useGoogleLogin } from '@react-oauth/google'; // 🌟 เพิ่ม Import Google Login
+import { useGoogleLogin } from '@react-oauth/google';
 
 import {
   Map as MapIcon, Lock, Play, Zap, Trophy,
   Terminal, ShieldCheck, Flag, Sparkles, Code, ChevronRight,
   MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon,
-  CheckCircle, AlertTriangle, RefreshCw // 🌟 เพิ่ม Icon สำหรับ Toast และ Loading
+  CheckCircle, AlertTriangle, RefreshCw
 } from 'lucide-react';
 
 // =========================================================================
@@ -54,20 +54,16 @@ export default function KeyRushOrangeLandingPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // 🌟 Theme State
   const { theme: activeTheme, resolvedTheme, setTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
 
-  // 🌟 User State
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isLoggingIn, setIsLoggingIn] = useState(false); // 🌟 State ตอนกำลังล็อกอิน
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // 🌟 Toast State
   const [toast, setToast] = useState({ show: false, msg: '', type: 'success' as 'success' | 'error' });
 
-  // 🌟 Navbar State
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -113,7 +109,22 @@ export default function KeyRushOrangeLandingPage() {
     setTimeout(() => setToast({ show: false, msg: '', type: 'success' }), 4000);
   };
 
-  // 🌟 ฟังก์ชัน Login ด้วย Google 🌟
+  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      const headerOffset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+    setIsMobileMenuOpen(false);
+  };
+
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setIsLoggingIn(true);
@@ -132,7 +143,6 @@ export default function KeyRushOrangeLandingPage() {
           setUser(data.user);
           showToast('เข้าสู่ระบบสำเร็จ! 🚀', 'success');
 
-          // 🌟 พาลุยหน้า Welcome หลังจากล็อกอินเสร็จ 🌟
           setTimeout(() => {
             router.push('/welcome');
           }, 800);
@@ -190,7 +200,8 @@ export default function KeyRushOrangeLandingPage() {
   const dropdownBtnStyle = "w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center justify-between group nav-squishy border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-[#0a0a0a] border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400";
 
   return (
-    <div className="min-h-screen bg-background font-sans font-black overflow-x-hidden relative selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 scroll-smooth text-foreground transition-colors duration-500">
+    // 🌟 ใส่ flex flex-col ที่ div หลัก เพื่อจัดระเบียบและควบคุมให้ Footer อยู่ล่างสุดเสมอ
+    <div className="min-h-screen flex flex-col bg-background font-sans font-black overflow-x-hidden relative selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 text-foreground transition-colors duration-500">
 
       <style>{`
         @keyframes float {
@@ -244,14 +255,14 @@ export default function KeyRushOrangeLandingPage() {
         .hacker .cute-header { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8); }
       `}</style>
 
-      {/* 🎈 Background Blobs (ส้ม -> เหลือง -> เขียว) 🎈 */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-400 dark:bg-yellow-500 hacker:bg-green-600 rounded-full blur-[100px] opacity-40 dark:opacity-10 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors duration-500" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-30 dark:opacity-10 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors duration-500" style={{ animationDelay: '1.5s' }} />
-      <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-orange-300 dark:bg-yellow-400 hacker:bg-green-500 rounded-full blur-[100px] opacity-30 dark:opacity-10 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors duration-500" style={{ animationDelay: '2s' }} />
+      {/* 🌟 ย้ายก้อน Blobs มาใส่กล่อง overflow-hidden เพื่อซ่อนส่วนที่ล้นทะลุจอไม่ให้เพิ่มความยาวหน้าเว็บ */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-400 dark:bg-yellow-500 hacker:bg-green-600 rounded-full blur-[100px] opacity-40 dark:opacity-10 hacker:opacity-10 float-element transition-colors duration-500" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-30 dark:opacity-10 hacker:opacity-10 float-delayed transition-colors duration-500" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-[40%] left-[20%] w-[300px] h-[300px] bg-orange-300 dark:bg-yellow-400 hacker:bg-green-500 rounded-full blur-[100px] opacity-30 dark:opacity-10 hacker:opacity-10 float-element transition-colors duration-500" style={{ animationDelay: '2s' }} />
+      </div>
 
-
-
-      {/* 🌟 Custom Toast Pop-up 🌟 */}
+      {/* 🌟 Custom Toast Pop-up */}
       <AnimatePresence>
         {toast.show && (
           <motion.div
@@ -270,9 +281,7 @@ export default function KeyRushOrangeLandingPage() {
         )}
       </AnimatePresence>
 
-      {/* ================= EMBEDDED HEADER ================= */}
       <header className="relative z-50 flex items-center justify-between border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 bg-white/70 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 backdrop-blur-md px-6 md:px-10 py-4 sticky top-0 shadow-sm transition-colors duration-500">
-
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group no-underline">
             <div className={`w-10 h-10 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-2xl shadow-md flex items-center justify-center transform -rotate-6 border-2 border-white dark:border-transparent hacker:border-transparent group-hover:rotate-0 transition-all`}>
@@ -284,15 +293,22 @@ export default function KeyRushOrangeLandingPage() {
 
         <div className="flex items-center gap-4 md:gap-8">
           <nav className="hidden lg:flex items-center gap-2">
-            {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => (
-              <a key={name} href={name === 'จุดเด่น ✨' ? '#features' : '#path'} className="relative px-5 py-2.5 text-sm font-black transition-all duration-300 rounded-2xl group nav-squishy border-4 border-transparent text-orange-800 dark:text-white/60 hacker:text-white/70 hover:bg-white dark:hover:bg-yellow-400 hacker:hover:bg-[#111] hover:text-orange-600 dark:hover:text-[#1E1B2E] hacker:hover:text-green-400 hover:border-orange-200 dark:hover:border-yellow-500 hacker:hover:border-green-600 hover:shadow-[0_4px_0_#fed7aa] dark:hover:shadow-[0_4px_0_#ca8a04] hacker:hover:shadow-[0_4px_0_#15803d] hover:-translate-y-1">
-                <span className="relative z-10">{name}</span>
-              </a>
-            ))}
+            {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => {
+              const targetId = name === 'จุดเด่น ✨' ? 'features' : 'path';
+              return (
+                <a
+                  key={name}
+                  href={`#${targetId}`}
+                  onClick={(e) => handleScrollTo(e, targetId)}
+                  className="relative px-5 py-2.5 text-sm font-black transition-all duration-300 rounded-2xl group nav-squishy border-4 border-transparent text-orange-800 dark:text-white/60 hacker:text-white/70 hover:bg-white dark:hover:bg-yellow-400 hacker:hover:bg-[#111] hover:text-orange-600 dark:hover:text-[#1E1B2E] hacker:hover:text-green-400 hover:border-orange-200 dark:hover:border-yellow-500 hacker:hover:border-green-600 hover:shadow-[0_4px_0_#fed7aa] dark:hover:shadow-[0_4px_0_#ca8a04] hacker:hover:shadow-[0_4px_0_#15803d] hover:-translate-y-1"
+                >
+                  <span className="relative z-10">{name}</span>
+                </a>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4 ml-4 border-l-4 border-white dark:border-[#382E54] hacker:border-green-800 pl-4 md:pl-6 transition-colors">
-
             <button onClick={cycleTheme} className="btn-squishy hidden md:flex items-center justify-center p-2.5 rounded-2xl border-4 bg-white dark:bg-yellow-400 hacker:bg-[#0a0a0a] text-orange-600 dark:text-[#1E1B2E] hacker:text-green-500 border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hover:bg-[#111]">
               {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
               {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
@@ -363,7 +379,6 @@ export default function KeyRushOrangeLandingPage() {
                 </AnimatePresence>
               </div>
             ) : (
-              /* 🌟 เปลี่ยน Link เป็นปุ่ม Google Login 🌟 */
               <button
                 onClick={() => loginWithGoogle()}
                 disabled={isLoggingIn}
@@ -391,7 +406,6 @@ export default function KeyRushOrangeLandingPage() {
           </div>
         </div>
 
-        {/* Mobile Menu Drawer */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
@@ -402,11 +416,19 @@ export default function KeyRushOrangeLandingPage() {
               ref={mobileMenuRef}
               className="absolute top-full left-0 w-full bg-white/95 dark:bg-[#1E1B2E]/95 hacker:bg-[#0a0a0a]/95 backdrop-blur-2xl border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 shadow-xl flex flex-col p-5 space-y-2 lg:hidden z-40"
             >
-              {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => (
-                <a key={name} href={name === 'จุดเด่น ✨' ? '#features' : '#path'} onClick={() => setIsMobileMenuOpen(false)} className="px-5 py-4 rounded-2xl text-base font-black text-orange-800 dark:text-white/60 hacker:text-white/70 hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111] hover:text-orange-500 dark:hover:text-yellow-400 hacker:hover:text-green-400 border-2 border-transparent transition-all">
-                  {name}
-                </a>
-              ))}
+              {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => {
+                const targetId = name === 'จุดเด่น ✨' ? 'features' : 'path';
+                return (
+                  <a
+                    key={name}
+                    href={`#${targetId}`}
+                    onClick={(e) => handleScrollTo(e, targetId)}
+                    className="px-5 py-4 rounded-2xl text-base font-black text-orange-800 dark:text-white/60 hacker:text-white/70 hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111] hover:text-orange-500 dark:hover:text-yellow-400 hacker:hover:text-green-400 border-2 border-transparent transition-all"
+                  >
+                    {name}
+                  </a>
+                );
+              })}
               <div className="w-full h-1 bg-orange-100/50 dark:bg-white/10 hacker:bg-green-900/50 my-2 rounded-full"></div>
               <button onClick={cycleTheme} className={dropdownBtnStyle}>
                 <div className="flex items-center gap-3">
@@ -421,14 +443,11 @@ export default function KeyRushOrangeLandingPage() {
         </AnimatePresence>
       </header>
 
-      {/* ================= HERO SECTION ================= */}
       <main className="relative z-10 container mx-auto px-6 pt-16 md:pt-28 pb-20 flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-8">
-
-        {/* ฝั่งซ้าย: ข้อความ */}
         <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1">
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#4B3965] hacker:border-green-600 text-orange-500 dark:text-yellow-400 hacker:text-green-500 text-sm font-black mb-8 shadow-sm transition-colors">
             <Sparkles size={16} strokeWidth={3} className="animate-pulse" />
-            ระบบฝึกพิมพ์คำสั่งสุดน่ารัก! 🎀
+            ระบบฝึกพิมพ์คำสั่ง
           </motion.div>
 
           <motion.h2 variants={fadeInUp} className="cute-header text-6xl md:text-7xl font-black text-orange-950 dark:text-white hacker:text-white leading-[1.1] mb-6 drop-shadow-sm transition-colors">
@@ -438,11 +457,10 @@ export default function KeyRushOrangeLandingPage() {
 
           <motion.p variants={fadeInUp} className="text-lg md:text-xl text-orange-800 dark:text-white/70 hacker:text-white/70 mb-10 max-w-xl leading-relaxed font-black transition-colors">
             อยากใช้ Terminal คล่องๆ แต่กลัวเผลอลบไฟล์พังใช่ไหม? หมดห่วงได้เลย!
-            ฝึกพิมพ์ในระบบจำลองสุดน่ารัก ลุยด่านต่างๆ สนุก ปลอดภัย และเก่งขึ้นชัวร์ 💖
+            ฝึกพิมพ์ในระบบจำลองสุดน่ารัก ลุยด่านต่างๆ สนุก ปลอดภัย และเก่งขึ้นชัวร์
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            {/* 🌟 ปุ่ม 3D เริ่มฝึกพิมพ์ (แก้ให้กดปุ๊บล็อกอินปั๊บ) 🌟 */}
             {user ? (
               <Link href="/dashboard" className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors">
                 <Play size={20} fill="currentColor" /> เริ่มฝึกพิมพ์เลย!
@@ -458,13 +476,12 @@ export default function KeyRushOrangeLandingPage() {
               </button>
             )}
 
-            <a href="/map" className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111] transition-colors">
+            <button onClick={(e) => handleScrollTo(e as any, 'path')} className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111] transition-colors">
               🎯 ดูด่านทั้งหมด
-            </a>
+            </button>
           </motion.div>
         </motion.div>
 
-        {/* ฝั่งขวา: Cute Terminal Mockup */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, type: "spring" }} className="flex-1 w-full max-w-2xl">
           <div className="glass-card overflow-hidden group text-left transform-gpu hover:scale-[1.02] transition-all duration-500 relative">
             <div className="flex items-center px-6 py-4 bg-white/90 dark:bg-[#2D223B]/90 hacker:bg-[#0a0a0a]/90 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 relative z-30 transition-colors">
@@ -511,7 +528,6 @@ export default function KeyRushOrangeLandingPage() {
         </motion.div>
       </main>
 
-      {/* ================= FEATURES SECTION ================= */}
       <section id="features" className="relative z-10 container mx-auto px-6 py-24">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={fadeInUp} className="text-center mb-16">
           <h3 className="cute-header text-5xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white mb-4 transition-colors">Learn by <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">Doing</span> ✨</h3>
@@ -540,12 +556,11 @@ export default function KeyRushOrangeLandingPage() {
               <Sparkles size={40} strokeWidth={3} />
             </div>
             <h4 className="text-2xl font-black text-orange-950 dark:text-white hacker:text-white mb-3 cute-header transition-colors">Real-time Validation</h4>
-            <p className="text-orange-800 dark:text-white/70 hacker:text-white/70 font-black leading-relaxed transition-colors">ระบบตรวจสอบคำสั่งแบบทันที พร้อมแสดงผลลัพธ์ และมีคำแนะนำคอยช่วยเหลือ</p>
+            <p className="text-orange-800 dark:text-white/70 hacker:text-white/70 font-black leading-relaxed transition-colors">ตรวจสอบคำสั่งแบบทันที พร้อมแสดงผลลัพธ์</p>
           </motion.div>
         </div>
       </section>
 
-      {/* ================= MODULES SECTION ================= */}
       <section id="path" className="relative z-10 py-24 bg-white/50 dark:bg-black/20 hacker:bg-[#0a0a0a]/80 border-t-4 border-white dark:border-[#382E54] hacker:border-green-900 transition-colors">
         <div className="container mx-auto px-6 max-w-5xl">
           <motion.h3 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="cute-header text-4xl md:text-5xl font-black text-orange-950 dark:text-white hacker:text-white mb-12 text-center transition-colors">
@@ -600,13 +615,11 @@ export default function KeyRushOrangeLandingPage() {
         </div>
       </section>
 
-      {/* ================= BOTTOM CTA ================= */}
       <section className="relative z-10 container mx-auto px-6 py-32 text-center">
         <motion.h3 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="cute-header text-5xl md:text-7xl font-black text-orange-950 dark:text-white hacker:text-white mb-6 transition-colors">Ready to <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">Execute?</span> 🚀</motion.h3>
         <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.1 }} className="text-orange-800 dark:text-white/70 hacker:text-white/70 mb-10 max-w-xl mx-auto font-black text-xl transition-colors">ระบบพร้อมใช้งานแล้ว เข้าสู่ระบบเพื่อเริ่มการเรียนรู้ของคุณได้เลย ✨</motion.p>
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.2 }}>
-          {/* 🌟 ปุ่ม 3D ใหญ่สุดด้านล่าง 🌟 */}
           {user ? (
             <Link href="/dashboard" className="btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400">
               เริ่มฝึกกันเลย! <ChevronRight size={28} strokeWidth={4} />
@@ -624,8 +637,9 @@ export default function KeyRushOrangeLandingPage() {
         </motion.div>
       </section>
 
-      <footer className="relative z-10 py-10 text-center text-orange-600 dark:text-white/30 hacker:text-white/40 font-black text-sm bg-white/70 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 border-t-4 border-white dark:border-[#382E54] hacker:border-green-900 uppercase tracking-widest transition-colors">
-        <p>© 2026 KeyRush. Interactive Terminal Training ✨</p>
+      {/* 🌟 เพิ่ม mt-auto เข้าไปที่ Footer เพื่อผลักมันให้ชิดขอบล่างของหน้าจอเสมอ */}
+      <footer className="relative z-10 mt-auto py-4 flex flex-col items-center justify-center text-center text-orange-600 dark:text-white/30 hacker:text-white/40 font-black text-sm bg-white/70 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 border-t-4 border-white dark:border-[#382E54] hacker:border-green-900 uppercase tracking-widest transition-colors">
+        <p className="m-0">© 2026 KeyRush. Interactive Terminal Training ✨</p>
       </footer>
 
     </div>
