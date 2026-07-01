@@ -371,7 +371,7 @@ export default function KeyRushOrangeLandingPage() {
                         <div className="h-1 w-full bg-orange-100/50 dark:bg-white/5 hacker:bg-green-900/50 my-1 rounded-full"></div>
 
                         <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center gap-3 group nav-squishy border-4 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] text-rose-500 dark:text-rose-400 hacker:text-rose-500 border-rose-200 dark:border-rose-900 hacker:border-rose-900 shadow-[0_4px_0_#fecdd3] dark:shadow-[0_4px_0_#4c1d95] hacker:shadow-[0_4px_0_#881337] hover:bg-rose-50 dark:hover:bg-[#2D223B] hacker:hover:bg-[#111]">
-                          <LogOut size={18} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" /> ออกจากระบบ
+                          <LogOut size={18} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" /> Sign Out
                         </button>
                       </div>
                     </motion.div>
