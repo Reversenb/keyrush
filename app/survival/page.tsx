@@ -250,7 +250,7 @@ export default function Page() {
             >
                 <div className="flex flex-col md:flex-row justify-between items-center w-full max-w-3xl px-2 mb-2 gap-2">
                     <span className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-slate-500 hacker:text-green-600 flex items-center gap-1">
-                        <Keyboard size={14} /> เลือกสีแป้นพิมพ์เรืองแสง
+                        <Keyboard size={14} /> เลือกสีแป้นพิมพ์
                     </span>
                     <div className="flex flex-wrap justify-center gap-1.5 bg-white/50 dark:bg-slate-800/50 hacker:bg-green-900/20 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 hacker:border-green-900/50">
                         {(Object.keys(kbColorStyles) as KbColor[]).map((c) => (
@@ -495,7 +495,7 @@ export default function Page() {
                         {/* ⌨️ เฟสให้พิมพ์ */}
                         {gameState === 'playing' && phase === 'type' && activeCommands.length > 0 && (
                             <div className="flex flex-col w-full h-full relative">
-                                {/* 🛑 ปุ่มไกด์แป้นพิมพ์ ขวาบนสุดของกรอบ */}
+
                                 <div className="absolute top-4 right-6 z-20">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setShowKeyboard(!showKeyboard); }}
@@ -505,7 +505,7 @@ export default function Page() {
                                                 : 'bg-slate-100 text-slate-500 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-950 hacker:bg-green-900/10 hacker:text-green-700 hacker:border-green-900/30'}`}
                                     >
                                         <Keyboard size={18} />
-                                        <span className="hidden md:inline">ไกด์แป้นพิมพ์</span>
+                                        <span className="hidden md:inline">แป้นพิมพ์</span>
                                     </button>
                                 </div>
 
