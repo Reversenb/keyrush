@@ -30,11 +30,11 @@ const MAP_MODES = [
         id: 'survival',
         title: 'Survival Mode',
         subtitle: 'Sector 02',
-        desc: 'เอาชีวิตรอดจากกองทัพบั๊ก! พิมพ์คำสั่งให้เร็วและแม่นยำที่สุดก่อนที่เวลาจะหมดลง (เร็วๆ นี้)',
+        desc: 'เอาชีวิตรอดจากกองทัพบั๊ก! พิมพ์คำสั่งให้เร็วและแม่นยำที่สุดก่อนที่เวลาจะหมดลง',
         icon: Zap,
-        isLocked: true,
-        link: '#',
-        colorTheme: 'slate',
+        isLocked: false, // 🔓 ปลดล็อคโหมดนี้แล้ว!
+        link: '/survival', // 🔗 เชื่อมโยงไปยังหน้า Survival
+        colorTheme: 'blue',
     },
     {
         id: 'arena',

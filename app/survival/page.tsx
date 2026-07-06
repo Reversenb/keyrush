@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gamepad2, Zap, Clock, Trophy, Loader2, Play, AlertCircle, XCircle, Keyboard, Monitor, TerminalSquare, Brain, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -14,11 +15,14 @@ interface CommandMission {
     os?: string;
 }
 
-// 🌟 ขยายสีคีย์บอร์ดเป็น 10 สี
 type KbColor = 'blue' | 'green' | 'purple' | 'rose' | 'orange' | 'yellow' | 'cyan' | 'pink' | 'teal' | 'indigo';
 
 export default function Page() {
     const { theme: activeTheme, resolvedTheme } = useTheme();
+    const router = useRouter();
+
+    // 🛡️ Auth State
+    const [isAuthChecking, setIsAuthChecking] = useState(true);
 
     // 🎮 Game State
     const [gameState, setGameState] = useState<'idle' | 'loading' | 'error' | 'playing' | 'gameover'>('idle');
@@ -46,6 +50,17 @@ export default function Page() {
     const [maxCombo, setMaxCombo] = useState(0);
 
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // 🛡️ ตรวจสอบการ Login
+    useEffect(() => {
+        const token = localStorage.getItem('keyrush_token');
+        if (!token) {
+            router.push('/login');
+        } else {
+            setIsAuthChecking(false);
+            fetchCommands();
+        }
+    }, [router]);
 
     // 📡 โหลดข้อมูล API
     const fetchCommands = async () => {
@@ -84,11 +99,7 @@ export default function Page() {
         }
     };
 
-    useEffect(() => {
-        fetchCommands();
-    }, []);
-
-    // ⏱️ ระบบนับเวลา (จับเวลาเฉพาะตอนพิมพ์เท่านั้น)
+    // ⏱️ ระบบนับเวลา
     useEffect(() => {
         let timer: NodeJS.Timeout;
         if (gameState === 'playing' && phase === 'type' && timeLeft > 0) {
@@ -103,7 +114,7 @@ export default function Page() {
         return () => clearInterval(timer);
     }, [gameState, phase, timeLeft, score, maxCombo, survivedTime]);
 
-    // 🧠 ระบบ "จำก่อนพิมพ์" (Memorize Delay 2 วินาที)
+    // 🧠 ระบบ "จำก่อนพิมพ์"
     useEffect(() => {
         let timeout: NodeJS.Timeout;
         if (gameState === 'playing' && phase === 'memorize') {
@@ -192,7 +203,7 @@ export default function Page() {
     const isDanger = timeLeft <= 10 && gameState === 'playing';
     const progressPercentage = Math.max(0, Math.min(100, (timeLeft / maxTime) * 100));
 
-    // 🎨 Custom Keyboard Palette (เพิ่มเป็น 10 สี และรองรับ Hacker Theme)
+    // 🎨 Custom Keyboard Palette
     const kbColorStyles: Record<KbColor, string> = {
         blue: "bg-sky-400 dark:bg-sky-500 hacker:bg-sky-500 text-white hacker:text-black border-b-4 border-sky-600 dark:border-sky-700 hacker:border-sky-600 shadow-[0_0_15px_rgba(56,189,248,0.4)] hacker:shadow-[0_0_15px_rgba(56,189,248,0.8)]",
         green: "bg-emerald-400 dark:bg-emerald-500 hacker:bg-emerald-500 text-white hacker:text-black border-b-4 border-emerald-600 dark:border-emerald-700 hacker:border-emerald-600 shadow-[0_0_15px_rgba(52,211,153,0.4)] hacker:shadow-[0_0_15px_rgba(52,211,153,0.8)]",
@@ -206,7 +217,6 @@ export default function Page() {
         indigo: "bg-indigo-400 dark:bg-indigo-500 hacker:bg-indigo-500 text-white hacker:text-black border-b-4 border-indigo-600 dark:border-indigo-700 hacker:border-indigo-600 shadow-[0_0_15px_rgba(99,102,241,0.4)] hacker:shadow-[0_0_15px_rgba(99,102,241,0.8)]"
     };
 
-    // Helper map สำหรับแสดงสีวงกลม 10 สี
     const getCircleColorClass = (c: KbColor) => {
         const classes: Record<KbColor, string> = {
             blue: 'bg-sky-400', green: 'bg-emerald-400', purple: 'bg-violet-400',
@@ -238,7 +248,6 @@ export default function Page() {
                 animate={{ opacity: 1, y: 0 }}
                 className="shrink-0 flex flex-col gap-1 items-center w-full select-none pb-4 pt-3 px-2 bg-slate-50/50 dark:bg-slate-900/50 hacker:bg-[#050505] border-t-2 border-slate-100 dark:border-slate-800 hacker:border-green-900/50"
             >
-                {/* Color Palette Buttons */}
                 <div className="flex flex-col md:flex-row justify-between items-center w-full max-w-3xl px-2 mb-2 gap-2">
                     <span className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-slate-500 hacker:text-green-600 flex items-center gap-1">
                         <Keyboard size={14} /> เลือกสีแป้นพิมพ์เรืองแสง
@@ -284,6 +293,28 @@ export default function Page() {
         );
     };
 
+    // 🛡️ หากกำลังตรวจสอบสิทธิ์ ให้แสดงหน้าโหลด (พร้อมแอนิเมชันเปิดตัว)
+    if (isAuthChecking) {
+        return (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 hacker:bg-[#050505]"
+            >
+                <Loader2 size={48} className="animate-spin text-sky-500 hacker:text-green-500 mb-4" />
+                <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="font-bold text-slate-500 dark:text-slate-400 hacker:text-green-600"
+                >
+                    กำลังตรวจสอบสิทธิ์การเข้าถึง...
+                </motion.p>
+            </motion.div>
+        );
+    }
+
     return (
         <div className={`h-screen flex flex-col overflow-hidden transition-colors duration-300
             bg-sky-50/50 dark:bg-slate-950 hacker:bg-[#050505]
@@ -292,7 +323,13 @@ export default function Page() {
             <Navbar />
 
             <main className="flex-1 min-h-0 flex flex-col items-center justify-center p-3 md:p-6 lg:p-8 relative z-10 w-full">
-                <div className="w-full max-w-5xl flex flex-col gap-4 h-full">
+                {/* 🌟 เพิ่มแอนิเมชัน Fade + Slide Up ให้กับทั้งหน้าจอเกม */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="w-full max-w-5xl flex flex-col gap-4 h-full"
+                >
 
                     {/* 📊 Game HUD */}
                     <header className="shrink-0 bg-white dark:bg-slate-900 hacker:bg-[#0a0a0a] p-4 md:p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800 hacker:border-green-900 shadow-sm flex flex-col gap-4">
@@ -373,9 +410,14 @@ export default function Page() {
                         `}
                     >
 
-                        {/* 🌟 Idle Screen: เลือก OS */}
+                        {/* 🌟 Idle Screen: เลือก OS พร้อมแอนิเมชันเปิดตัวเด้งๆ */}
                         {gameState === 'idle' && (
-                            <div className="text-center w-full max-w-xl mx-auto flex flex-col items-center justify-center h-full p-6 md:p-10">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.4, delay: 0.2 }}
+                                className="text-center w-full max-w-xl mx-auto flex flex-col items-center justify-center h-full p-6 md:p-10"
+                            >
                                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-sky-100 dark:bg-sky-500/10 hacker:bg-green-900/20 mb-6 text-sky-500 hacker:text-green-500">
                                     <Gamepad2 size={48} />
                                 </div>
@@ -386,28 +428,28 @@ export default function Page() {
 
                                 <div className="grid grid-cols-2 gap-4 w-full mb-8">
                                     <button
-                                        onClick={() => setSelectedOS('windows')}
-                                        className={`flex flex-col items-center gap-3 p-5 md:p-6 rounded-[2rem] font-bold text-lg md:text-xl border-4 transition-all outline-none
-                                            ${selectedOS === 'windows'
-                                                ? 'border-sky-400 bg-sky-50 text-sky-600 dark:border-sky-500 dark:bg-sky-500/10 dark:text-sky-400 hacker:border-green-500 hacker:bg-green-900/40 hacker:text-green-400 scale-105 shadow-md hacker:shadow-[0_0_15px_rgba(34,197,94,0.3)]'
-                                                : 'border-slate-100 text-slate-400 hover:border-sky-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 hacker:border-green-900/50 hacker:text-green-700 hacker:hover:border-green-600 hacker:hover:bg-green-900/10'
-                                            }
-                                        `}
-                                    >
-                                        <Monitor size={36} className={selectedOS === 'windows' ? 'text-sky-500 hacker:text-green-400' : ''} />
-                                        Windows
-                                    </button>
-                                    <button
                                         onClick={() => setSelectedOS('linux')}
                                         className={`flex flex-col items-center gap-3 p-5 md:p-6 rounded-[2rem] font-bold text-lg md:text-xl border-4 transition-all outline-none
                                             ${selectedOS === 'linux'
-                                                ? 'border-sky-400 bg-sky-50 text-sky-600 dark:border-sky-500 dark:bg-sky-500/10 dark:text-sky-400 hacker:border-green-500 hacker:bg-green-900/40 hacker:text-green-400 scale-105 shadow-md hacker:shadow-[0_0_15px_rgba(34,197,94,0.3)]'
-                                                : 'border-slate-100 text-slate-400 hover:border-sky-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 hacker:border-green-900/50 hacker:text-green-700 hacker:hover:border-green-600 hacker:hover:bg-green-900/10'
+                                                ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:border-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 hacker:border-green-500 hacker:bg-green-900/40 hacker:text-green-400 scale-105 shadow-md hacker:shadow-[0_0_15px_rgba(34,197,94,0.3)]'
+                                                : 'border-slate-200 text-slate-400 hover:border-emerald-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 hacker:border-green-900/50 hacker:text-green-700 hacker:hover:border-green-600 hacker:hover:bg-green-900/10'
                                             }
                                         `}
                                     >
-                                        <TerminalSquare size={36} className={selectedOS === 'linux' ? 'text-sky-500 hacker:text-green-400' : ''} />
+                                        <TerminalSquare size={36} className={selectedOS === 'linux' ? 'text-emerald-500 hacker:text-green-400' : ''} />
                                         Linux
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedOS('windows')}
+                                        className={`flex flex-col items-center gap-3 p-5 md:p-6 rounded-[2rem] font-bold text-lg md:text-xl border-4 transition-all outline-none
+                                            ${selectedOS === 'windows'
+                                                ? 'border-blue-500 bg-blue-50 text-blue-600 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400 hacker:border-blue-500 hacker:bg-blue-900/40 hacker:text-blue-400 scale-105 shadow-md hacker:shadow-[0_0_15px_rgba(59,130,246,0.3)]'
+                                                : 'border-slate-200 text-slate-400 hover:border-blue-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800 hacker:border-green-900/50 hacker:text-green-700 hacker:hover:border-blue-800 hacker:hover:bg-blue-900/10'
+                                            }
+                                        `}
+                                    >
+                                        <Monitor size={36} className={selectedOS === 'windows' ? 'text-blue-500 hacker:text-blue-400' : ''} />
+                                        Windows
                                     </button>
                                 </div>
 
@@ -417,7 +459,7 @@ export default function Page() {
                                 >
                                     <Play size={24} fill="currentColor" /> ลุยเลย!
                                 </button>
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* 🧠 เฟสบังคับอ่านโจทย์ (2 วินาที) */}
@@ -592,7 +634,7 @@ export default function Page() {
                             </div>
                         )}
                     </motion.div>
-                </div>
+                </motion.div>
             </main>
         </div>
     );
