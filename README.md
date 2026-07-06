@@ -39,7 +39,7 @@ KeyRush เป็นเว็บแอปพลิเคชันสำหรั
 | ผู้ใช้หลัก | ผู้เล่นทั่วไป, ผู้ดูแลระบบ |
 | จุดประสงค์ | ฝึกใช้คำสั่ง Terminal / Command Line ผ่านเกมภารกิจ |
 | ระบบปฏิบัติการที่รองรับ | Linux และ Windows |
-| การยืนยันตัวตน | JWT Bearer Token และ Google OAuth (Client-side Token Flow) |
+| การยืนยันตัวตน | Google OAuth (Client-side Token Flow) และ JWT Bearer Token |
 | ฐานข้อมูล | Cloudflare D1 (Serverless SQLite) |
 | ORM | Prisma (พร้อม `@prisma/adapter-d1`) |
 | รูปแบบ API | Serverless REST API |
@@ -72,7 +72,7 @@ KeyRush เป็นเว็บแอปพลิเคชันสำหรั
 ```
 - แสดง UI ให้ผู้ใช้ใช้งาน (Gamified Terminal)
 - จับ Event การพิมพ์ (Keystrokes) คำนวณ WPM และ Accuracy แบบ Real-time
-- รับ input เช่น username, password, command
+- รับ input เช่น command และข้อมูลจาก Google Login
 - เรียก API ไปยัง backend
 - แสดงข้อมูล Mission, Progress, Documents, Leaderboard
 - เก็บ token และ user data ไว้ใน localStorage
@@ -88,8 +88,7 @@ KeyRush เป็นเว็บแอปพลิเคชันสำหรั
 | TypeScript | ใช้เพิ่ม type safety ให้ backend |
 | Prisma ORM | ใช้ติดต่อฐานข้อมูลและจัดการ schema ให้ใช้งานง่าย |
 | Cloudflare D1 | ฐานข้อมูลหลัก (Serverless SQLite) |
-| JWT | ใช้สำหรับ Authentication และ Session Management |
-| Web Crypto API | ใช้ hash รหัสผ่าน (SHA-256) ด้วย Native API ของเบราว์เซอร์/Cloudflare |
+| JWT | ใช้สำหรับ Authentication และ Session Management (ออก Token หลัง Verify บัญชี Google) |
 | CORS | เปิดให้ frontend จากต่างโดเมนเรียก API ได้อย่างปลอดภัย |
 
 **หน้าที่ของ Backend:**
@@ -97,7 +96,7 @@ KeyRush เป็นเว็บแอปพลิเคชันสำหรั
 ```
 - รับ request จาก frontend ด้วยความหน่วง (Latency) ต่ำสุดผ่าน Edge
 - ตรวจสอบข้อมูลและสิทธิ์ของผู้ใช้ผ่าน JWT Secret ใน Bindings
-- จัดการ Authentication (รวมถึง Validate Token จาก Google)
+- จัดการ Authentication ด้วยการ Validate Token จาก Google และออก JWT Token ให้ Client
 - Query / Create / Update / Delete ข้อมูลผ่าน Prisma + D1
 - ส่ง response กลับเป็น JSON
 - จัดการ business logic เช่น Mission, Progress, Leaderboard, Documents
@@ -151,10 +150,7 @@ Database Layer
 
 | ฟีเจอร์ | รายละเอียด |
 |---|---|
-| Register / Login | สมัครสมาชิกและเข้าสู่ระบบด้วยระบบ Custom Auth |
-| Google Login | เข้าสู่ระบบผ่านบัญชี Google แบบ Client-side Token Flow (ปลอดภัยสูง) |
-| Email Verification | ยืนยันอีเมลก่อนเข้าใช้งาน |
-| Forgot Password | ขอรีเซ็ตรหัสผ่านผ่านอีเมล |
+| Google Login | เข้าสู่ระบบผ่านบัญชี Google แบบ Client-side Token Flow (ปลอดภัยสูง, ไม่มีระบบ Password) |
 | Campaign Mode | เล่นด่านฝึกคำสั่ง Linux / Windows |
 | Progress Tracking | เก็บ Level และ EXP แยกตาม OS |
 | Dashboard | ดูสถิติส่วนตัว เช่น WPM, Accuracy |
@@ -176,44 +172,25 @@ Database Layer
 
 ## Use Case หลักของระบบ
 
-### UC-01: สมัครสมาชิก
+### UC-01: Login ด้วย Google
 
-**Actor:** ผู้ใช้ใหม่
-
-**Flow:**
-
-```
-1. ผู้ใช้กรอก username, email, password และ displayName
-2. Frontend ส่ง POST /api/auth/register
-3. Backend validate ข้อมูล
-4. Backend ตรวจ username/email ซ้ำใน D1
-5. Backend hash password ด้วย Web Crypto API (SHA-256)
-6. Backend สร้าง verifyToken
-7. Backend บันทึก user ลง database
-8. Backend ส่งอีเมลยืนยันบัญชี
-```
-
-**ผลลัพธ์:** ผู้ใช้มีบัญชีในระบบและต้องยืนยันอีเมลก่อน Login
-
-### UC-02: Login
-
-**Actor:** ผู้ใช้ที่มีบัญชี
+**Actor:** ผู้ใช้ (ใหม่หรือเดิม)
 
 **Flow:**
 
 ```
-1. ผู้ใช้กรอก username และ password
-2. Frontend ส่ง POST /api/auth/login
-3. Backend ค้นหา user จาก database D1
-4. Backend ตรวจ password ด้วย Web Crypto API (SHA-256)
-5. Backend ตรวจว่า email verified แล้วหรือยัง
+1. ผู้ใช้กด Login ด้วย Google
+2. Frontend รับ Google ID Token ผ่าน @react-oauth/google
+3. Frontend ส่ง POST /api/auth/google พร้อม Google ID Token
+4. Backend ตรวจสอบความถูกต้องของ Token กับ Google
+5. Backend ค้นหา user จาก email ใน D1 หากไม่พบให้สร้าง user ใหม่อัตโนมัติ
 6. Backend สร้าง JWT Token ผ่าน JWT_SECRET ใน Bindings
 7. Frontend เก็บ token และ user data ลง localStorage
 ```
 
-**ผลลัพธ์:** ผู้ใช้เข้าสู่ระบบสำเร็จและสามารถใช้งานระบบได้
+**ผลลัพธ์:** ผู้ใช้เข้าสู่ระบบสำเร็จและสามารถใช้งานระบบได้ทันทีโดยไม่ต้องสมัครสมาชิกแยก
 
-### UC-03: เล่น Mission
+### UC-02: เล่น Mission
 
 **Actor:** ผู้ใช้ที่เข้าสู่ระบบแล้ว
 
@@ -232,7 +209,7 @@ Database Layer
 
 **ผลลัพธ์:** ผู้ใช้ผ่านด่าน ได้รับ EXP และระบบบันทึกความก้าวหน้า
 
-### UC-04: ดู Documents
+### UC-03: ดู Documents
 
 **Actor:** ผู้ใช้ทั่วไปหรือผู้ใช้ที่ Login แล้ว
 
@@ -248,7 +225,7 @@ Database Layer
 
 **ผลลัพธ์:** ผู้ใช้สามารถอ่านคำอธิบายคำสั่งจากข้อมูลจริงใน database
 
-### UC-05: ดู Leaderboard
+### UC-04: ดู Leaderboard
 
 **Actor:** ผู้ใช้ทั่วไปหรือผู้ใช้ที่ Login แล้ว
 
@@ -264,7 +241,7 @@ Database Layer
 
 **ผลลัพธ์:** ผู้ใช้เห็นอันดับผู้เล่นแยก Linux, Windows หรือ Combined
 
-### UC-06: Admin จัดการ Mission
+### UC-05: Admin จัดการ Mission
 
 **Actor:** Admin
 
@@ -286,8 +263,8 @@ Database Layer
 
 | Test Case | Feature | Precondition / Steps | Expected Result |
 |---|---|---|---|
-| **TC-AUTH-001** Register สำเร็จ | Register | username และ email ยังไม่ซ้ำ → กรอกข้อมูลสมัครสมาชิกและกด Register | สร้าง user สำเร็จ, password ถูก hash, ส่งอีเมลยืนยัน |
-| **TC-AUTH-002** Login ด้วย Password ผิด | Login | กรอก username ถูกต้อง แต่ password ผิด | ระบบไม่ให้ login และไม่สร้าง JWT token |
+| **TC-AUTH-001** Login ด้วย Google สำเร็จ | Google Login | ผู้ใช้กด Login ด้วย Google และยืนยันบัญชี | Backend validate Token สำเร็จ, สร้าง/ค้นหา user และออก JWT token |
+| **TC-AUTH-002** Google Token ไม่ถูกต้อง | Google Login | ส่ง Google ID Token ที่หมดอายุหรือปลอมไปยัง `/api/auth/google` | ระบบปฏิเสธ ไม่ออก JWT token |
 | **TC-MISSION-001** โหลด Mission สำเร็จ | Mission | เรียก `GET /api/mission/linux/1` | Backend ส่งข้อมูล mission กลับมา |
 | **TC-MISSION-002** พิมพ์คำสั่งถูกต้อง | Command Validation | พิมพ์ command ตรงกับ expectedCommand | ผ่านด่าน และบันทึก progress |
 | **TC-MISSION-003** พิมพ์คำสั่งผิด | Command Validation | พิมพ์ command ไม่ตรงกับ expectedCommand | ไม่ผ่านด่าน และไม่เพิ่ม EXP |
@@ -352,15 +329,11 @@ keyrush-backend/
 id
 username
 email
-password
+googleId
 displayName
 avatar
 bio
 role
-isEmailVerified
-verifyToken
-resetToken
-resetTokenExpiry
 linuxLevel
 linuxExp
 windowsLevel
@@ -407,13 +380,7 @@ createdAt
 
 | Method | Endpoint | รายละเอียด |
 |---|---|---|
-| POST | `/api/auth/register` | สมัครสมาชิก |
-| POST | `/api/auth/login` | เข้าสู่ระบบ |
-| POST | `/api/auth/google` | Login ด้วย Google |
-| GET | `/api/auth/verify` | ยืนยันอีเมล |
-| POST | `/api/auth/resend-verification` | ส่งอีเมลยืนยันซ้ำ |
-| POST | `/api/auth/forgot-password` | ขอรีเซ็ตรหัสผ่าน |
-| POST | `/api/auth/reset-password` | ตั้งรหัสผ่านใหม่ |
+| POST | `/api/auth/google` | Login / สมัครสมาชิกอัตโนมัติด้วย Google (Client-side Token Flow) |
 
 ### User
 
@@ -494,7 +461,7 @@ npx wrangler d1 migrations apply keyrush-db --local
 
 ```
 JWT_SECRET=your_jwt_secret_key
-SEED_PASSWORD=your_seed_password
+GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
 รันสคริปต์เสกข้อมูลจำลอง (Seed):
