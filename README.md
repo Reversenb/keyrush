@@ -4,10 +4,30 @@ KeyRush เป็นเว็บแอปพลิเคชันสำหรั
 
 โปรเจกต์นี้แบ่งออกเป็น 2 repository หลัก ได้แก่
 
-- `keyrush-frontend` — ส่วนหน้าเว็บ พัฒนาด้วย Next.js, React, TypeScript และ Tailwind CSS
-- `keyrush-backend` — ส่วน API Server พัฒนาด้วย Node.js, Express.js, TypeScript, Prisma และ PostgreSQL
+- **keyrush-frontend** — ส่วนหน้าเว็บ พัฒนาด้วย Next.js, React, TypeScript และ Tailwind CSS
+- **keyrush-backend** — ส่วน API Server พัฒนาด้วย Hono, Cloudflare Workers, TypeScript, Prisma และ Cloudflare D1 (SQLite)
 
-ระบบถูกออกแบบเป็น Stateless REST API เพื่อให้โครงสร้างเบา เข้าใจง่าย และเหมาะสำหรับการขยายระบบในอนาคต
+ระบบถูกออกแบบเป็น Serverless REST API เพื่อให้โครงสร้างเบา ประมวลผลได้รวดเร็วบน Edge Network ทั่วโลก เข้าใจง่าย และรองรับผู้ใช้งานจำนวนมากได้โดยไม่ต้องกังวลเรื่องการจัดการเซิร์ฟเวอร์
+
+---
+
+## สารบัญ
+
+- [ภาพรวมและจุดประสงค์](#ภาพรวมและจุดประสงค์)
+- [เทคโนโลยีที่ใช้](#เทคโนโลยีที่ใช้)
+- [สถาปัตยกรรมระบบ](#สถาปัตยกรรมระบบ)
+- [ฟีเจอร์หลักตามบทบาท](#ฟีเจอร์หลักตามบทบาท)
+- [Use Case หลักของระบบ](#use-case-หลักของระบบ)
+- [Test Case หลักของระบบ](#test-case-หลักของระบบ)
+- [โครงสร้างโปรเจกต์](#โครงสร้างโปรเจกต์)
+- [ฐานข้อมูลหลัก](#ฐานข้อมูลหลัก)
+- [API Endpoints](#api-endpoints)
+- [ความต้องการของระบบ](#ความต้องการของระบบ)
+- [วิธีเริ่มต้นใช้งาน (Local Development)](#วิธีเริ่มต้นใช้งาน-local-development)
+- [บัญชีทดสอบ](#บัญชีทดสอบ)
+- [คำสั่งที่ใช้บ่อย](#คำสั่งที่ใช้บ่อย)
+- [ข้อจำกัดของระบบ](#ข้อจำกัดของระบบ)
+- [สรุป](#สรุป)
 
 ---
 
@@ -19,14 +39,14 @@ KeyRush เป็นเว็บแอปพลิเคชันสำหรั
 | ผู้ใช้หลัก | ผู้เล่นทั่วไป, ผู้ดูแลระบบ |
 | จุดประสงค์ | ฝึกใช้คำสั่ง Terminal / Command Line ผ่านเกมภารกิจ |
 | ระบบปฏิบัติการที่รองรับ | Linux และ Windows |
-| การยืนยันตัวตน | JWT Bearer Token และ Google OAuth |
-| ฐานข้อมูล | PostgreSQL |
-| ORM | Prisma |
-| รูปแบบ API | REST API |
+| การยืนยันตัวตน | Google OAuth (Client-side Token Flow) และ JWT Bearer Token |
+| ฐานข้อมูล | Cloudflare D1 (Serverless SQLite) |
+| ORM | Prisma (พร้อม `@prisma/adapter-d1`) |
+| รูปแบบ API | Serverless REST API |
 
-Workflow หลักของระบบ:
+**Workflow หลักของระบบ:**
 
-```txt
+```
 เลือก OS → เลือกด่าน → อ่านโจทย์ → พิมพ์คำสั่ง → ตรวจคำตอบ → บันทึก EXP/Level → แสดงผลบน Dashboard/Leaderboard
 ```
 
@@ -39,49 +59,45 @@ Workflow หลักของระบบ:
 | เทคโนโลยี | รายละเอียด |
 |---|---|
 | Next.js | React Framework สำหรับสร้างเว็บแอปและจัดการ Routing |
-| React | ใช้สร้าง UI Components |
+| React | ใช้สร้าง UI Components (ผสาน Event Listeners สำหรับจับ Keystroke) |
 | TypeScript | เพิ่มความปลอดภัยของชนิดข้อมูล |
-| Tailwind CSS | ใช้จัดการ Styling |
-| Framer Motion | ใช้ทำ Animation และ UI Interaction |
+| Tailwind CSS | ใช้จัดการ Styling สไตล์ Modern & Glassmorphism |
+| Framer Motion | ใช้ทำ Animation และ UI Interaction ให้สมูท |
 | Axios / Fetch API | ใช้เรียก REST API จาก Backend |
-| Google OAuth | ใช้สำหรับ Login ผ่าน Google |
+| Google OAuth | ใช้สำหรับ Login ผ่าน Google (`@react-oauth/google`) |
 | LocalStorage | ใช้เก็บ JWT Token และข้อมูลผู้ใช้ฝั่ง Client |
 
-หน้าที่ของ Frontend:
+**หน้าที่ของ Frontend:**
 
-```txt
-- แสดง UI ให้ผู้ใช้ใช้งาน
-- รับ input เช่น username, password, command
+```
+- แสดง UI ให้ผู้ใช้ใช้งาน (Gamified Terminal)
+- จับ Event การพิมพ์ (Keystrokes) คำนวณ WPM และ Accuracy แบบ Real-time
+- รับ input เช่น command และข้อมูลจาก Google Login
 - เรียก API ไปยัง backend
 - แสดงข้อมูล Mission, Progress, Documents, Leaderboard
 - เก็บ token และ user data ไว้ใน localStorage
 - จัดการ routing เช่น /dashboard, /campaign, /documents, /leaderboard
 ```
 
----
-
 ### Backend (`keyrush-backend/`)
 
 | เทคโนโลยี | รายละเอียด |
 |---|---|
-| Node.js | Runtime สำหรับรัน JavaScript/TypeScript ฝั่ง Server |
-| Express.js | Web API Framework |
+| Cloudflare Workers | Runtime สำหรับรันโค้ดฝั่ง Server แบบ Serverless บน Edge Network |
+| Hono | Web API Framework สุดเบาและเร็ว ออกแบบมาเพื่อ Edge Computing โดยเฉพาะ |
 | TypeScript | ใช้เพิ่ม type safety ให้ backend |
-| Prisma ORM | ใช้ติดต่อฐานข้อมูลและจัดการ schema |
-| PostgreSQL | ฐานข้อมูลหลัก |
-| JWT | ใช้สำหรับ Authentication |
-| bcrypt | ใช้ hash password ก่อนบันทึกลงฐานข้อมูล |
-| Nodemailer | ใช้ส่งอีเมลยืนยันบัญชีและกู้รหัสผ่าน |
-| dotenv | ใช้โหลด Environment Variables |
-| CORS | เปิดให้ frontend เรียก API ได้ |
+| Prisma ORM | ใช้ติดต่อฐานข้อมูลและจัดการ schema ให้ใช้งานง่าย |
+| Cloudflare D1 | ฐานข้อมูลหลัก (Serverless SQLite) |
+| JWT | ใช้สำหรับ Authentication และ Session Management (ออก Token หลัง Verify บัญชี Google) |
+| CORS | เปิดให้ frontend จากต่างโดเมนเรียก API ได้อย่างปลอดภัย |
 
-หน้าที่ของ Backend:
+**หน้าที่ของ Backend:**
 
-```txt
-- รับ request จาก frontend
-- ตรวจสอบข้อมูลและสิทธิ์ของผู้ใช้
-- จัดการ Authentication และ Authorization
-- Query / Create / Update / Delete ข้อมูลผ่าน Prisma
+```
+- รับ request จาก frontend ด้วยความหน่วง (Latency) ต่ำสุดผ่าน Edge
+- ตรวจสอบข้อมูลและสิทธิ์ของผู้ใช้ผ่าน JWT Secret ใน Bindings
+- จัดการ Authentication ด้วยการ Validate Token จาก Google และออก JWT Token ให้ Client
+- Query / Create / Update / Delete ข้อมูลผ่าน Prisma + D1
 - ส่ง response กลับเป็น JSON
 - จัดการ business logic เช่น Mission, Progress, Leaderboard, Documents
 ```
@@ -92,29 +108,29 @@ Workflow หลักของระบบ:
 
 ### Request Flow
 
-```txt
+```
 Browser / Client
     │
     ▼
-Next.js Frontend : http://localhost:3000
+Next.js Frontend : Vercel (Production) / localhost:3000 (Dev)
     │
-    │  HTTP Request / Fetch / Axios
+    │  HTTP Request / Fetch (HTTPS)
     ▼
-Express.js Backend : http://localhost:5000
+Hono Backend : Cloudflare Workers (*.workers.dev) / localhost:8787 (Dev)
     │
-    │  Prisma ORM
+    │  Prisma ORM + @prisma/adapter-d1
     ▼
-PostgreSQL Database : localhost:5432
+Cloudflare D1 Database (Edge SQLite)
 ```
 
 ### Layer การทำงาน
 
-```txt
+```
 Presentation Layer
 - Next.js / React UI
 
 API Layer
-- Express.js REST API
+- Hono Serverless REST API
 
 Business Logic Layer
 - Auth, Mission, Progress, Leaderboard, Documents, Admin CMS
@@ -123,7 +139,7 @@ Data Access Layer
 - Prisma ORM
 
 Database Layer
-- PostgreSQL
+- Cloudflare D1 (SQLite)
 ```
 
 ---
@@ -134,10 +150,7 @@ Database Layer
 
 | ฟีเจอร์ | รายละเอียด |
 |---|---|
-| Register / Login | สมัครสมาชิกและเข้าสู่ระบบ |
-| Google Login | เข้าสู่ระบบผ่านบัญชี Google |
-| Email Verification | ยืนยันอีเมลก่อนเข้าใช้งาน |
-| Forgot Password | ขอรีเซ็ตรหัสผ่านผ่านอีเมล |
+| Google Login | เข้าสู่ระบบผ่านบัญชี Google แบบ Client-side Token Flow (ปลอดภัยสูง, ไม่มีระบบ Password) |
 | Campaign Mode | เล่นด่านฝึกคำสั่ง Linux / Windows |
 | Progress Tracking | เก็บ Level และ EXP แยกตาม OS |
 | Dashboard | ดูสถิติส่วนตัว เช่น WPM, Accuracy |
@@ -151,7 +164,7 @@ Database Layer
 | ฟีเจอร์ | รายละเอียด |
 |---|---|
 | Mission Management | เพิ่ม แก้ไข ลบ Mission |
-| Admin Authorization | ตรวจสอบ role ก่อนเข้าใช้งาน API |
+| Admin Authorization | ตรวจสอบ role ผ่าน JWT ก่อนเข้าใช้งาน API ป้องกันคนนอก |
 | Favorite Mission | กดบันทึก Mission ที่สนใจ |
 | Databank | ดูคำตอบและข้อมูลโจทย์ทั้งหมด |
 
@@ -159,116 +172,87 @@ Database Layer
 
 ## Use Case หลักของระบบ
 
-### UC-01: สมัครสมาชิก
+### UC-01: Login ด้วย Google
 
-**Actor:** ผู้ใช้ใหม่
+**Actor:** ผู้ใช้ (ใหม่หรือเดิม)
 
 **Flow:**
 
-```txt
-1. ผู้ใช้กรอก username, email, password และ displayName
-2. Frontend ส่ง POST /api/auth/register
-3. Backend validate ข้อมูล
-4. Backend ตรวจ username/email ซ้ำ
-5. Backend hash password ด้วย bcrypt
-6. Backend สร้าง verifyToken
-7. Backend บันทึก user ลง database
-8. Backend ส่งอีเมลยืนยันบัญชี
 ```
-
-**ผลลัพธ์:** ผู้ใช้มีบัญชีในระบบและต้องยืนยันอีเมลก่อน Login
-
----
-
-### UC-02: Login
-
-**Actor:** ผู้ใช้ที่มีบัญชี
-
-**Flow:**
-
-```txt
-1. ผู้ใช้กรอก username และ password
-2. Frontend ส่ง POST /api/auth/login
-3. Backend ค้นหา user จาก database
-4. Backend ตรวจ password ด้วย bcrypt.compare
-5. Backend ตรวจว่า email verified แล้วหรือยัง
-6. Backend สร้าง JWT Token
+1. ผู้ใช้กด Login ด้วย Google
+2. Frontend รับ Google ID Token ผ่าน @react-oauth/google
+3. Frontend ส่ง POST /api/auth/google พร้อม Google ID Token
+4. Backend ตรวจสอบความถูกต้องของ Token กับ Google
+5. Backend ค้นหา user จาก email ใน D1 หากไม่พบให้สร้าง user ใหม่อัตโนมัติ
+6. Backend สร้าง JWT Token ผ่าน JWT_SECRET ใน Bindings
 7. Frontend เก็บ token และ user data ลง localStorage
 ```
 
-**ผลลัพธ์:** ผู้ใช้เข้าสู่ระบบสำเร็จและสามารถใช้งานระบบได้
+**ผลลัพธ์:** ผู้ใช้เข้าสู่ระบบสำเร็จและสามารถใช้งานระบบได้ทันทีโดยไม่ต้องสมัครสมาชิกแยก
 
----
-
-### UC-03: เล่น Mission
+### UC-02: เล่น Mission
 
 **Actor:** ผู้ใช้ที่เข้าสู่ระบบแล้ว
 
 **Flow:**
 
-```txt
+```
 1. ผู้ใช้เลือก OS เช่น linux หรือ windows
 2. Frontend เรียก GET /api/mission/:os/:level
-3. Backend query mission จาก database
-4. Frontend แสดงโจทย์
-5. ผู้ใช้พิมพ์ command
+3. Backend query mission จาก D1 database
+4. Frontend แสดงโจทย์และ Terminal จำลอง
+5. ผู้ใช้พิมพ์ command (ระบบตรวจจับ WPM/Accuracy)
 6. Frontend ตรวจคำสั่งกับ expectedCommand
 7. ถ้าถูกต้อง Frontend ส่ง PUT /api/user/progress
-8. Backend update Level, EXP และ PlayHistory
+8. Backend update Level, EXP และ PlayHistory ใน D1
 ```
 
 **ผลลัพธ์:** ผู้ใช้ผ่านด่าน ได้รับ EXP และระบบบันทึกความก้าวหน้า
 
----
-
-### UC-04: ดู Documents
+### UC-03: ดู Documents
 
 **Actor:** ผู้ใช้ทั่วไปหรือผู้ใช้ที่ Login แล้ว
 
 **Flow:**
 
-```txt
+```
 1. ผู้ใช้เข้า /documents
 2. Frontend เรียก GET /api/docs/commands
-3. Backend query ตาราง Mission
+3. Backend query ตาราง Mission ใน D1
 4. Backend map Mission เป็น Command Document
 5. Frontend แสดง command, syntax, example, description และ rewardExp
 ```
 
 **ผลลัพธ์:** ผู้ใช้สามารถอ่านคำอธิบายคำสั่งจากข้อมูลจริงใน database
 
----
-
-### UC-05: ดู Leaderboard
+### UC-04: ดู Leaderboard
 
 **Actor:** ผู้ใช้ทั่วไปหรือผู้ใช้ที่ Login แล้ว
 
 **Flow:**
 
-```txt
+```
 1. ผู้ใช้เปิดหน้า Leaderboard
 2. Frontend เรียก GET /api/leaderboard/:os
-3. Backend query user ที่มี EXP
+3. Backend query user ที่มี EXP สูงสุดจาก D1
 4. Backend sort ตาม EXP
 5. Frontend แสดงอันดับผู้เล่น
 ```
 
 **ผลลัพธ์:** ผู้ใช้เห็นอันดับผู้เล่นแยก Linux, Windows หรือ Combined
 
----
-
-### UC-06: Admin จัดการ Mission
+### UC-05: Admin จัดการ Mission
 
 **Actor:** Admin
 
 **Flow:**
 
-```txt
+```
 1. Admin login
-2. Frontend ส่ง request ไปยัง /api/admin/missions
+2. Frontend ส่ง request ไปยัง /api/admin/missions พร้อม Bearer Token
 3. Backend ตรวจ JWT Token
 4. Backend ตรวจ role ว่าเป็น admin หรือไม่
-5. Admin สามารถเพิ่ม แก้ไข หรือลบ mission ได้
+5. Admin สามารถเพิ่ม แก้ไข หรือลบ mission ผ่าน Prisma ลง D1 ได้
 ```
 
 **ผลลัพธ์:** ข้อมูล Mission ใน database ถูกจัดการผ่านหน้า Admin CMS
@@ -277,84 +261,16 @@ Database Layer
 
 ## Test Case หลักของระบบ
 
-### TC-AUTH-001: Register สำเร็จ
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Register |
-| Precondition | username และ email ยังไม่ซ้ำ |
-| Steps | กรอกข้อมูลสมัครสมาชิกและกด Register |
-| Expected Result | สร้าง user สำเร็จ, password ถูก hash, ส่งอีเมลยืนยัน |
-
----
-
-### TC-AUTH-002: Login ด้วย Password ผิด
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Login |
-| Steps | กรอก username ถูกต้อง แต่ password ผิด |
-| Expected Result | ระบบไม่ให้ login และไม่สร้าง JWT token |
-
----
-
-### TC-MISSION-001: โหลด Mission สำเร็จ
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Mission |
-| Steps | เรียก `GET /api/mission/linux/1` |
-| Expected Result | Backend ส่งข้อมูล mission กลับมา |
-
----
-
-### TC-MISSION-002: พิมพ์คำสั่งถูกต้อง
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Command Validation |
-| Steps | พิมพ์ command ตรงกับ expectedCommand |
-| Expected Result | ผ่านด่าน และบันทึก progress |
-
----
-
-### TC-MISSION-003: พิมพ์คำสั่งผิด
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Command Validation |
-| Steps | พิมพ์ command ไม่ตรงกับ expectedCommand |
-| Expected Result | ไม่ผ่านด่าน และไม่เพิ่ม EXP |
-
----
-
-### TC-PROGRESS-001: บันทึก Progress Linux
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Save Progress |
-| Steps | ส่ง `PUT /api/user/progress` พร้อม `os=linux` |
-| Expected Result | update `linuxLevel` และ `linuxExp` |
-
----
-
-### TC-DOCS-001: โหลด Documents สำเร็จ
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Documents |
-| Steps | เปิดหน้า `/documents` |
-| Expected Result | แสดงข้อมูลคำสั่งจาก Mission database |
-
----
-
-### TC-ADMIN-001: User ธรรมดาเข้า Admin API
-
-| หัวข้อ | รายละเอียด |
-|---|---|
-| Feature | Admin Authorization |
-| Steps | user role ปกติเรียก `/api/admin/missions` |
-| Expected Result | ระบบส่ง `403 Access Denied` |
+| Test Case | Feature | Precondition / Steps | Expected Result |
+|---|---|---|---|
+| **TC-AUTH-001** Login ด้วย Google สำเร็จ | Google Login | ผู้ใช้กด Login ด้วย Google และยืนยันบัญชี | Backend validate Token สำเร็จ, สร้าง/ค้นหา user และออก JWT token |
+| **TC-AUTH-002** Google Token ไม่ถูกต้อง | Google Login | ส่ง Google ID Token ที่หมดอายุหรือปลอมไปยัง `/api/auth/google` | ระบบปฏิเสธ ไม่ออก JWT token |
+| **TC-MISSION-001** โหลด Mission สำเร็จ | Mission | เรียก `GET /api/mission/linux/1` | Backend ส่งข้อมูล mission กลับมา |
+| **TC-MISSION-002** พิมพ์คำสั่งถูกต้อง | Command Validation | พิมพ์ command ตรงกับ expectedCommand | ผ่านด่าน และบันทึก progress |
+| **TC-MISSION-003** พิมพ์คำสั่งผิด | Command Validation | พิมพ์ command ไม่ตรงกับ expectedCommand | ไม่ผ่านด่าน และไม่เพิ่ม EXP |
+| **TC-PROGRESS-001** บันทึก Progress Linux | Save Progress | ส่ง `PUT /api/user/progress` พร้อม `os=linux` | update linuxLevel และ linuxExp |
+| **TC-DOCS-001** โหลด Documents สำเร็จ | Documents | เปิดหน้า `/documents` | แสดงข้อมูลคำสั่งจาก Mission database |
+| **TC-ADMIN-001** User ธรรมดาเข้า Admin API | Admin Authorization | user role ปกติเรียก `/api/admin/missions` | ระบบส่ง 403 Access Denied |
 
 ---
 
@@ -362,7 +278,7 @@ Database Layer
 
 ### Frontend
 
-```txt
+```
 keyrush-frontend/
 ├── app/
 │   ├── dashboard/
@@ -381,22 +297,23 @@ keyrush-frontend/
 └── tsconfig.json
 ```
 
-### Backend
+### Backend (Serverless)
 
-```txt
+```
 keyrush-backend/
 ├── prisma/
 │   ├── schema.prisma
-│   └── seed.ts
+│   └── migrations/
 ├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── middlewares/
+│   ├── index.ts (Entry point ของ Hono)
 │   ├── routes/
-│   └── app.ts
-├── server.ts
+│   │   ├── auth.ts
+│   │   ├── mission.ts
+│   │   ├── user.ts
+│   │   └── ...
+│   └── seed.ts (สคริปต์เสกข้อมูล)
+├── wrangler.toml (ตั้งค่า Cloudflare Workers & D1)
 ├── package.json
-├── .env.example
 └── tsconfig.json
 ```
 
@@ -408,19 +325,15 @@ keyrush-backend/
 
 ใช้เก็บข้อมูลผู้ใช้และความก้าวหน้า
 
-```txt
+```
 id
 username
 email
-password
+googleId
 displayName
 avatar
 bio
 role
-isEmailVerified
-verifyToken
-resetToken
-resetTokenExpiry
 linuxLevel
 linuxExp
 windowsLevel
@@ -433,7 +346,7 @@ createdAt
 
 ใช้เก็บข้อมูลด่าน
 
-```txt
+```
 id
 os
 difficulty
@@ -449,7 +362,7 @@ rewardExp
 
 ใช้เก็บประวัติการเล่นและสถิติ
 
-```txt
+```
 id
 userId
 os
@@ -467,13 +380,7 @@ createdAt
 
 | Method | Endpoint | รายละเอียด |
 |---|---|---|
-| POST | `/api/auth/register` | สมัครสมาชิก |
-| POST | `/api/auth/login` | เข้าสู่ระบบ |
-| POST | `/api/auth/google` | Login ด้วย Google |
-| GET | `/api/auth/verify` | ยืนยันอีเมล |
-| POST | `/api/auth/resend-verification` | ส่งอีเมลยืนยันซ้ำ |
-| POST | `/api/auth/forgot-password` | ขอรีเซ็ตรหัสผ่าน |
-| POST | `/api/auth/reset-password` | ตั้งรหัสผ่านใหม่ |
+| POST | `/api/auth/google` | Login / สมัครสมาชิกอัตโนมัติด้วย Google (Client-side Token Flow) |
 
 ### User
 
@@ -522,13 +429,13 @@ createdAt
 |---|---|
 | Node.js | 18.x หรือ 20.x ขึ้นไป |
 | npm | มาพร้อม Node.js |
-| PostgreSQL | 14.x ขึ้นไป |
+| Cloudflare Account | สำหรับ Deploy Workers และ D1 |
+| Wrangler CLI | ติดตั้งผ่าน dependency ของ backend |
 | Git | เวอร์ชันล่าสุด |
-| Prisma CLI | ติดตั้งผ่าน dependency ของ backend |
 
 ---
 
-## วิธีเริ่มต้นใช้งาน
+## วิธีเริ่มต้นใช้งาน (Local Development)
 
 ### 1. Clone Repository
 
@@ -537,68 +444,68 @@ git clone https://github.com/Reversenb/keyrush-frontend.git
 git clone https://github.com/Reversenb/keyrush-backend.git
 ```
 
----
-
-### 2. ตั้งค่า Backend
+### 2. ตั้งค่า Backend (Hono + Cloudflare D1)
 
 ```bash
 cd keyrush-backend
 npm install
 ```
 
-สร้างไฟล์ `.env` จาก `.env.example`
-
-```env
-PORT=5000
-DATABASE_URL="postgresql://<user>:<password>@localhost:5432/keyrush?schema=public"
-JWT_SECRET="your_jwt_secret_key"
-EMAIL_USER="your_email@gmail.com"
-EMAIL_PASS="your_app_password"
-```
-
-รัน Prisma และ seed ข้อมูล
+สร้างฐานข้อมูล D1 แบบ Local ผ่าน Wrangler และอัปเดต Schema:
 
 ```bash
-npx prisma db push
-npx prisma db seed
+npx wrangler d1 migrations apply keyrush-db --local
 ```
 
-รัน backend
+ตั้งค่า Secret สำหรับ JWT (สร้างไฟล์ `.dev.vars` สำหรับรันทดสอบในเครื่อง):
+
+```
+JWT_SECRET=your_jwt_secret_key
+GOOGLE_CLIENT_ID=your_google_client_id
+```
+
+รันสคริปต์เสกข้อมูลจำลอง (Seed):
+
+```bash
+npm run seed
+```
+
+รัน backend:
 
 ```bash
 npm run dev
+# หรือ npx wrangler dev
 ```
 
-Backend จะรันที่
+Backend จะรันที่:
 
-```txt
-http://localhost:5000
+```
+http://localhost:8787
 ```
 
----
-
-### 3. ตั้งค่า Frontend
+### 3. ตั้งค่า Frontend (Next.js)
 
 ```bash
 cd keyrush-frontend
 npm install
 ```
 
-สร้างไฟล์ `.env.local`
+สร้างไฟล์ `.env.local`:
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+NEXT_PUBLIC_API_URL=http://localhost:8787
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 ```
 
-รัน frontend
+รัน frontend:
 
 ```bash
 npm run dev
 ```
 
-Frontend จะรันที่
+Frontend จะรันที่:
 
-```txt
+```
 http://localhost:3000
 ```
 
@@ -611,7 +518,7 @@ http://localhost:3000
 | `admin@keyrush.local` | Admin | ใช้ทดสอบหน้า Admin CMS |
 | `player1@keyrush.local` | User | ใช้ทดสอบระบบผู้เล่นทั่วไป |
 
-> หมายเหตุ: บัญชีทดสอบขึ้นอยู่กับข้อมูลใน seed script ของ backend
+> **หมายเหตุ:** บัญชีทดสอบขึ้นอยู่กับข้อมูลใน seed script ของ backend
 
 ---
 
@@ -621,11 +528,9 @@ http://localhost:3000
 
 ```bash
 npm run dev
-npm run build
-npm start
-npx prisma db push
-npx prisma db seed
-npx prisma studio
+npm run deploy
+npx wrangler d1 migrations apply keyrush-db --local
+npx wrangler d1 migrations apply keyrush-db --remote
 ```
 
 ### Frontend
@@ -643,26 +548,22 @@ npm run lint
 
 | หัวข้อ | รายละเอียด |
 |---|---|
-| Command Validation | ยังตรวจคำสั่งโดยเทียบกับ `expectedCommand` เป็นหลัก |
+| Command Validation | ยังตรวจคำสั่งโดยเทียบกับ expectedCommand เป็นหลัก |
 | Analytics | บาง metric ยังต้องเพิ่มระบบ log เช่น retention, retry count |
-| Email Service | ใช้ Nodemailer เหมาะกับระบบตัวอย่าง ยังไม่ใช่ queue-based email |
-| Connection Pool | หาก deploy production ควรตั้งค่า connection pooling |
-| Multi-Tenant | ระบบยังเป็นฐานข้อมูลกลาง ไม่รองรับแยกองค์กร |
+| Serverless DB Limits | Cloudflare D1 ในแพ็กเกจฟรีมีจำกัดจำนวน Read/Write ต่อวัน แต่เพียงพอต่อการใช้งานระดับโปรเจกต์ขนาดกลาง |
+| Edge Function Size | โค้ด Backend เมื่อมัดรวม (Build) ต้องมีขนาดไม่เกินโควต้าของ Cloudflare Workers |
+| Survival Mode | อยู่ในระหว่างการพัฒนาแผนงาน เพื่อเพิ่มโหมดแข่งกับเวลา |
 | Realtime PvP | เวอร์ชันปัจจุบันเน้น Stateless REST API และถอด PvP ออกเพื่อให้ระบบเบาขึ้น |
-
----
-
-
 
 ---
 
 ## สรุป
 
-KeyRush เป็นเว็บแอปสำหรับฝึกใช้คำสั่ง Terminal และ Command Line ผ่านรูปแบบภารกิจ โดยมีระบบผู้ใช้ ระบบยืนยันตัวตน ระบบด่านฝึกซ้อม ระบบเก็บ EXP และ Level ระบบสถิติ ระบบเอกสารคำสั่ง ระบบจัดอันดับ และระบบ Admin CMS
+KeyRush เป็นเว็บแอปสำหรับฝึกใช้คำสั่ง Terminal และ Command Line ผ่านรูปแบบภารกิจ โดยมีระบบผู้ใช้ ระบบยืนยันตัวตนแบบ Client-side Token Flow ระบบด่านฝึกซ้อม ระบบเก็บ EXP และ Level ระบบสถิติ ระบบเอกสารคำสั่ง ระบบจัดอันดับ และระบบ Admin CMS
 
-Frontend ทำหน้าที่เป็นส่วนติดต่อผู้ใช้และเรียกใช้งาน API  
-Backend ทำหน้าที่เป็น REST API Server และจัดการ Business Logic  
-Database ใช้เก็บข้อมูลผู้ใช้ Mission และสถิติการเล่น  
-Prisma ทำหน้าที่เป็นตัวกลางระหว่าง Backend และ PostgreSQL
+- **Frontend** ทำหน้าที่เป็นส่วนติดต่อผู้ใช้และเรียกใช้งาน API ขับเคลื่อนด้วยสถาปัตยกรรม Edge Computing
+- **Backend** ทำหน้าที่เป็น REST API Server แบบ Serverless โดยจัดการ Business Logic ผ่าน Hono Framework
+- **Database** ใช้เก็บข้อมูลผู้ใช้ Mission และสถิติการเล่นด้วย Cloudflare D1 (Serverless SQLite)
+- **Prisma** ทำหน้าที่เป็นตัวกลางในการสื่อสารและจัดการ Schema ฐานข้อมูล
 
-โปรเจกต์นี้แสดงให้เห็นการทำงานครบตั้งแต่ Frontend, Backend, Database, Authentication, Authorization, API Design และ Data-driven UI
+โปรเจกต์นี้แสดงให้เห็นการทำงานครบตั้งแต่ Frontend, Backend, Database, Authentication, Authorization, API Design ไปจนถึงการใช้งานโครงสร้างพื้นฐานระดับ Modern Serverless อย่างเต็มรูปแบบ
