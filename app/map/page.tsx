@@ -32,7 +32,7 @@ const MAP_MODES = [
         subtitle: 'Sector 02',
         desc: 'เอาชีวิตรอดจากกองทัพบั๊ก! พิมพ์คำสั่งให้เร็วและแม่นยำที่สุดก่อนที่เวลาจะหมดลง',
         icon: Zap,
-        isLocked: false, // 🔓 ปลดล็อคโหมดนี้แล้ว!
+        isLocked: true, // 🔓 ปลดล็อคโหมดนี้แล้ว!
         link: '/survival', // 🔗 เชื่อมโยงไปยังหน้า Survival
         colorTheme: 'blue',
     },
