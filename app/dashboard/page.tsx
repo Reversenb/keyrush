@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
-import { Play, Map, History, Activity, Target, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
+import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+
 
 const RANKS = [
   { id: 1, title: "Script Kiddie", minExp: 0, color: "text-slate-300", icon: "keyboard" },
@@ -431,7 +432,7 @@ export default function DashboardPage() {
                   onClick={() => router.push('/history')}
                   className="btn-squishy flex items-center gap-2 px-5 py-3 bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#1E1B2E] hacker:shadow-[0_6px_0_#0a0a0a] rounded-[20px] text-xs font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
                 >
-                  ดูทั้งหมด <span className="material-symbols-outlined text-[18px] font-bold">arrow_forward</span>
+                  ดูทั้งหมด <ArrowRight size={18} strokeWidth={3} />
                 </button>
               </div>
 
@@ -457,7 +458,7 @@ export default function DashboardPage() {
                             <td className="px-8 py-5">
                               <div className="flex items-center gap-4">
                                 <div className={`size-14 rounded-[20px] flex items-center justify-center border-4 border-white dark:border-transparent hacker:border-transparent ${themeColor} ${bgIcon} group-hover:scale-110 transition-transform shadow-sm`}>
-                                  <span className="material-symbols-outlined text-2xl font-bold">{isLinux ? 'developer_board' : 'window'}</span>
+                                  {isLinux ? <Cpu size={24} strokeWidth={2.5} /> : <AppWindow size={24} strokeWidth={2.5} />}
                                 </div>
                                 <div>
                                   <span className="font-black text-orange-950 dark:text-white hacker:text-white block uppercase tracking-wider text-sm transition-colors">
@@ -492,6 +493,7 @@ export default function DashboardPage() {
                 </table>
               </div>
             </motion.div>
+
 
             <footer className="py-10 text-center text-orange-400 dark:text-white/30 hacker:text-white/30 font-black text-[11px] uppercase tracking-widest transition-colors">
               © 2026 KeyRush Operative Dashboard 💖
