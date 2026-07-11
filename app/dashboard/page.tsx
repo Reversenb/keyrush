@@ -62,7 +62,7 @@ export default function DashboardPage() {
       if (!token) return router.push('/login');
 
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
         const [progRes, statsRes] = await Promise.all([
           fetch(`${apiUrl}/api/user/progress`, { headers: { 'Authorization': `Bearer ${token}` } }),
