@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https:;
   font-src 'self';
@@ -46,7 +46,6 @@ const nextConfig: NextConfig = {
             value: cspHeader
           },
           {
-            
             key: 'X-XSS-Protection',
             value: '1; mode=block'
           }
