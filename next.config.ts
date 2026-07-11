@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline';
+  script-src 'self';
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https:;
   font-src 'self';
@@ -11,15 +11,14 @@ const cspHeader = `
   base-uri 'self';
   form-action 'self';
   frame-ancestors 'none';
-  connect-src 'self' https:;
+  connect-src 'self' https: wss:;
+  upgrade-insecure-requests;
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig: NextConfig = {
-  
   async headers() {
     return [
       {
-        
         source: '/(.*)',
         headers: [
           {
@@ -27,29 +26,29 @@ const nextConfig: NextConfig = {
             value: 'max-age=31536000; includeSubDomains; preload'
           },
           {
-          
             key: 'X-Frame-Options',
             value: 'DENY'
           },
           {
-           
             key: 'X-Content-Type-Options',
             value: 'nosniff'
           },
           {
-            
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin'
           },
           {
-        
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()'
           },
           {
-            
             key: 'Content-Security-Policy',
             value: cspHeader
+          },
+          {
+            
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
           }
         ],
       },
