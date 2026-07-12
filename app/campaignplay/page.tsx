@@ -31,7 +31,7 @@ interface Mission {
   level: number;
   title: string;
   description: string;
-  expectedCommand: string;
+  expectedCommand?: string; // ✅ ปรับเป็น Optional เพราะระบบใหม่ Backend จะไม่ส่งเฉลยมาให้แล้ว
   hint?: string;
   rewardExp?: number;
 }
@@ -141,15 +141,18 @@ export default function GamePage() {
         const result = await response.json();
         if (result.success && result.data) {
           setMissionData(result.data); setIsAllCleared(false); setCurrentPath("~");
-          const expected = result.data.expectedCommand.trim().replace(/\s+/g, ' ');
-          const parts = expected.split(' '); const action = parts[0].toLowerCase();
-          let initialFiles: VirtualFile[] = [];
-          const t1 = parts[1] && !parts[1].startsWith('-') ? parts[1] : (parts[2] || '');
 
-          if (['rm', 'del', 'cat', 'nano', 'vi', 'type', 'cp', 'copy', 'mv', 'move'].includes(action)) initialFiles.push({ name: t1 || 'target_file.txt', type: 'file' });
-          else if (['cd', 'rmdir', 'rd'].includes(action)) initialFiles.push({ name: t1 && t1 !== '..' && t1 !== '~' && t1 !== '/' ? t1 : 'system_core', type: 'folder' });
-          else if (['ls', 'dir', 'll'].includes(action) || expected.includes('ls')) initialFiles.push({ name: 'project_src', type: 'folder' }, { name: 'config.json', type: 'file' }, { name: 'readme.md', type: 'file' }, { name: 'app.ts', type: 'file' });
-
+          // ✅ จุดแก้หลักที่ 1: ระบบจำลองไฟล์ (Virtual File System)
+          // เสกไฟล์พื้นฐานเตรียมไว้ครอบคลุมทุกคำสั่ง ไม่ต้องดึงข้อมูลจากเฉลย (ป้องกันบั๊กหน้าบ้านพัง)
+          let initialFiles: VirtualFile[] = [
+            { name: 'project_src', type: 'folder' },
+            { name: 'config.json', type: 'file' },
+            { name: 'readme.md', type: 'file' },
+            { name: 'app.ts', type: 'file' },
+            { name: 'target_file.txt', type: 'file' },
+            { name: 'old_file.txt', type: 'file' },
+            { name: 'server.log', type: 'file' }
+          ];
           setFileSystem(initialFiles);
         } else { setIsAllCleared(true); }
       } catch (error) { console.error("Error fetching mission:", error); }
@@ -179,7 +182,8 @@ export default function GamePage() {
   const toggleMute = () => { const newState = !isMuted; setIsMuted(newState); localStorage.setItem('keyrush_muted', String(newState)); };
   const playSFX = (type: 'enter' | 'success' | 'error') => { if (isMuted) return; const audio = new Audio(`/sounds/${type}.mp3`); audio.volume = type === 'enter' ? 0.3 : 0.6; audio.play().catch(() => { }); };
 
-  const handleCommand = (rawCommand: string) => {
+  // ✅ จุดแก้หลักที่ 2: เปลี่ยนเป็น async function เพื่อเตรียมยิง API 
+  const handleCommand = async (rawCommand: string) => {
     if (!missionData || !rawCommand.trim() || isPassed) return;
     playSFX('enter');
     if (rawCommand.trim().toLowerCase() === 'reset') { handleResetGame(); return; }
@@ -189,6 +193,7 @@ export default function GamePage() {
     const targets = cmdParts.slice(1).filter(t => !t.startsWith('-') && !t.includes('>'));
     let newPath = currentPath; let isValidSystemCommand = true; let terminalOutput = '';
 
+    // การตอบสนองหลอกๆ ฝั่งหน้าจอ Terminal
     switch (action) {
       case 'clear': case 'cls': terminalRef.current?.reset(currentPath); break;
       case 'pwd': terminalOutput = currentPath === '~' ? `/home/${terminalUsername}` : `/home/${terminalUsername}/${currentPath.replace('~/', '')}`; break;
@@ -232,39 +237,55 @@ export default function GamePage() {
 
     if (action !== 'clear' && action !== 'cls' && terminalOutput) terminalRef.current?.writeLine(`\r\n${terminalOutput}`);
 
-    const expectedNormalized = (missionData?.expectedCommand || '').trim().replace(/\s+/g, ' ');
-
     // =======================================================
-    // ✅ จุดแก้หลัก: ระบบเซฟกันโกง (Anti-Cheat) และการอัปเดตเลเวล
+    // ✅ จุดแก้หลักที่ 3: ระบบเซฟกันโกง (Server-side Validation)
+    // ส่งข้อมูลที่ผู้เล่นพิมพ์ไปให้ Backend ตรวจแทนการเช็คที่หน้าบ้าน
     // =======================================================
-    if (normalizedInput.toLowerCase() === expectedNormalized.toLowerCase()) {
-      setIsPassed(true); setTimeout(() => playSFX('success'), 300);
-
-      const token = localStorage.getItem('keyrush_token');
-      if (token) {
-        // ✅ ไม่ส่ง exp ไปแล้ว Backend คำนวณเอง และส่ง level อันเดิมไป (ไม่ต้อง +1)
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy })
+    try {
+      const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mission/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          os: targetOs,
+          level: currentLevel,
+          userCommand: normalizedInput
         })
-          .then(res => res.json())
-          .then(result => {
-            if (result.success && result.data) {
-              setUserData(result.data);
-              // อัปเดต maxLevel อัตโนมัติหลังเล่นผ่านเพื่อไม่ให้มันคิดว่าเล่นด่านเก่าซ้ำ
-              const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
-              setMaxLevel(newActiveLevel);
-            }
-          });
+      });
+      const verifyData = await verifyRes.json();
+
+      // ถ้า Backend ยืนยันว่า "คำสั่งถูกต้อง"
+      if (verifyData.success && verifyData.isCorrect) {
+        setIsPassed(true); setTimeout(() => playSFX('success'), 300);
+
+        const token = localStorage.getItem('keyrush_token');
+        if (token) {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy })
+          })
+            .then(res => res.json())
+            .then(result => {
+              if (result.success && result.data) {
+                setUserData(result.data);
+                const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
+                setMaxLevel(newActiveLevel);
+              }
+            });
+        }
+        terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
+        setTimeout(() => setShowProceedButton(true), 1200);
+      } else {
+        // ถ้า Backend บอกว่า "ผิด"
+        if (normalizedInput.length > 0) errorsRef.current += Math.max(1, Math.floor(normalizedInput.length / 2));
+        if (!isValidSystemCommand) setTimeout(() => playSFX('error'), 100);
+        setIsErrorAnim(true); setTimeout(() => setIsErrorAnim(false), 400);
       }
-      terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
-      setTimeout(() => setShowProceedButton(true), 1200);
-    } else {
-      if (normalizedInput.length > 0) errorsRef.current += Math.max(1, Math.floor(normalizedInput.length / 2));
-      if (!isValidSystemCommand) setTimeout(() => playSFX('error'), 100);
-      setIsErrorAnim(true); setTimeout(() => setIsErrorAnim(false), 400);
+    } catch (err) {
+      console.error("Verification error:", err);
     }
+
+    // เคลียร์บรรทัดใหม่
     if (action !== 'clear' && action !== 'cls') { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
   };
 

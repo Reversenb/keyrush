@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
-
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com/gsi/client;
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https:;
   font-src 'self';
@@ -11,8 +10,8 @@ const cspHeader = `
   base-uri 'self';
   form-action 'self';
   frame-ancestors 'none';
-  connect-src 'self' https: wss:;
-  upgrade-insecure-requests;
+  frame-src 'self' https://accounts.google.com/;
+  connect-src 'self' https: wss: http://localhost:8787;
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig: NextConfig = {
