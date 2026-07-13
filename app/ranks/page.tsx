@@ -195,10 +195,10 @@ export default function RanksPage() {
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#4B3965] hacker:border-green-800 text-orange-500 dark:text-yellow-400 hacker:text-green-500 text-sm font-black mb-6 shadow-sm transition-colors duration-500">
               <ShieldCheck size={18} strokeWidth={3} />
-              Clearance Status
+              Rank System
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter mb-4 uppercase leading-none cute-header transition-colors duration-500">
-              YOUR <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">RANK</span> 🏆
+              YOUR <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">RANK</span>
             </h1>
           </motion.div>
         </header>

@@ -151,7 +151,7 @@ export default function ModeSelectionMapPage() {
                         เลือกเส้นทางภารกิจของคุณ
                     </div>
                     <h1 className="text-5xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white mb-4 cute-header transition-colors">
-                        OPERATIONAL <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">MAP</span> 🗺️
+                        OPERATIONAL <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">MAP</span>
                     </h1>
                     <p className="text-orange-600 dark:text-white/60 hacker:text-white/60 font-bold text-lg md:text-xl font-prompt max-w-2xl mx-auto tracking-wide transition-colors">
                         เส้นทางการเรียนรู้และฝึกฝนของสายลับ KeyRush เลือกโหมดที่ต้องการแล้วไปลุยกันเลย!

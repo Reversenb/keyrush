@@ -191,7 +191,7 @@ export default function LeaderboardPage() {
           {/* Header */}
           <div className="text-center animate-in fade-in slide-in-from-top-4 duration-700">
             <h1 className="text-4xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter uppercase mb-4 cute-header transition-colors">
-              Global <span className={styles.textMain}>Rankings</span> 🏆
+              Global <span className={styles.textMain}>Rankings</span>
             </h1>
             <p className="text-orange-600 dark:text-yellow-500 hacker:text-green-600 font-bold text-sm max-w-xl mx-auto uppercase tracking-widest transition-colors">
               ตารางจัดอันดับยอดฝีมือ

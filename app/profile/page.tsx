@@ -283,7 +283,7 @@ export default function ProfilePage() {
           <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 md:mb-8 gap-4 relative">
             <div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter drop-shadow-sm leading-none cute-header transition-colors duration-500">
-                USER <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 transition-colors duration-500">PROFILE</span> ✨
+                USER <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 transition-colors duration-500">PROFILE</span>
               </h1>
             </div>
 
@@ -405,7 +405,7 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center pl-2 pr-2">
                     <label className="text-xs text-orange-500 dark:text-yellow-500 hacker:text-green-600 font-black uppercase tracking-widest transition-colors duration-500">
-                      Biography / Status
+                      Bio / Status
                     </label>
                     <span className={`text-xs font-black ${bio.length >= 150 ? 'text-red-500' : 'text-orange-300 dark:text-white/30 hacker:text-green-600/50'} transition-colors duration-500`}>
                       [{bio.length}/150]

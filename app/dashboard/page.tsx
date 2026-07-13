@@ -284,10 +284,10 @@ export default function DashboardPage() {
             <motion.div variants={itemVariants} className="glass-card p-8 md:p-10 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end gap-6 shadow-sm">
               <div className="flex flex-col gap-2 w-full z-10">
                 <h1 className="text-black-600 dark:text-white hacker:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight cute-header transition-colors">
-                  Welcome back, <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">{getShowName()}</span> ✨
+                  Welcome back, <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">{getShowName()}</span>
                 </h1>
                 <p className="text-orange-800 dark:text-white/60 hacker:text-white/60 text-sm md:text-base font-black uppercase tracking-widest mt-1 transition-colors">
-                  สถานะระบบ: <span className="text-orange-500 dark:text-green-400 hacker:text-green-400 animate-pulse">ONLINE</span> 🚀 | ภารกิจที่ผ่าน: <span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500"><AnimatedNumber value={totalLessonsCompleted} start={!loading} /></span>
+                  สถานะระบบ: <span className="text-orange-500 dark:text-green-400 hacker:text-green-400 animate-pulse">ONLINE</span> | ภารกิจที่ผ่าน: <span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500"><AnimatedNumber value={totalLessonsCompleted} start={!loading} /></span>
                 </p>
               </div>
 
