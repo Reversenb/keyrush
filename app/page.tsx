@@ -293,7 +293,7 @@ export default function KeyRushOrangeLandingPage() {
 
         <div className="flex items-center gap-4 md:gap-8">
           <nav className="hidden lg:flex items-center gap-2">
-            {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => {
+            {['จุดเด่น ✨', 'บทเรียน 🎯'].map((name) => {
               const targetId = name === 'จุดเด่น ✨' ? 'features' : 'path';
               return (
                 <a
@@ -416,7 +416,7 @@ export default function KeyRushOrangeLandingPage() {
               ref={mobileMenuRef}
               className="absolute top-full left-0 w-full bg-white/95 dark:bg-[#1E1B2E]/95 hacker:bg-[#0a0a0a]/95 backdrop-blur-2xl border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 shadow-xl flex flex-col p-5 space-y-2 lg:hidden z-40"
             >
-              {['จุดเด่น ✨', 'ด่านฝึก 🎯'].map((name) => {
+              {['จุดเด่น ✨', 'บทเรียน 🎯'].map((name) => {
                 const targetId = name === 'จุดเด่น ✨' ? 'features' : 'path';
                 return (
                   <a
