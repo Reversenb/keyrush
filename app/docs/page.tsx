@@ -494,7 +494,7 @@ function ClearanceContent() {
         Clearance Levels
       </h2>
       <div className="text-orange-800 dark:text-white/70 hacker:text-white/70 space-y-4 text-sm leading-relaxed font-bold transition-colors">
-        <p>ในระบบ KeyRush สายลับไซเบอร์ทุกคนจะถูกจัดระดับตามประสบการณ์ (EXP) ที่สะสมได้จากการทำภารกิจ ยิ่งคุณสะสมคะแนนได้มาก ยศของคุณในฐานข้อมูลก็จะสูงขึ้น</p>
+        <p>ในระบบ KeyRush สายลับไซเบอร์ทุกคนจะถูกจัดระดับตามประสบการณ์ (EXP) ที่สะสมได้จากการทำภารกิจ ยิ่งคุณสะสมคะแนนได้มาก แรงค์ของคุณก็จะสูงขึ้น</p>
 
         <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] p-6 md:p-8 mt-6 shadow-sm transition-colors">
           <h3 className="text-orange-950 dark:text-white hacker:text-white font-black mb-6 uppercase tracking-widest flex items-center gap-2 transition-colors">
