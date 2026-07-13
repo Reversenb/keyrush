@@ -477,7 +477,7 @@ export default function KeyRushOrangeLandingPage() {
             )}
 
             <button onClick={(e) => handleScrollTo(e as any, 'path')} className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111] transition-colors">
-              🎯 ดูด่านทั้งหมด
+              🎯 บทเรียน
             </button>
           </motion.div>
         </motion.div>
