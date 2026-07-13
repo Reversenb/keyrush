@@ -21,8 +21,8 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
-  title: "KeyRush ✨", // เติมอิโมจิให้ดูน่ารักขึ้น
-  description: "Learn terminal commands by playing - ฝึกพิมพ์คีย์ลัดอย่างสนุกสนาน",
+  title: "Keyrush",
+  description: "Learn terminal commands by playing - ฝึกพิมพ์คำสั่งอย่างสนุกสนาน",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
