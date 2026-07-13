@@ -184,7 +184,7 @@ export default function KeyRushOrangeLoginPage() {
             Welcome Back
           </h1>
           <p className="text-orange-800 dark:text-white/60 hacker:text-green-600/70 font-black mb-10 text-sm transition-colors duration-500">
-            เข้าสู่ระบบฝึกซ้อมคีย์ลัดด้วยบัญชี Google ของคุณ 🚀
+            เข้าสู่ระบบฝึกซ้อมKeyRushด้วยบัญชี Google ของคุณ 🚀
           </p>
 
           {/* 🌟 Google Login Button Only */}
@@ -212,7 +212,7 @@ export default function KeyRushOrangeLoginPage() {
           </div>
 
           <p className="mt-6 text-xs font-bold text-orange-400 dark:text-white/40 hacker:text-green-700 transition-colors duration-500">
-            ระบบจะสร้างบัญชีสายลับให้ใหม่ทันทีหากคุณยังไม่เคยลงทะเบียน 🕶️
+            ระบบจะสร้างบัญชีให้ใหม่ทันทีหากคุณยังไม่เคยลงทะเบียน 🕶️
           </p>
 
         </main>
