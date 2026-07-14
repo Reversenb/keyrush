@@ -349,7 +349,7 @@ export default function RanksPage() {
       </main>
 
       <footer className="py-8 text-center text-orange-400 dark:text-white/30 hacker:text-green-600/50 font-black text-xs uppercase tracking-widest relative z-10 border-t-4 border-white dark:border-[#382E54] hacker:border-green-900 bg-white/40 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 backdrop-blur-md transition-colors duration-500">
-        © 2026 KeyRush Operative Directory 💖
+        © 2026 KeyRush
       </footer>
     </div>
   );

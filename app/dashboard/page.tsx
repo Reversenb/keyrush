@@ -493,7 +493,7 @@ export default function DashboardPage() {
 
 
             <footer className="py-10 text-center text-orange-400 dark:text-white/30 hacker:text-white/30 font-black text-[11px] uppercase tracking-widest transition-colors">
-              © 2026 KeyRush Operative Dashboard 💖
+              © 2026 KeyRush
             </footer>
 
           </div>
