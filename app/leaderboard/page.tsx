@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes';
 import { Terminal, Monitor, Globe, RefreshCw, Trophy, AlertCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { apiFetch } from '@/lib/api';
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -25,15 +26,15 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     const fetchUserAndLeaderboard = async () => {
-      const token = localStorage.getItem('keyrush_token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
-      const savedUserStr = localStorage.getItem('keyrush_user');
-      if (savedUserStr) {
-        try { setUser(JSON.parse(savedUserStr)); } catch (e) { }
+      // เช็คสถานะ login + ดึงข้อมูล user สดจาก backend (401 → apiFetch พาไปหน้า login ให้)
+      try {
+        const res = await apiFetch('/api/user/progress');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) setUser(data.data);
+        }
+      } catch (e) {
+        console.error("Auth check failed", e);
       }
 
       const savedOs = (localStorage.getItem('keyrush_target_os') as 'linux' | 'windows' | 'combined') || 'linux';
@@ -47,7 +48,7 @@ export default function LeaderboardPage() {
   const loadLeaderboard = async (os: 'linux' | 'windows' | 'combined') => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard/${os}`);
+      const res = await apiFetch(`/api/leaderboard/${os}`);
 
       const contentType = res.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {

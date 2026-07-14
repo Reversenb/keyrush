@@ -11,6 +11,7 @@ import {
   History as HistoryIcon, ArrowLeft, Terminal, Monitor, Database,
   FileText, Clock, Star, X, Radar, ListFilter
 } from 'lucide-react';
+import { apiFetch, clearUserState } from '@/lib/api';
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -29,24 +30,17 @@ export default function HistoryPage() {
   const [selectedLog, setSelectedLog] = useState<any>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('keyrush_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    setIsAuthenticated(true);
-
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/stats`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        // เช็คสถานะ login ด้วยการยิง endpoint ที่ต้อง auth ตรงๆ (cookie ถูกแนบไปเอง)
+        const res = await apiFetch('/api/user/stats');
 
         if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('keyrush_token');
+          clearUserState();
           router.push('/login');
           return;
         }
+        setIsAuthenticated(true);
 
         const data = await res.json();
         if (data.success && data.data?.recentLessons) {

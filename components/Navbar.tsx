@@ -9,6 +9,7 @@ import {
   Terminal, Bell, LayoutDashboard, User as UserIcon, LogOut,
   ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code
 } from 'lucide-react'; // 🌟 เพิ่มไอคอน Code สำหรับธีม Hacker
+import { logout } from '@/lib/api';
 
 interface NavbarProps {
   theme?: 'linux' | 'windows';
@@ -59,9 +60,10 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('keyrush_token');
-    localStorage.removeItem('keyrush_user');
+  const handleLogout = async () => {
+    // ให้ server revoke token + เคลียร์ cookie ก่อน แล้วค่อยพาไปหน้า login
+    await logout();
+    setUser(null);
     router.push('/login');
   };
 

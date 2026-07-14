@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { apiFetch, clearUserState } from '@/lib/api';
 
 
 const RANKS = [
@@ -59,19 +60,15 @@ export default function DashboardPage() {
     setIsMounted(true); // ✅ เซ็ตค่า Mounted เมื่อรันฝั่ง Client สำเร็จ
 
     const fetchDashboardData = async () => {
-      const token = localStorage.getItem('keyrush_token');
-      if (!token) return router.push('/login');
-
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
+        // cookie ถูกแนบไปเอง — ถ้า 401 apiFetch จะพาไปหน้า login ให้
         const [progRes, statsRes] = await Promise.all([
-          fetch(`${apiUrl}/api/user/progress`, { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch(`${apiUrl}/api/user/stats`, { headers: { 'Authorization': `Bearer ${token}` } })
+          apiFetch('/api/user/progress'),
+          apiFetch('/api/user/stats')
         ]);
 
         if (progRes.status === 401 || progRes.status === 403) {
-          localStorage.removeItem('keyrush_token');
+          clearUserState();
           return router.push('/login');
         }
 

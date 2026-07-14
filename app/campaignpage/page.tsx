@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes';
 import { Terminal, Monitor, Zap, Medal, Activity, CheckCircle, Lock, Power } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { apiFetch, clearUserState } from '@/lib/api';
 
 export default function CampaignPage() {
   const router = useRouter();
@@ -29,21 +30,12 @@ export default function CampaignPage() {
   useEffect(() => {
     setIsMounted(true);
     const fetchProfile = async () => {
-      const token = localStorage.getItem('keyrush_token');
-
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        // cookie ถูกแนบไปเอง — ถ้า 401 apiFetch จะพาไปหน้า login ให้
+        const res = await apiFetch('/api/user/progress');
 
         if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('keyrush_token');
-          localStorage.removeItem('keyrush_user');
+          clearUserState();
           router.push('/login');
           return;
         }

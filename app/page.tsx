@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { useGoogleLogin } from '@react-oauth/google';
+import { apiFetch, clearUserState, logout } from '@/lib/api';
 
 import {
   Map as MapIcon, Lock, Play, Zap, Trophy,
@@ -71,16 +72,27 @@ export default function KeyRushOrangeLandingPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    const savedUser = localStorage.getItem('keyrush_user');
-    const token = localStorage.getItem('keyrush_token');
 
-    if (savedUser && token) {
+    // เช็คสถานะ login จริงจาก backend (cookie ถูกแนบไปเอง) — 200 คือยัง login อยู่, 401 คือไม่/หมดอายุ
+    const checkAuthStatus = async () => {
       try {
-        setUser(JSON.parse(savedUser));
+        const res = await apiFetch('/api/user/progress', {}, { redirectOn401: false });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setUser(data.data);
+            localStorage.setItem('keyrush_user', JSON.stringify(data.data));
+          }
+        } else if (res.status === 401 || res.status === 403) {
+          clearUserState();
+          setUser(null);
+        }
       } catch (e) {
-        console.error("Parse error", e);
+        console.error("Auth status check failed", e);
       }
-    }
+    };
+
+    checkAuthStatus();
     setTimeout(() => setLoading(false), 600);
   }, []);
 
@@ -129,16 +141,16 @@ export default function KeyRushOrangeLandingPage() {
     onSuccess: async (tokenResponse) => {
       setIsLoggingIn(true);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
+        // Backend จะ Set-Cookie (auth_token + csrf_token) กลับมาเอง — ไม่มี token ใน body แล้ว
+        const response = await apiFetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: tokenResponse.access_token }),
-        });
+        }, { redirectOn401: false });
 
         const data = await response.json();
 
         if (data.success) {
-          localStorage.setItem('keyrush_token', data.token);
           localStorage.setItem('keyrush_user', JSON.stringify(data.user));
           setUser(data.user);
           showToast('เข้าสู่ระบบสำเร็จ! 🚀', 'success');
@@ -169,9 +181,9 @@ export default function KeyRushOrangeLandingPage() {
     return 'เพื่อนใหม่';
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('keyrush_token');
-    localStorage.removeItem('keyrush_user');
+  const handleLogout = async () => {
+    // ให้ server revoke token + เคลียร์ cookie ก่อน แล้วค่อยเคลียร์ state ฝั่ง client
+    await logout();
     setUser(null);
     setShowDropdown(false);
   };

@@ -10,6 +10,7 @@ import {
   AlertTriangle, ArrowLeft, Star, Calendar,
   Terminal, Monitor, Trophy, Medal, MessageSquare
 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 // =========================================================================
 // 🌟 ข้อมูล Ranks (อิงตาม EXP ให้ตรงกับหน้า Ranks 100%)
@@ -41,15 +42,12 @@ export default function PublicProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('keyrush_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    // เช็คสถานะ login ด้วยการยิง endpoint ที่ต้อง auth (401 → apiFetch พาไปหน้า login ให้)
+    apiFetch('/api/user/progress').catch((e) => console.error("Auth check failed", e));
 
     const fetchPublicProfile = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile/public/${encodeURIComponent(username)}`);
+        const res = await apiFetch(`/api/user/profile/public/${encodeURIComponent(username)}`);
 
         const contentType = res.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -65,8 +63,8 @@ export default function PublicProfilePage() {
 
           try {
             const [lnxRes, winRes] = await Promise.all([
-              fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard/linux`),
-              fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard/windows`)
+              apiFetch('/api/leaderboard/linux'),
+              apiFetch('/api/leaderboard/windows')
             ]);
             const lnxData = await lnxRes.json();
             const winData = await winRes.json();

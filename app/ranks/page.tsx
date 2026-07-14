@@ -10,6 +10,7 @@ import {
   Keyboard, Terminal, Router as RouterIcon, Server,
   Bug, Fingerprint, Crown, ShieldCheck, Lock, CheckCircle
 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 // 🌟 ข้อมูล Ranks พื้นฐาน
 const RANKS = [
@@ -75,21 +76,17 @@ export default function RanksPage() {
 
   useEffect(() => {
     const fetchUserProgress = async () => {
-      const token = localStorage.getItem('keyrush_token');
-      if (token) {
-        try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && data.data) {
-              setUser(data.data);
-            }
+      try {
+        // หน้านี้ดูได้แม้ไม่ login — เจอ 401 แค่ไม่แสดงข้อมูล user (ไม่ต้องเด้งไปหน้า login)
+        const res = await apiFetch('/api/user/progress', {}, { redirectOn401: false });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setUser(data.data);
           }
-        } catch (err) {
-          console.warn("Offline mode");
         }
+      } catch (err) {
+        console.warn("Offline mode");
       }
       setTimeout(() => setLoading(false), 500);
     };

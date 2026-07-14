@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
+import { apiFetch } from '@/lib/api';
 
 import {
     Map as MapIcon, Lock, Play, Zap, Trophy,
@@ -57,12 +58,16 @@ export default function ModeSelectionMapPage() {
 
     useEffect(() => {
         setIsMounted(true);
-        const token = localStorage.getItem('keyrush_token');
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-        setTimeout(() => setLoading(false), 600);
+        // เช็คสถานะ login ด้วยการยิง endpoint ที่ต้อง auth (401 → apiFetch พาไปหน้า login ให้)
+        const checkAuth = async () => {
+            try {
+                await apiFetch('/api/user/progress');
+            } catch (e) {
+                console.error("Auth check failed", e);
+            }
+            setTimeout(() => setLoading(false), 600);
+        };
+        checkAuth();
     }, [router]);
 
     // 🌸 แอนิเมชัน

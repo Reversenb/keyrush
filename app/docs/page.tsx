@@ -10,6 +10,7 @@ import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
   Target, Trophy, ChevronRight, Search, X
 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 // 🌟 ข้อมูลเมนูด้านซ้าย
 const DOC_TABS = [
@@ -39,17 +40,14 @@ export default function DatabankPage() {
   const isHacker = currentTheme === 'hacker';
 
   useEffect(() => {
-    const token = localStorage.getItem('keyrush_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+    // เช็คสถานะ login ด้วยการยิง endpoint ที่ต้อง auth (401 → apiFetch พาไปหน้า login ให้)
+    apiFetch('/api/user/progress').catch((e) => console.error("Auth check failed", e));
 
     const fetchDatabankData = async () => {
       try {
         const [linuxDocsRes, windowsDocsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/linux`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/windows`)
+          apiFetch('/api/docs/linux'),
+          apiFetch('/api/docs/windows')
         ]);
 
         if (!linuxDocsRes.ok) console.error("🚨 Linux Docs API Error:", await linuxDocsRes.text());

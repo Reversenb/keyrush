@@ -14,6 +14,7 @@ import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDa
 import VirtualFileSystemPanel from '@/components/VirtualFileSystemPanel';
 import MissionClearedModal from '@/components/MissionClearedModal';
 import TerminalControls from '@/components/TerminalControls';
+import { apiFetch, clearUserState, logout } from '@/lib/api';
 
 // =========================================================================
 const TerminalBox = dynamic(() => import('@/components/TerminalBox'), {
@@ -94,13 +95,13 @@ export default function GamePage() {
 
   useEffect(() => {
     const initializeGame = async () => {
-      const token = localStorage.getItem('keyrush_token');
-      if (!token) return router.push('/login');
       const os = (localStorage.getItem('keyrush_target_os') as 'linux' | 'windows') || 'linux';
       setTargetOs(os);
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, { headers: { 'Authorization': `Bearer ${token}` } });
+        // cookie ถูกแนบไปเอง — ถ้า 401 apiFetch จะพาไปหน้า login ให้
+        const res = await apiFetch('/api/user/progress');
+        if (res.status === 401) return;
         const data = await res.json();
         if (data.success && data.data) {
           setUserData(data.data);
@@ -111,7 +112,7 @@ export default function GamePage() {
           const requestedLevel = parseInt(urlParams.get('level') || '0', 10);
           setCurrentLevel(requestedLevel > 0 && requestedLevel <= (activeLevel || 1) ? requestedLevel : activeLevel || 1);
         } else {
-          localStorage.removeItem('keyrush_token');
+          clearUserState();
           router.push('/login'); return;
         }
       } catch (err) { console.error("Cloud Save Sync failed", err); }
@@ -136,7 +137,7 @@ export default function GamePage() {
     const fetchMission = async () => {
       setMissionData(null);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mission/${targetOs}/${currentLevel}`);
+        const response = await apiFetch(`/api/mission/${targetOs}/${currentLevel}`);
         if (!response.ok && response.status === 404) { setIsAllCleared(true); return; }
         const result = await response.json();
         if (result.success && result.data) {
@@ -242,7 +243,8 @@ export default function GamePage() {
     // ส่งข้อมูลที่ผู้เล่นพิมพ์ไปให้ Backend ตรวจแทนการเช็คที่หน้าบ้าน
     // =======================================================
     try {
-      const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/mission/verify`, {
+      // POST ต้องแนบ X-CSRF-Token — apiFetch จัดการให้
+      const verifyRes = await apiFetch('/api/mission/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -257,22 +259,19 @@ export default function GamePage() {
       if (verifyData.success && verifyData.isCorrect) {
         setIsPassed(true); setTimeout(() => playSFX('success'), 300);
 
-        const token = localStorage.getItem('keyrush_token');
-        if (token) {
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy })
-          })
-            .then(res => res.json())
-            .then(result => {
-              if (result.success && result.data) {
-                setUserData(result.data);
-                const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
-                setMaxLevel(newActiveLevel);
-              }
-            });
-        }
+        apiFetch('/api/user/progress', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy })
+        })
+          .then(res => res.json())
+          .then(result => {
+            if (result.success && result.data) {
+              setUserData(result.data);
+              const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
+              setMaxLevel(newActiveLevel);
+            }
+          });
         terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
         setTimeout(() => setShowProceedButton(true), 1200);
       } else {
@@ -305,7 +304,7 @@ export default function GamePage() {
     return { rank: 'D', color: isHacker ? 'text-rose-600' : 'text-rose-500', border: isHacker ? 'border-4 border-rose-900/50 bg-[#111] shadow-sm' : isDark ? 'border-4 border-rose-400/30 bg-rose-400/10 shadow-sm' : 'border-4 border-white bg-rose-100 shadow-sm', stars: 1, label: 'Poor' };
   };
 
-  const handleLogout = () => { setIsDropdownOpen(false); handleResetGame(); localStorage.removeItem('keyrush_token'); localStorage.removeItem('keyrush_user'); router.push('/login'); };
+  const handleLogout = async () => { setIsDropdownOpen(false); handleResetGame(); await logout(); router.push('/login'); };
 
   // 🌟 Dynamic Colors 🌟
   const isLinux = targetOs === 'linux';

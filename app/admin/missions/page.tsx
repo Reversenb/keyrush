@@ -10,6 +10,7 @@ import {
   ChevronDown, PlusCircle, Database, Terminal, Monitor,
   Search, X, Edit, Trash2, Heart, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, BookOpen, Target
 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 // =====================================================================
 // 🌟 คอมโพเนนต์ Custom Dropdown (สำหรับฟอร์มใน Modal)
@@ -192,39 +193,36 @@ export default function MissionControlCMS() {
       try { setFavorites(JSON.parse(storedFavs)); } catch (e) { }
     }
 
-    const checkAdminAccess = () => {
-      const token = localStorage.getItem('keyrush_token');
-      const userStr = localStorage.getItem('keyrush_user');
+    // เช็คสิทธิ์จากข้อมูล user สดที่ backend (401 → apiFetch พาไปหน้า login ให้)
+    const checkAdminAccess = async () => {
+      try {
+        const res = await apiFetch('/api/user/progress');
+        if (!res.ok) return;
+        const data = await res.json();
+        const user = data.success ? data.data : null;
 
-      if (!token || !userStr) {
-        showToast('กรุณาเข้าสู่ระบบก่อนครับ!', 'error');
-        setTimeout(() => router.push('/login'), 1500);
-        return;
+        if (user?.role?.toLowerCase() !== 'admin') {
+          showToast('SECURITY ALERT: พื้นที่นี้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น!', 'error');
+          setTimeout(() => router.push('/dashboard'), 1500);
+          return;
+        }
+
+        fetchAllData();
+      } catch (e) {
+        showToast('ไม่สามารถติดต่อ Backend ได้ครับ', 'error');
       }
-
-      const user = JSON.parse(userStr);
-      if (user.role?.toLowerCase() !== 'admin') {
-        showToast('SECURITY ALERT: พื้นที่นี้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น!', 'error');
-        setTimeout(() => router.push('/dashboard'), 1500);
-        return;
-      }
-
-      fetchAllData(token);
     };
 
     checkAdminAccess();
   }, [router]);
 
-  const fetchAllData = async (tokenParam?: string) => {
+  const fetchAllData = async () => {
     setIsFetchingData(true);
     try {
-      const token = tokenParam || localStorage.getItem('keyrush_token');
-      const headers = { 'Authorization': `Bearer ${token}` };
-
       const [missionsRes, linuxDocsRes, windowsDocsRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/missions`, { headers }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/linux`),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/docs/windows`)
+        apiFetch('/api/admin/missions'),
+        apiFetch('/api/docs/linux'),
+        apiFetch('/api/docs/windows')
       ]);
 
       if (missionsRes.ok) {
@@ -276,12 +274,11 @@ export default function MissionControlCMS() {
     }
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('keyrush_token');
-      const url = editingId ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/missions/${editingId}` : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/missions`;
+      const url = editingId ? `/api/admin/missions/${editingId}` : '/api/admin/missions';
       const method = editingId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
-        method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      const res = await apiFetch(url, {
+        method, headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       const data = await res.json();
@@ -316,12 +313,11 @@ export default function MissionControlCMS() {
     }
     setIsLoading(true);
     try {
-      const token = localStorage.getItem('keyrush_token');
-      const url = editingId ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/docs/${editingId}` : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/docs`;
+      const url = editingId ? `/api/admin/docs/${editingId}` : '/api/admin/docs';
       const method = editingId ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
-        method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      const res = await apiFetch(url, {
+        method, headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(docFormData)
       });
       const data = await res.json();
@@ -343,14 +339,11 @@ export default function MissionControlCMS() {
     setDeleteConfirm({ show: false, id: null });
 
     try {
-      const token = localStorage.getItem('keyrush_token');
       const url = adminMode === 'missions'
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/admin/missions/${id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/admin/docs/${id}`;
+        ? `/api/admin/missions/${id}`
+        : `/api/admin/docs/${id}`;
 
-      const res = await fetch(url, {
-        method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await apiFetch(url, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         showToast(adminMode === 'missions' ? "ลบโจทย์เรียบร้อย!" : "ลบคำสั่งเรียบร้อย!", 'success');

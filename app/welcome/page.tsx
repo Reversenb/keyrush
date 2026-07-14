@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import { Terminal, ArrowRight, Edit3, Check, X, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -32,16 +33,10 @@ export default function WelcomePage() {
   useEffect(() => {
     setIsMounted(true);
     const fetchFreshUserData = async () => {
-      const token = localStorage.getItem('keyrush_token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        // cookie ถูกแนบไปเอง — ถ้า 401 (ยังไม่ login/หมดอายุ) apiFetch จะพาไปหน้า login ให้
+        const res = await apiFetch('/api/user/progress');
+        if (!res.ok) return;
         const data = await res.json();
 
         if (data.success && data.data) {
@@ -78,15 +73,11 @@ export default function WelcomePage() {
     if (!newDisplayName.trim()) return;
 
     setIsUpdating(true);
-    const token = localStorage.getItem('keyrush_token');
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`, {
+      const res = await apiFetch('/api/user/profile', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName: newDisplayName })
       });
       const data = await res.json();

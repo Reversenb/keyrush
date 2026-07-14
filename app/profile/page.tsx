@@ -10,6 +10,7 @@ import { useTheme } from 'next-themes';
 import {
   Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw, Bot
 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 const AVATAR_OPTIONS = [
   "Felix", "Aneka", "Jack", "Mimi", "Leo", "Nala", "Kiki", "Pepper", "Rusty", "Shadow",
@@ -51,13 +52,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('keyrush_token');
+      // แสดงข้อมูล cache ก่อนเพื่อความไว แล้วค่อยยืนยันกับ backend (401 → เด้งไป login อัตโนมัติ)
       const savedUserStr = localStorage.getItem('keyrush_user');
-
-      if (!token && !savedUserStr) {
-        router.push('/login');
-        return;
-      }
 
       if (savedUserStr) {
         try {
@@ -71,24 +67,20 @@ export default function ProfilePage() {
         }
       }
 
-      if (token) {
-        try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/progress`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && data.data) {
-              setUser(data.data);
-              setDisplayName(data.data.displayName || data.data.username?.split('@')[0] || "");
-              setEditAvatar(data.data.avatar || "Felix");
-              setBio(data.data.bio || "");
-              localStorage.setItem('keyrush_user', JSON.stringify(data.data));
-            }
+      try {
+        const res = await apiFetch('/api/user/progress');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setUser(data.data);
+            setDisplayName(data.data.displayName || data.data.username?.split('@')[0] || "");
+            setEditAvatar(data.data.avatar || "Felix");
+            setBio(data.data.bio || "");
+            localStorage.setItem('keyrush_user', JSON.stringify(data.data));
           }
-        } catch (err) {
-          console.warn("Backend offline or unreachable, using LocalStorage data instead.");
         }
+      } catch (err) {
+        console.warn("Backend offline or unreachable, using LocalStorage data instead.");
       }
 
       setTimeout(() => setLoading(false), 500);
@@ -133,7 +125,6 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     setSaveSuccess(false);
-    const token = localStorage.getItem('keyrush_token');
 
     const finalAvatar = image ? (await createCroppedImage() || editAvatar) : editAvatar;
 
@@ -148,16 +139,11 @@ export default function ProfilePage() {
     }
 
     try {
-      if (token) {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ displayName, avatar: finalAvatar, bio })
-        });
-      }
+      await apiFetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ displayName, avatar: finalAvatar, bio })
+      });
     } catch (err) {
       console.warn("Save to backend failed (Offline mode). Data saved locally.");
     } finally {

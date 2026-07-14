@@ -7,6 +7,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Terminal, CheckCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { apiFetch } from '@/lib/api';
 
 export default function KeyRushOrangeLoginPage() {
   const router = useRouter();
@@ -30,11 +31,12 @@ export default function KeyRushOrangeLoginPage() {
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`, {
+        // Backend จะ Set-Cookie (auth_token + csrf_token) กลับมาเอง — ไม่มี token ใน body แล้ว
+        const response = await apiFetch('/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ access_token: tokenResponse.access_token }),
-        });
+        }, { redirectOn401: false });
 
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
@@ -44,7 +46,6 @@ export default function KeyRushOrangeLoginPage() {
         const data = await response.json();
 
         if (data.success) {
-          localStorage.setItem('keyrush_token', data.token);
           localStorage.setItem('keyrush_user', JSON.stringify(data.user));
           showToast('เข้าสู่ระบบสำเร็จ! 🚀', 'success');
 
