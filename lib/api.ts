@@ -2,12 +2,11 @@
 
 // =========================================================================
 // 🌟 API Client กลางของ KeyRush (Cookie-based Auth)
-// - แนบ credentials: 'include' ให้ทุก request (จำเป็นสำหรับ HttpOnly cookie ข้ามโดเมน)
+// - ยิงแบบ same-origin (/api/*) ผ่าน rewrite proxy ใน next.config.ts เสมอ
+//   เพื่อให้ cookie เป็น first-party — JS จึงอ่าน csrf_token ได้ (ยิงตรงข้ามโดเมนจะอ่านไม่ได้)
 // - แนบ X-CSRF-Token อัตโนมัติให้ทุก POST/PUT/DELETE/PATCH (double-submit cookie)
 // - เจอ 401 ระหว่างใช้งาน → เคลียร์ user state แล้วพาไปหน้า /login
 // =========================================================================
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const MUTATING_METHODS = ['POST', 'PUT', 'DELETE', 'PATCH'];
 
@@ -50,7 +49,7 @@ export async function apiFetch(
     if (csrf) headers.set('X-CSRF-Token', csrf);
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(path, {
     ...init,
     headers,
     credentials: 'include',

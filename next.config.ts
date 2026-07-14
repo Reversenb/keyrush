@@ -15,6 +15,17 @@ const cspHeader = `
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig: NextConfig = {
+  // Proxy ทุก /api/* ไป backend (Cloudflare Workers) เพื่อให้ cookie auth_token/csrf_token
+  // กลายเป็น first-party ของโดเมนเรา — จำเป็นสำหรับ double-submit CSRF เพราะ JS
+  // อ่าน cookie ข้ามโดเมนไม่ได้ (และแก้ปัญหา Safari บล็อก third-party cookie ด้วย)
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+      },
+    ];
+  },
   async headers() {
     return [
       {

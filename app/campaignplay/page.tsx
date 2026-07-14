@@ -65,6 +65,8 @@ export default function GamePage() {
   const [showNextLevel, setShowNextLevel] = useState(false);
   const [isAllCleared, setIsAllCleared] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  // เฉลยที่ backend เปิดให้หลัง verify ผ่านเท่านั้น (โจทย์ไม่ส่ง expectedCommand มาแล้ว)
+  const [revealedCommand, setRevealedCommand] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isErrorAnim, setIsErrorAnim] = useState(false);
 
@@ -255,9 +257,13 @@ export default function GamePage() {
       });
       const verifyData = await verifyRes.json();
 
+      // 403/401 = ปัญหา session/CSRF ไม่ใช่ตอบผิด — ต้องบอกผู้เล่นตรงๆ ไม่ใช่เงียบ
+      if (verifyRes.status === 403 || verifyRes.status === 401) {
+        terminalRef.current?.writeLine(`\r\n\x1b[31m[SYSTEM] ตรวจคำตอบไม่สำเร็จ (${verifyRes.status}): ${verifyData?.message || 'เซสชันมีปัญหา'} — ลองรีเฟรชหรือเข้าสู่ระบบใหม่\x1b[0m`);
       // ถ้า Backend ยืนยันว่า "คำสั่งถูกต้อง"
-      if (verifyData.success && verifyData.isCorrect) {
+      } else if (verifyData.success && verifyData.isCorrect) {
         setIsPassed(true); setTimeout(() => playSFX('success'), 300);
+        setRevealedCommand(verifyData.correctAnswer || normalizedInput);
 
         apiFetch('/api/user/progress', {
           method: 'PUT',
@@ -288,7 +294,7 @@ export default function GamePage() {
     if (action !== 'clear' && action !== 'cls') { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
   };
 
-  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); startTimeRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
+  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); startTimeRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
   const handleNextLevel = () => { setCurrentLevel(prev => prev + 1); resetMetrics(); terminalRef.current?.reset("~"); setCurrentPath("~"); };
   const handleReplayLevel = () => { resetMetrics(); terminalRef.current?.reset(currentPath); };
   const handleResetGame = () => { setCurrentLevel(1); setCurrentPath("~"); setFileSystem([]); setIsAllCleared(false); resetMetrics(); terminalRef.current?.reset("~"); };
@@ -502,6 +508,7 @@ export default function GamePage() {
           grade={getMissionGrade(accuracy)}
           accuracy={accuracy}
           missionData={missionData}
+          revealedCommand={revealedCommand}
           themeText={themeText}
           currentExp={currentExp}
           isReplaying={isReplaying}

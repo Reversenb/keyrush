@@ -10,6 +10,8 @@ interface MissionClearedModalProps {
     grade: { rank: string; color: string; border: string; stars: number; label: string };
     accuracy: number;
     missionData: any;
+    // เฉลยจาก /api/mission/verify (มีค่าเฉพาะตอนตอบถูก) — โจทย์ไม่ส่ง expectedCommand มาแล้ว
+    revealedCommand?: string | null;
     themeText: string;
     currentExp: number;
     isReplaying: boolean;
@@ -20,7 +22,7 @@ interface MissionClearedModalProps {
 }
 
 export default function MissionClearedModal({
-    targetOs, grade, accuracy, missionData, themeText, currentExp, isReplaying, missionReward, wpm, handleNextLevel, handleReplayLevel
+    targetOs, grade, accuracy, missionData, revealedCommand, themeText, currentExp, isReplaying, missionReward, wpm, handleNextLevel, handleReplayLevel
 }: MissionClearedModalProps) {
     const router = useRouter();
 
@@ -63,7 +65,7 @@ export default function MissionClearedModal({
                             <BookOpen size={18} strokeWidth={3} /> Command Intel
                         </h4>
                         <div className={`rounded-[16px] px-5 py-3 border-2 mb-4 shadow-sm inline-block transition-colors ${isHacker ? 'bg-[#0a0a0a] border-[#166534]' : isDark ? 'bg-[#382E54] border-transparent' : 'bg-white border-white'}`}>
-                            <code className={`font-black text-lg ${isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-orange-600'}`}>{missionData?.expectedCommand}</code>
+                            <code className={`font-black text-lg ${isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-orange-600'}`}>{revealedCommand || missionData?.title || 'Unknown Command'}</code>
                         </div>
                         <p className={`text-sm leading-relaxed border-l-4 pl-4 font-bold transition-colors ${isHacker ? 'text-green-400 border-green-600' : isDark ? 'text-white/80 border-yellow-500' : 'text-orange-800 border-orange-300'}`}>
                             <span className={themeText}>&gt;</span> {missionData?.description}

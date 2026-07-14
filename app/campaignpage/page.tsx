@@ -218,7 +218,7 @@ export default function CampaignPage() {
 
           <div className="text-center md:text-left">
             <h1 className="text-4xl md:text-5xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter uppercase cute-header mb-1 transition-colors duration-500">
-              Mission <span className={themeText}>Control</span> 🗺️
+              Mission <span className={themeText}>Control</span>
             </h1>
             <p className={`font-bold text-xs md:text-sm uppercase tracking-widest transition-colors duration-500 ${isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-600'}`}>
               เลือกระบบปฏิบัติการที่ต้องการฝึกฝน
