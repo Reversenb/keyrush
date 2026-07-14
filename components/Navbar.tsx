@@ -9,7 +9,7 @@ import {
   Terminal, Bell, LayoutDashboard, User as UserIcon, LogOut,
   ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code
 } from 'lucide-react'; // 🌟 เพิ่มไอคอน Code สำหรับธีม Hacker
-import { logout } from '@/lib/api';
+import { apiFetch, logout } from '@/lib/api';
 
 interface NavbarProps {
   theme?: 'linux' | 'windows';
@@ -31,6 +31,7 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
 
   useEffect(() => {
     setIsMounted(true);
+    // แสดงจาก cache ก่อนกัน UI กระพริบ...
     const savedUserStr = localStorage.getItem('keyrush_user');
     if (savedUserStr) {
       try {
@@ -38,6 +39,24 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
         setUser(parsedUser);
       } catch (e) { }
     }
+
+    // ...แล้ว sync ข้อมูลจริงจาก backend ทับ (กัน avatar/ชื่อค้างเป็นค่าเก่าจนกว่าจะรีเฟรช)
+    const syncUser = async () => {
+      try {
+        const res = await apiFetch('/api/user/progress', {}, { redirectOn401: false });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.data) {
+            setUser(data.data);
+            localStorage.setItem('keyrush_user', JSON.stringify(data.data));
+          }
+        } else if (res.status === 401) {
+          setUser(null);
+          localStorage.removeItem('keyrush_user');
+        }
+      } catch (e) { }
+    };
+    syncUser();
   }, []);
 
   useEffect(() => {
