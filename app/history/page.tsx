@@ -9,7 +9,7 @@ import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import Link from 'next/link';
 import {
   History as HistoryIcon, ArrowLeft, Terminal, Monitor, Database,
-  FileText, Clock, Star, X, Radar, ListFilter
+  FileText, Clock, Star, X, ListFilter, Zap
 } from 'lucide-react';
 import { apiFetch, clearUserState } from '@/lib/api';
 
@@ -23,7 +23,6 @@ export default function HistoryPage() {
   const isHacker = currentTheme === 'hacker';
 
   // 🌟 Auth & State
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState<any[]>([]);
   const [filter, setFilter] = useState<'all' | 'linux' | 'windows'>('all');
@@ -40,7 +39,6 @@ export default function HistoryPage() {
           router.push('/login');
           return;
         }
-        setIsAuthenticated(true);
 
         const data = await res.json();
         if (data.success && data.data?.recentLessons) {
@@ -56,20 +54,17 @@ export default function HistoryPage() {
     fetchHistory();
   }, [router]);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative overflow-hidden transition-colors duration-500">
-        <Radar className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 mb-4 animate-spin" size={64} strokeWidth={2} />
-        <p className="text-orange-600 dark:text-yellow-500 hacker:text-green-500 tracking-widest animate-pulse font-black uppercase text-sm">Verifying Access...</p>
-      </div>
-    );
-  }
-
   // 🌟 กรองข้อมูลตามที่เลือก (All, Linux, Windows)
   const filteredLogs = logs.filter(log => {
     if (filter === 'all') return true;
     return log.os === filter;
   });
+
+  // EXP ที่ได้ในรอบนั้น — เผื่อชื่อ field หลายแบบจาก backend, ไม่มีข้อมูลคืน null
+  const getLogExp = (log: any): number | null => {
+    const v = log.earnedExp ?? log.exp ?? log.expEarned ?? log.rewardExp;
+    return typeof v === 'number' ? v : null;
+  };
 
   const getAccColorClass = (acc: number) => {
     if (acc < 80) return 'text-rose-500 bg-rose-100 dark:bg-rose-500/20 hacker:bg-rose-900/20 border-2 border-white dark:border-rose-500/30 hacker:border-rose-900/50';
@@ -231,6 +226,7 @@ export default function HistoryPage() {
                   <th className="px-6 py-6 text-center">Clearance Level</th>
                   <th className="px-6 py-6 text-center">Typing Speed (WPM)</th>
                   <th className="px-6 py-6 text-center">Precision</th>
+                  <th className="px-6 py-6 text-center">EXP Gained</th>
                   <th className="px-8 py-6 text-right">Timestamp</th>
                 </tr>
               </thead>
@@ -284,6 +280,15 @@ export default function HistoryPage() {
                               {log.accuracy}%
                             </span>
                           </td>
+                          <td className="px-6 py-5 text-center">
+                            {getLogExp(log) !== null ? (
+                              <span className="inline-flex items-center gap-1 font-black px-4 py-2 rounded-xl text-xs tracking-widest text-yellow-600 dark:text-yellow-400 hacker:text-green-400 bg-yellow-100 dark:bg-yellow-500/20 hacker:bg-green-900/20 border-2 border-white dark:border-yellow-500/30 hacker:border-green-900/50 shadow-sm transition-colors">
+                                <Zap size={14} strokeWidth={3} className="fill-current" /> +{getLogExp(log)}
+                              </span>
+                            ) : (
+                              <span className="text-orange-300 dark:text-white/30 hacker:text-green-800 font-black text-xs">—</span>
+                            )}
+                          </td>
                           <td className="px-8 py-5 text-right text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest group-hover:text-orange-600 dark:group-hover:text-yellow-400 hacker:group-hover:text-green-400 transition-colors">
                             {new Date(log.createdAt).toLocaleString('en-GB', {
                               weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
@@ -295,7 +300,7 @@ export default function HistoryPage() {
                     })
                   ) : (
                     <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                      <td colSpan={5} className="px-6 py-32 text-center align-middle">
+                      <td colSpan={6} className="px-6 py-32 text-center align-middle">
                         <div className="flex flex-col items-center justify-center gap-4 text-orange-400 dark:text-white/50 hacker:text-green-600/50 font-black w-full max-w-lg mx-auto uppercase tracking-widest transition-colors">
                           <Database size={64} strokeWidth={2} className="opacity-40 mb-2 animate-bounce" />
                           <p className="text-sm whitespace-normal">ยังไม่มีประวัติการทำภารกิจในระบบนี้</p>
@@ -393,6 +398,17 @@ export default function HistoryPage() {
 
                       {/* สถิติการเล่นในรอบนั้น */}
                       <div className="grid grid-cols-2 gap-4 mb-8">
+                        {getLogExp(selectedLog) !== null && (
+                          <div className="col-span-2 bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-5 rounded-[24px] flex items-center justify-between shadow-sm transition-colors">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center border-2 shadow-sm transition-colors ${isHacker ? 'bg-green-600 text-[#0a0a0a] border-green-500' : 'bg-yellow-400 text-white dark:text-[#1E1B2E] border-white dark:border-yellow-300'}`}>
+                                <Zap size={22} strokeWidth={3} className="fill-current" />
+                              </div>
+                              <p className="text-orange-400 dark:text-white/50 hacker:text-green-600 text-[10px] font-black uppercase tracking-widest transition-colors">EXP Gained</p>
+                            </div>
+                            <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-4xl font-black cute-header transition-colors">+{getLogExp(selectedLog)} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">EXP</span></p>
+                          </div>
+                        )}
                         <div className="bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-5 rounded-[24px] flex flex-col gap-1 shadow-sm transition-colors">
                           <p className="text-orange-400 dark:text-white/50 hacker:text-green-600 text-[10px] font-black uppercase tracking-widest transition-colors">Typing Speed</p>
                           <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-4xl font-black cute-header transition-colors">{selectedLog.wpm} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">WPM</span></p>
