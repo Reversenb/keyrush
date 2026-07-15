@@ -10,6 +10,123 @@ import Navbar from '@/components/Navbar';
 import { apiFetch, clearUserState } from '@/lib/api';
 
 
+// =========================================================================
+// 📈 กราฟ WPM แบบมาตรฐาน — แกน y เริ่มศูนย์พร้อม tick, เส้นสีเดียว 2.5px,
+// จุดข้อมูลมีวงแหวนสี surface, เส้นอ้างอิงค่าเฉลี่ย, crosshair + tooltip ตอน hover
+// (วาดใน viewBox สัดส่วนจริง ไม่ใช้ preserveAspectRatio=none ที่ทำให้เส้น/ตัวเลขเบี้ยว)
+// =========================================================================
+function WpmChart({ points, avg, accentHex, isDark, isHacker }: {
+  points: number[]; avg: number; accentHex: string; isDark: boolean; isHacker: boolean;
+}) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
+  const W = 560, H = 250;
+  const M = { top: 20, right: 20, bottom: 30, left: 42 };
+  const plotW = W - M.left - M.right, plotH = H - M.top - M.bottom;
+
+  const data = points;
+  const hasData = data.length > 0;
+
+  // เพดานแกน y ปัดขึ้นเป็นสเต็ปสวยๆ (ขั้นละ 20, ต่ำสุด 60)
+  const niceMax = Math.max(60, Math.ceil(Math.max(...(hasData ? data : [0]), avg) / 20) * 20);
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map(f => Math.round(niceMax * f));
+
+  const xAt = (i: number) => (data.length <= 1 ? M.left + plotW / 2 : M.left + (i / (data.length - 1)) * plotW);
+  const yAt = (v: number) => M.top + plotH - (Math.min(v, niceMax) / niceMax) * plotH;
+
+  const lineD = data.map((v, i) => `${i === 0 ? 'M' : 'L'}${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(' ');
+  const areaD = hasData
+    ? `M${xAt(0).toFixed(1)},${M.top + plotH} ${data.map((v, i) => `L${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(' ')} L${xAt(data.length - 1).toFixed(1)},${M.top + plotH} Z`
+    : '';
+
+  // สีตามธีม: กริด/ตัวหนังสือใช้ ink ของธีม (ไม่ใช้สี series กับข้อความ)
+  const gridColor = isHacker ? 'rgba(34,197,94,0.14)' : isDark ? 'rgba(255,255,255,0.10)' : 'rgba(154,52,18,0.14)';
+  const inkMuted = isHacker ? 'rgba(74,222,128,0.55)' : isDark ? 'rgba(255,255,255,0.5)' : 'rgba(124,45,18,0.6)';
+  const ink = isHacker ? '#86efac' : isDark ? '#ffffff' : '#431407';
+  const surface = isHacker ? '#0a0a0a' : isDark ? '#1E1B2E' : '#ffffff';
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!hasData) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const fx = ((e.clientX - rect.left) / rect.width) * W;
+    const idx = data.length <= 1 ? 0 : Math.round(((fx - M.left) / plotW) * (data.length - 1));
+    setHoverIdx(Math.min(data.length - 1, Math.max(0, idx)));
+  };
+
+  if (!hasData) {
+    return (
+      <div className="h-56 sm:h-64 w-full flex flex-col items-center justify-center gap-2 text-center">
+        <p className="text-sm font-black uppercase tracking-widest text-orange-400 dark:text-white/40 hacker:text-green-700">ยังไม่มีข้อมูลความเร็ว</p>
+        <p className="text-xs font-bold text-orange-300 dark:text-white/30 hacker:text-green-800">ออกภารกิจแรกเพื่อเริ่มเก็บสถิติ 🚀</p>
+      </div>
+    );
+  }
+
+  const hp = hoverIdx !== null ? { x: xAt(hoverIdx), y: yAt(data[hoverIdx]), val: data[hoverIdx] } : null;
+  const last = data.length - 1;
+  const avgY = yAt(avg);
+  const xTickIdx = Array.from(new Set([0, Math.floor(last / 2), last]));
+
+  return (
+    <div className="relative w-full" onMouseMove={handleMove} onMouseLeave={() => setHoverIdx(null)}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto overflow-visible" role="img" aria-label={`กราฟความเร็วพิมพ์ ${data.length} รอบล่าสุด เฉลี่ย ${avg} WPM`}>
+        {/* กริดแนวนอน + tick แกน y (จางๆ ไม่แย่งซีนข้อมูล) */}
+        {ticks.map(t => (
+          <g key={t}>
+            <line x1={M.left} x2={W - M.right} y1={yAt(t)} y2={yAt(t)} stroke={gridColor} strokeWidth="1" />
+            <text x={M.left - 8} y={yAt(t) + 4} textAnchor="end" fontSize="11" fontWeight="700" fill={inkMuted}>{t}</text>
+          </g>
+        ))}
+        {/* tick แกน x: รอบแรก / กลาง / ล่าสุด */}
+        {xTickIdx.map(i => (
+          <text key={i} x={xAt(i)} y={H - 8} textAnchor="middle" fontSize="11" fontWeight="700" fill={inkMuted}>#{i + 1}</text>
+        ))}
+
+        {/* เส้นอ้างอิงค่าเฉลี่ย */}
+        {avg > 0 && (
+          <g>
+            <line x1={M.left} x2={W - M.right} y1={avgY} y2={avgY} stroke={accentHex} strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray="6 5" />
+            <text x={W - M.right} y={avgY - 6} textAnchor="end" fontSize="10" fontWeight="900" fill={inkMuted}>AVG {avg}</text>
+          </g>
+        )}
+
+        <defs>
+          <linearGradient id="wpmArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={accentHex} stopOpacity="0.22" />
+            <stop offset="100%" stopColor={accentHex} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={areaD} fill="url(#wpmArea)" />
+        <path d={lineD} fill="none" stroke={accentHex} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+        {/* crosshair ตอน hover */}
+        {hp && <line x1={hp.x} x2={hp.x} y1={M.top} y2={M.top + plotH} stroke={accentHex} strokeOpacity="0.35" strokeWidth="1.5" />}
+
+        {/* จุดข้อมูล: fill สี surface + ขอบสี accent (แยกตัวจากเส้นชัด) */}
+        {data.map((v, i) => (
+          <circle key={i} cx={xAt(i)} cy={yAt(v)} r={hoverIdx === i ? 6 : 4} fill={surface} stroke={accentHex} strokeWidth="2.5" style={{ transition: 'r 0.15s' }} />
+        ))}
+
+        {/* direct label เฉพาะจุดล่าสุด (selective — ไม่แปะเลขทุกจุด) */}
+        {hoverIdx === null && (
+          <text x={xAt(last)} y={yAt(data[last]) - 12} textAnchor="middle" fontSize="12" fontWeight="900" fill={ink}>{data[last]}</text>
+        )}
+      </svg>
+
+      {/* tooltip แบบ HTML (คมชัดทุกขนาดจอ) */}
+      {hp && hoverIdx !== null && (
+        <div
+          className="absolute pointer-events-none z-10 -translate-x-1/2 -translate-y-full flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-xs font-black shadow-md whitespace-nowrap"
+          style={{ left: `${(hp.x / W) * 100}%`, top: `calc(${(hp.y / H) * 100}% - 12px)`, backgroundColor: surface, borderColor: accentHex, color: ink }}
+        >
+          <span className="inline-block size-2.5 rounded-full" style={{ backgroundColor: accentHex }} />
+          ครั้งที่ {hoverIdx + 1} · {hp.val} WPM
+        </div>
+      )}
+    </div>
+  );
+}
+
 const RANKS = [
   { id: 1, title: "Script Kiddie", minExp: 0, color: "text-slate-300", icon: "keyboard" },
   { id: 2, title: "Cyber Novice", minExp: 200, color: "text-[#0df259]", icon: "terminal" },
@@ -137,15 +254,17 @@ export default function DashboardPage() {
   };
 
   const getAccColorHex = (acc: number) => {
-    if (acc < 80) return '#fb7185';
-    if (acc < 95) return '#fbbf24';
-    return '#4ade80';
+    // ธีมสว่างใช้เฉดเข้ม (ผ่าน validate contrast ≥3:1 บนพื้นขาว) ธีมมืดใช้เฉดสว่าง
+    const onDark = isDark || isHacker;
+    if (acc < 80) return onDark ? '#fb7185' : '#e11d48';
+    if (acc < 95) return onDark ? '#fbbf24' : '#d97706';
+    return onDark ? '#4ade80' : '#16a34a';
   };
 
   const getAccColorClass = (acc: number) => {
-    if (acc < 80) return 'text-rose-500 hacker:text-rose-500';
-    if (acc < 95) return 'text-amber-500 hacker:text-amber-500';
-    return 'text-green-500 hacker:text-green-500';
+    if (acc < 80) return 'text-rose-600 dark:text-rose-400 hacker:text-rose-500';
+    if (acc < 95) return 'text-amber-600 dark:text-amber-400 hacker:text-amber-500';
+    return 'text-green-600 dark:text-green-400 hacker:text-green-500';
   };
 
   const getAccLabel = (acc: number) => {
@@ -153,19 +272,6 @@ export default function DashboardPage() {
     if (acc < 95) return 'Good';
     return 'Excellent';
   };
-
-  const dataPoints = stats.recentWpm.length > 0 ? stats.recentWpm : [0];
-  const plotPoints = dataPoints.length === 1 ? [dataPoints[0], dataPoints[0]] : dataPoints;
-  const maxWpm = Math.max(80, ...plotPoints) + 10;
-
-  const svgPoints = plotPoints.map((val: number, i: number) => {
-    const x = (i / (plotPoints.length - 1)) * 100;
-    const y = 48 - (val / maxWpm) * 45;
-    return { x, y, val };
-  });
-
-  const pathD = `M0,50 ` + svgPoints.map((p) => `L${p.x},${p.y}`).join(' ') + ` L100,50 Z`;
-  const lineD = svgPoints.map((p, i) => (i === 0 ? 'M' : 'L') + `${p.x},${p.y}`).join(' ');
 
   const circleCircumference = 238.76;
   const accOffset = circleCircumference - (circleCircumference * stats.avgAccuracy) / 100;
@@ -354,33 +460,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="relative h-56 sm:h-72 w-full z-10">
-                  <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 50">
-                    {[0, 12.5, 25, 37.5, 50].map(y => (
-                      <line key={y} className="text-orange-200 dark:text-white/10 hacker:text-white/10 transition-colors" stroke="currentColor" strokeDasharray="4 4" strokeWidth="0.2" x1="0" x2="100" y1={y} y2={y}></line>
-                    ))}
-
-                    <defs>
-                      <linearGradient id="orangeLine" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor={primaryHex} />
-                        <stop offset="100%" stopColor={isHacker ? '#86efac' : isDark ? '#fef08a' : '#fbbf24'} />
-                      </linearGradient>
-                      <linearGradient id="orangeArea" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={primaryHex} stopOpacity="0.3" />
-                        <stop offset="100%" stopColor={primaryHex} stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <g>
-                      <path d={pathD} fill="url(#orangeArea)"></path>
-                      <path d={lineD} fill="none" stroke="url(#orangeLine)" strokeLinecap="round" strokeLinejoin="miter" strokeWidth="1" className="drop-shadow-sm"></path>
-                      {svgPoints.map((p, i) => (
-                        <g key={i} className="group/point">
-                          <circle cx={p.x} cy={p.y} r="1.5" fill={isHacker ? '#0a0a0a' : isDark ? '#1E1B2E' : 'white'} stroke={primaryHex} strokeWidth="0.5" className="cursor-pointer transition-transform hover:scale-[2] origin-center" />
-                          <text x={p.x} y={p.y - 3} fill={primaryHex} fontSize="3" textAnchor="middle" fontWeight="900" className="opacity-0 group-hover/point:opacity-100 transition-opacity drop-shadow-sm">{p.val}</text>
-                        </g>
-                      ))}
-                    </g>
-                  </svg>
+                <div className="relative w-full z-10">
+                  <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} />
                 </div>
               </div>
 
@@ -395,9 +476,10 @@ export default function DashboardPage() {
                 <div className="relative size-48 sm:size-56 flex items-center justify-center z-10">
                   <svg className="size-full -rotate-90 transform drop-shadow-sm" viewBox="0 0 100 100">
                     <circle className="text-orange-100 dark:text-white/10 hacker:text-white/10 transition-colors" cx="50" cy="50" fill="transparent" r="38" stroke="currentColor" strokeWidth="8"></circle>
+                    {/* วงแหวนใช้สี status (แดง/เหลือง/เขียว) ให้ตรงกับป้ายคำอธิบายด้านใน */}
                     <circle
                       cx="50" cy="50" fill="transparent" r="38"
-                      stroke={primaryHex}
+                      stroke={getAccColorHex(stats.avgAccuracy)}
                       strokeDasharray={circleCircumference}
                       strokeDashoffset={!loading ? accOffset : circleCircumference}
                       strokeLinecap="round" strokeWidth="8" className="transition-all duration-[1500ms] ease-out delay-300"
