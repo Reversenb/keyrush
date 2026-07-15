@@ -12,17 +12,13 @@ import {
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
+// 🤖 ลดเหลือ 50 ตัว — โหลดไวขึ้นครึ่งหนึ่ง (seed เก่าที่ user เคยเลือกไว้ยังแสดงผลได้ปกติ)
 const AVATAR_OPTIONS = [
   "Felix", "Aneka", "Jack", "Mimi", "Leo", "Nala", "Kiki", "Pepper", "Rusty", "Shadow",
   "Bolt", "Ziggy", "Spark", "Luna", "Mocha", "Titan", "Nova", "Olive", "Pixel", "Rex",
   "Gizmo", "Cipher", "Glitch", "Vortex", "Neo", "Trinity", "Axel", "Orion", "Nyx", "Echo",
   "Zeus", "Apollo", "Athena", "Ares", "Hades", "Hera", "Poseidon", "Hermes", "Artemis", "Aphrodite",
-  "Hephaestus", "Demeter", "Dionysus", "Hestia", "Eros", "Iris", "Hypnos", "Nemesis", "Nike", "Hebe",
-  "Blade", "Crash", "Dexter", "Enigma", "Flint", "Ghost", "Havoc", "Iggy", "Jinx", "Kael",
-  "Link", "Matrix", "Nuke", "Onyx", "Pulse", "Quark", "Rogue", "Syntax", "Talon", "Ursa",
-  "Viper", "Wire", "Xerox", "Yoshi", "Zero", "Alpha", "Beta", "Gamma", "Delta", "Epsilon",
-  "Zeta", "Omega", "Sigma", "Rider", "Scout", "Tracker", "Warden", "Hunter", "Ranger", "Striker",
-  "Falcon", "Raven", "Eagle", "Hawk", "Wolf", "Bear", "Lion", "Tiger", "Fox", "Panda"
+  "Blade", "Crash", "Ghost", "Jinx", "Matrix", "Onyx", "Rogue", "Viper", "Wolf", "Panda"
 ];
 
 // 🤖 รูป avatar พร้อม skeleton ระหว่างรอโหลด — ไม่โชว์ alt text ค้างเป็นชื่อ
