@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
-import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck, Eye, AlertTriangle } from 'lucide-react';
 
 // 🌟 Import Components 
 import VirtualFileSystemPanel from '@/components/VirtualFileSystemPanel';
@@ -67,6 +67,13 @@ export default function GamePage() {
   const [showHint, setShowHint] = useState(false);
   // เฉลยที่ backend เปิดให้หลัง verify ผ่านเท่านั้น (โจทย์ไม่ส่ง expectedCommand มาแล้ว)
   const [revealedCommand, setRevealedCommand] = useState<string | null>(null);
+
+  // -- ระบบ "ดูเฉลย" (มีบทลงโทษ EXP เหลือ 20% ถาวร ต้อง confirm ก่อนยิง /reveal) --
+  const [solution, setSolution] = useState<string | null>(null);
+  const [showRevealConfirm, setShowRevealConfirm] = useState(false);
+  const [isRevealing, setIsRevealing] = useState(false);
+  // EXP ที่ได้จริงรอบนี้จาก PUT /progress (โดนหักถ้าด่านนี้เคยดูเฉลย)
+  const [earnedExp, setEarnedExp] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isErrorAnim, setIsErrorAnim] = useState(false);
 
@@ -277,6 +284,10 @@ export default function GamePage() {
               const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
               setMaxLevel(newActiveLevel);
             }
+            // EXP ที่ได้จริงรอบนี้ (โดนหักเหลือ 20% ถ้าด่านนี้เคยดูเฉลย)
+            if (result.success && typeof result.earnedExp === 'number') {
+              setEarnedExp(result.earnedExp);
+            }
           });
         terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
         setTimeout(() => setShowProceedButton(true), 1200);
@@ -294,7 +305,32 @@ export default function GamePage() {
     if (action !== 'clear' && action !== 'cls') { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
   };
 
-  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); startTimeRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
+  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); setSolution(null); setShowRevealConfirm(false); setEarnedExp(null); startTimeRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
+
+  // ยิง /reveal เฉพาะหลังผู้เล่นกดยืนยันใน dialog เท่านั้น — แค่เรียก endpoint นี้
+  // server จะจดถาวรทันทีว่าด่านนี้ใช้เฉลย (EXP เหลือ 20%)
+  const handleConfirmReveal = async () => {
+    setIsRevealing(true);
+    try {
+      const res = await apiFetch('/api/mission/reveal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ os: targetOs, level: currentLevel })
+      });
+      const data = await res.json();
+      if (data.success && data.expectedCommand) {
+        setSolution(data.expectedCommand);
+        setShowRevealConfirm(false);
+      } else {
+        terminalRef.current?.writeLine(`\r\n\x1b[31m[SYSTEM] ขอเฉลยไม่สำเร็จ: ${data?.message || 'ลองใหม่อีกครั้ง'}\x1b[0m`);
+        setShowRevealConfirm(false);
+      }
+    } catch (err) {
+      console.error("Reveal error:", err);
+    } finally {
+      setIsRevealing(false);
+    }
+  };
   const handleNextLevel = () => { setCurrentLevel(prev => prev + 1); resetMetrics(); terminalRef.current?.reset("~"); setCurrentPath("~"); };
   const handleReplayLevel = () => { resetMetrics(); terminalRef.current?.reset(currentPath); };
   const handleResetGame = () => { setCurrentLevel(1); setCurrentPath("~"); setFileSystem([]); setIsAllCleared(false); resetMetrics(); terminalRef.current?.reset("~"); };
@@ -498,9 +534,50 @@ export default function GamePage() {
             showHint={showHint}
             setShowHint={setShowHint}
             missionData={missionData}
+            solution={solution}
+            onRevealClick={() => setShowRevealConfirm(true)}
           />
         </div>
       </main>
+
+      {/* ⚠️ Dialog ยืนยันก่อนดูเฉลย — ห้ามยิง /reveal ก่อนผู้เล่นกดยืนยัน (บทลงโทษถาวร) */}
+      <AnimatePresence>
+        {showRevealConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className={`w-full max-w-md border-4 rounded-[32px] p-8 text-center shadow-2xl ${isHacker ? 'bg-[#0a0a0a] border-[#166534]' : isDark ? 'bg-[#1E1B2E] border-[#382E54]' : 'bg-white border-white'}`}
+            >
+              <div className={`mx-auto mb-5 size-16 rounded-[20px] border-4 flex items-center justify-center ${isHacker ? 'bg-[#111] border-rose-900 text-rose-500' : isDark ? 'bg-rose-500/10 border-rose-500/40 text-rose-400' : 'bg-rose-50 border-white text-rose-500 shadow-sm'}`}>
+                <AlertTriangle size={32} strokeWidth={3} />
+              </div>
+              <h3 className={`text-2xl font-black mb-3 cute-header ${isHacker ? 'text-white' : isDark ? 'text-white' : 'text-orange-950'}`}>ดูเฉลยด่านนี้?</h3>
+              <p className={`text-sm font-bold leading-relaxed mb-8 ${isHacker ? 'text-green-400' : isDark ? 'text-white/70' : 'text-orange-800'}`}>
+                ดูเฉลยด่านนี้จะได้รับ EXP แค่ <span className="text-rose-500 font-black">20% อย่างถาวร</span> (ปิดเกมมาเล่นใหม่ก็ยังโดนหัก) ยืนยันไหม?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRevealConfirm(false)}
+                  disabled={isRevealing}
+                  className={`flex-1 py-4 border-4 text-xs uppercase font-black tracking-widest rounded-[20px] transition-colors btn-squishy shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-green-600 hover:text-green-400 hover:border-green-700' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/50 hover:text-white hover:bg-[#382E54]' : 'bg-white border-orange-100 text-orange-400 hover:text-orange-600 hover:bg-orange-50'}`}
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  onClick={handleConfirmReveal}
+                  disabled={isRevealing}
+                  className={`flex-1 py-4 border-4 text-xs uppercase font-black tracking-widest rounded-[20px] transition-colors btn-squishy shadow-sm text-white ${isRevealing ? 'opacity-60 cursor-wait' : ''} ${isHacker ? 'bg-rose-700 border-rose-600 hover:bg-rose-600' : isDark ? 'bg-rose-600 border-rose-500 hover:bg-rose-500' : 'bg-rose-500 border-white hover:bg-rose-400'}`}
+                >
+                  {isRevealing ? 'กำลังขอเฉลย...' : 'ยืนยันดูเฉลย'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {showNextLevel && (
         <MissionClearedModal
@@ -513,6 +590,7 @@ export default function GamePage() {
           currentExp={currentExp}
           isReplaying={isReplaying}
           missionReward={missionReward}
+          earnedExp={earnedExp}
           wpm={wpm}
           handleNextLevel={handleNextLevel}
           handleReplayLevel={handleReplayLevel}

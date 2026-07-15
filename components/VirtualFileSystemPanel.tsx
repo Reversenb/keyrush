@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { ChevronLeft, Monitor, Folder, Lightbulb, FileCode2, FileJson, FileText, File as FileIcon } from 'lucide-react';
+import { ChevronLeft, Monitor, Folder, Lightbulb, Eye, FileCode2, FileJson, FileText, File as FileIcon } from 'lucide-react';
 
 interface VirtualFile {
     name: string;
@@ -17,10 +17,14 @@ interface VirtualFileSystemPanelProps {
     showHint: boolean;
     setShowHint: (show: boolean) => void;
     missionData: any;
+    // เฉลยจาก /api/mission/reveal (มีค่าหลังผู้เล่นยืนยันยอมโดนหัก EXP แล้วเท่านั้น)
+    solution?: string | null;
+    // เปิด dialog ยืนยันดูเฉลย (ตัว dialog อยู่ที่หน้าเล่น)
+    onRevealClick?: () => void;
 }
 
 export default function VirtualFileSystemPanel({
-    targetOs, themeText, themeBg, terminalUsername, currentPath, fileSystem, showHint, setShowHint, missionData
+    targetOs, themeText, themeBg, terminalUsername, currentPath, fileSystem, showHint, setShowHint, missionData, solution, onRevealClick
 }: VirtualFileSystemPanelProps) {
 
     // 🌟 ดึงค่า Theme เพื่อเปลี่ยนสีสันต่างๆ ให้เข้ากับโหมด
@@ -124,9 +128,34 @@ export default function VirtualFileSystemPanel({
                 >
                     <Lightbulb size={28} strokeWidth={3} className={showHint ? 'fill-current' : ''} />
                 </button>
+
+                {/* 👁️ ปุ่มดูเฉลย (มีบทลงโทษ EXP — กดแล้วไปเปิด dialog ยืนยันก่อน) */}
+                <button
+                    onClick={() => { if (!solution) onRevealClick?.(); }}
+                    disabled={!!solution}
+                    title={solution ? 'ดูเฉลยแล้ว' : 'ดูเฉลย (EXP เหลือ 20%)'}
+                    className={`flex-shrink-0 size-14 rounded-[20px] border-4 flex items-center justify-center transition-all duration-300 btn-squishy
+            ${solution
+                            ? (isHacker ? 'bg-[#111] text-rose-500 border-rose-900 shadow-sm' : isDark ? 'bg-[#2D223B] text-rose-400 border-rose-900/60 shadow-sm' : 'bg-rose-50 text-rose-500 border-white shadow-sm')
+                            : (isHacker ? 'bg-[#0a0a0a] text-green-800 border-green-900 hover:border-rose-700 hover:text-rose-500' : isDark ? 'bg-[#1E1B2E] text-white/30 border-[#382E54] hover:border-rose-500/50 hover:text-rose-400' : 'bg-white text-orange-300 border-orange-100 hover:border-rose-300 hover:text-rose-400')
+                        }`}
+                >
+                    <Eye size={28} strokeWidth={3} />
+                </button>
+
                 <div className="flex-1 overflow-hidden">
-                    <h3 className={`text-xs font-black uppercase tracking-widest mb-1.5 transition-colors duration-500 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>กดที่นี่เพื่อขอคำใบ้</h3>
-                    {showHint ? (
+                    <h3 className={`text-xs font-black uppercase tracking-widest mb-1.5 transition-colors duration-500 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>
+                        {solution ? 'เฉลยด่านนี้ (EXP เหลือ 20%)' : 'ขอคำใบ้ หรือดูเฉลย'}
+                    </h3>
+                    {solution ? (
+                        <p className={`text-sm font-bold animate-in fade-in slide-in-from-left-4 flex flex-wrap items-center gap-2 transition-colors duration-500 ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>
+                            <span className="font-black text-lg text-rose-500">&gt;</span> พิมพ์คำสั่ง
+                            <code className={`px-3 py-1 rounded-[12px] border-2 font-black shadow-sm transition-colors duration-500 ${isHacker ? 'bg-[#111] border-rose-900 text-rose-400' : isDark ? 'bg-[#2D223B] border-rose-900/60 text-rose-400' : 'bg-rose-50 border-white text-rose-500'}`}>
+                                {solution}
+                            </code>
+                            <span className={isHacker ? 'text-green-600' : isDark ? 'text-white/60' : 'text-orange-600'}>แล้วกด Enter</span>
+                        </p>
+                    ) : showHint ? (
                         <p className={`text-sm font-bold animate-in fade-in slide-in-from-left-4 flex flex-wrap items-center gap-2 transition-colors duration-500 ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>
                             <span className={`font-black text-lg ${themeText}`}>&gt;</span> เริ่มต้นด้วยคำสั่ง
                             <code className={`px-3 py-1 rounded-[12px] border-2 font-black shadow-sm transition-colors duration-500 ${isHacker ? 'bg-[#111] border-green-800 text-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-yellow-400' : 'bg-orange-100 border-white text-orange-600'}`}>
