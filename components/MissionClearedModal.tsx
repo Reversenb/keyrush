@@ -119,7 +119,7 @@ export default function MissionClearedModal({
                                         : (targetOs === 'linux' ? 'bg-orange-500 text-white border-white shadow-[0_6px_0_rgba(249,115,22,0.2)] hover:bg-orange-400' : 'bg-blue-500 text-white border-white shadow-[0_6px_0_rgba(59,130,246,0.2)] hover:bg-blue-400')
                                 }`}
                         >
-                            <TerminalIcon size={20} strokeWidth={3} /> Proceed to Next
+                            <TerminalIcon size={20} strokeWidth={3} /> Next
                         </button>
                         <div className="flex gap-3">
                             <button

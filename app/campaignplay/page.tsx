@@ -15,6 +15,8 @@ import VirtualFileSystemPanel from '@/components/VirtualFileSystemPanel';
 import MissionClearedModal from '@/components/MissionClearedModal';
 import TerminalControls from '@/components/TerminalControls';
 import { apiFetch, clearUserState, logout } from '@/lib/api';
+import { simulateCommand } from '@/lib/commandSim';
+import type { ActiveEffect } from '@/components/VirtualFileSystemPanel';
 
 // =========================================================================
 const TerminalBox = dynamic(() => import('@/components/TerminalBox'), {
@@ -80,6 +82,10 @@ export default function GamePage() {
   // -- Virtual File System States --
   const [currentPath, setCurrentPath] = useState("~");
   const [fileSystem, setFileSystem] = useState<VirtualFile[]>([]);
+  // เอฟเฟกต์ให้ panel ขวาเล่นตามคำสั่งล่าสุด (id ใหม่ทุกครั้งเพื่อ retrigger)
+  const [activeEffect, setActiveEffect] = useState<ActiveEffect | null>(null);
+  // จำรายการไฟล์ของแต่ละ path — cd ไปมาแล้วของไม่หาย/ไม่ถูกสลับเป็นไฟล์ปลอม
+  const fsMapRef = useRef<Record<string, VirtualFile[]>>({ '~': [] });
 
   const terminalRef = useRef<TerminalHandle>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -161,16 +167,13 @@ export default function GamePage() {
           setMissionData(result.data); setIsAllCleared(false); setCurrentPath("~");
 
           // ✅ จุดแก้หลักที่ 1: ระบบจำลองไฟล์ (Virtual File System)
-          // เสกไฟล์พื้นฐานเตรียมไว้ครอบคลุมทุกคำสั่ง ไม่ต้องดึงข้อมูลจากเฉลย (ป้องกันบั๊กหน้าบ้านพัง)
+          // ไฟล์ตั้งต้นชุดเล็ก — พอให้มีของเล่นกับคำสั่งโดยไม่ดันความสูงจอ
           let initialFiles: VirtualFile[] = [
-            { name: 'project_src', type: 'folder' },
+            { name: 'documents', type: 'folder' },
             { name: 'config.json', type: 'file' },
-            { name: 'readme.md', type: 'file' },
-            { name: 'app.ts', type: 'file' },
-            { name: 'target_file.txt', type: 'file' },
-            { name: 'old_file.txt', type: 'file' },
             { name: 'server.log', type: 'file' }
           ];
+          fsMapRef.current = { '~': initialFiles };
           setFileSystem(initialFiles);
         } else { setIsAllCleared(true); }
       } catch (error) { console.error("Error fetching mission:", error); }
@@ -207,53 +210,40 @@ export default function GamePage() {
     if (rawCommand.trim().toLowerCase() === 'reset') { handleResetGame(); return; }
 
     const normalizedInput = rawCommand.trim().replace(/\s+/g, ' ');
-    const cmdParts = normalizedInput.split(' '); const action = cmdParts[0].toLowerCase();
-    const targets = cmdParts.slice(1).filter(t => !t.startsWith('-') && !t.includes('>'));
-    let newPath = currentPath; let isValidSystemCommand = true; let terminalOutput = '';
 
-    // การตอบสนองหลอกๆ ฝั่งหน้าจอ Terminal
-    switch (action) {
-      case 'clear': case 'cls': terminalRef.current?.reset(currentPath); break;
-      case 'pwd': terminalOutput = currentPath === '~' ? `/home/${terminalUsername}` : `/home/${terminalUsername}/${currentPath.replace('~/', '')}`; break;
-      case 'ls': case 'dir': case 'll':
-        if (fileSystem.length === 0) terminalOutput = '(empty directory)';
-        else {
-          const isDetailed = cmdParts.includes('-la') || cmdParts.includes('-l') || action === 'll' || cmdParts.includes('-al');
-          terminalOutput = isDetailed ? fileSystem.map(f => {
-            const perms = f.type === 'folder' ? 'drwxr-xr-x' : '-rw-r--r--';
-            const size = f.type === 'folder' ? '4096' : Math.floor(Math.random() * 50000 + 100).toString();
-            const date = new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-            return `${perms} 1 ${terminalUsername} staff ${size.padStart(5)} ${date} ${f.type === 'folder' ? `\x1b[1;34m${f.name}\x1b[0m` : f.name}`;
-          }).join('\r\n') : fileSystem.map(f => f.type === 'folder' ? `\x1b[1;34m${f.name}\x1b[0m` : f.name).join('  ');
-        } break;
-      case 'cd':
-        const cdTarget = targets[0];
-        if (!cdTarget || cdTarget === '~') newPath = '~';
-        else if (cdTarget === '..') newPath = currentPath === '~' ? '~' : currentPath.split('/').slice(0, -1).join('/') || '~';
-        else if (cdTarget === '/') newPath = '/';
-        else newPath = currentPath === '~' ? `~/${cdTarget}` : currentPath.endsWith('/') ? `${currentPath}${cdTarget}` : `${currentPath}/${cdTarget}`;
-        setCurrentPath(newPath);
-        if (cdTarget && cdTarget !== '..' && cdTarget !== '~' && cdTarget !== '.') setFileSystem([{ name: 'hidden_core.sys', type: 'file' }, { name: 'logs', type: 'folder' }]);
-        else if (cdTarget === '..') setFileSystem([{ name: 'previous_folder', type: 'folder' }, { name: 'sys.log', type: 'file' }]);
-        else if (cdTarget === '~') setFileSystem([{ name: 'documents', type: 'folder' }]);
-        break;
-      case 'mkdir': case 'md':
-        if (targets.length > 0) setFileSystem(prev => [...prev, ...targets.filter(t => !prev.some(p => p.name === t)).map(t => ({ name: t, type: 'folder' as const }))]);
-        else { terminalOutput = `\x1b[31m${action}: missing operand\x1b[0m`; isValidSystemCommand = false; } break;
-      case 'touch':
-        if (targets.length > 0) setFileSystem(prev => [...prev, ...targets.filter(t => !prev.some(p => p.name === t)).map(t => ({ name: t, type: 'file' as const }))]);
-        else { terminalOutput = `\x1b[31mtouch: missing file operand\x1b[0m`; isValidSystemCommand = false; } break;
-      case 'rm': case 'del': case 'rd': case 'rmdir':
-        if (targets.length > 0) setFileSystem(prev => prev.filter(f => !targets.includes(f.name)));
-        else { terminalOutput = `\x1b[31m${action}: missing operand\x1b[0m`; isValidSystemCommand = false; } break;
-      case 'cat': case 'type':
-        if (targets[0] && fileSystem.some(f => f.name === targets[0])) terminalOutput = `[Content of ${targets[0]}]\r\n{"status": "success"}`;
-        else { terminalOutput = `\x1b[31m${action}: missing operand\x1b[0m`; isValidSystemCommand = false; } break;
-      case 'whoami': terminalOutput = terminalUsername; break;
-      default: terminalOutput = `\x1b[31m${targetOs === 'linux' ? 'bash' : 'cmd'}: ${action}: command not found\x1b[0m`; isValidSystemCommand = false; break;
+    // 🧠 จำลองผลคำสั่งผ่าน engine กลาง (lib/commandSim.ts) — ครอบคลุมคำสั่งที่เกมสอนทั้งหมด
+    const sim = simulateCommand(normalizedInput, {
+      os: targetOs,
+      username: terminalUsername,
+      currentPath,
+      fileSystem,
+    });
+
+    const newPath = sim.newPath || currentPath;
+    const isValidSystemCommand = sim.valid;
+
+    if (sim.clearScreen) terminalRef.current?.reset(currentPath);
+    if (sim.newPath && sim.newPath !== currentPath) {
+      // cd: เซฟไฟล์ห้องเดิมไว้ แล้วโหลดไฟล์ของห้องปลายทาง (ห้องใหม่ = ว่างเปล่า)
+      fsMapRef.current[currentPath] = fileSystem;
+      setCurrentPath(sim.newPath);
+      setFileSystem(fsMapRef.current[sim.newPath] ?? []);
+    } else if (sim.newFileSystem) {
+      setFileSystem(sim.newFileSystem);
+      fsMapRef.current[currentPath] = sim.newFileSystem;
     }
+    if (sim.effect) setActiveEffect({ id: Date.now(), effect: sim.effect });
 
-    if (action !== 'clear' && action !== 'cls' && terminalOutput) terminalRef.current?.writeLine(`\r\n${terminalOutput}`);
+    // แสดงผลลัพธ์ — แบบทยอยพิมพ์ทีละบรรทัด (ping/tracert/ssh ฯลฯ) หรือพิมพ์ทีเดียว
+    if (sim.outputLines && sim.outputLines.length > 0) {
+      const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+      for (let i = 0; i < sim.outputLines.length; i++) {
+        terminalRef.current?.writeLine(i === 0 ? `\r\n${sim.outputLines[i]}` : sim.outputLines[i]);
+        if (i < sim.outputLines.length - 1) await sleep(sim.streamDelayMs || 250);
+      }
+    } else if (sim.output) {
+      terminalRef.current?.writeLine(`\r\n${sim.output}`);
+    }
 
     // =======================================================
     // ✅ จุดแก้หลักที่ 3: ระบบเซฟกันโกง (Server-side Validation)
@@ -309,8 +299,8 @@ export default function GamePage() {
       console.error("Verification error:", err);
     }
 
-    // เคลียร์บรรทัดใหม่
-    if (action !== 'clear' && action !== 'cls') { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
+    // เคลียร์บรรทัดใหม่ (ยกเว้น clear/cls ที่ reset วาด prompt ให้แล้ว)
+    if (!sim.clearScreen) { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
   };
 
   const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); setSolution(null); setShowRevealConfirm(false); setEarnedExp(null); startTimeRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
@@ -341,7 +331,7 @@ export default function GamePage() {
   };
   const handleNextLevel = () => { setCurrentLevel(prev => prev + 1); resetMetrics(); terminalRef.current?.reset("~"); setCurrentPath("~"); };
   const handleReplayLevel = () => { resetMetrics(); terminalRef.current?.reset(currentPath); };
-  const handleResetGame = () => { setCurrentLevel(1); setCurrentPath("~"); setFileSystem([]); setIsAllCleared(false); resetMetrics(); terminalRef.current?.reset("~"); };
+  const handleResetGame = () => { setCurrentLevel(1); setCurrentPath("~"); setFileSystem([]); fsMapRef.current = { '~': [] }; setIsAllCleared(false); resetMetrics(); terminalRef.current?.reset("~"); };
 
   const getMissionGrade = (acc: number) => {
     const isLnx = targetOs === 'linux';
@@ -544,6 +534,7 @@ export default function GamePage() {
             missionData={missionData}
             solution={solution}
             onRevealClick={() => setShowRevealConfirm(true)}
+            activeEffect={activeEffect}
           />
         </div>
       </main>
