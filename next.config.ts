@@ -11,7 +11,7 @@ const cspHeader = `
   form-action 'self';
   frame-ancestors 'none';
   frame-src 'self' https://accounts.google.com/;
-  connect-src 'self' https: wss: http://localhost:8787;
+  
 `.replace(/\s{2,}/g, ' ').trim();
 
 const nextConfig: NextConfig = {

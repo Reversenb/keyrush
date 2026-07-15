@@ -89,15 +89,11 @@ export default function CampaignPage() {
 
   const handleEnterMission = () => {
     localStorage.setItem('keyrush_target_os', targetOs);
-    localStorage.removeItem('keyrush_save_path');
-    localStorage.removeItem('keyrush_save_files');
     router.push('/campaignplay');
   };
 
   const handleReplayMission = (level: number) => {
     localStorage.setItem('keyrush_target_os', targetOs);
-    localStorage.removeItem('keyrush_save_path');
-    localStorage.removeItem('keyrush_save_files');
     router.push(`/campaignplay?level=${level}`);
   };
 

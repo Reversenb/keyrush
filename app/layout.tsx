@@ -33,6 +33,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // 🌟 2. เพิ่ม suppressHydrationWarning เพื่อป้องกัน Error ตอนโหลดธีม
     <html lang="th" className={`${prompt.variable} ${baloo.variable}`} suppressHydrationWarning>
       <head>
+        {/* เปิด connection ไป dicebear ล่วงหน้า — avatar โหลดไวขึ้นตั้งแต่รูปแรก */}
+        <link rel="preconnect" href="https://api.dicebear.com" />
         {/* ไอคอน Material Symbols */}
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>

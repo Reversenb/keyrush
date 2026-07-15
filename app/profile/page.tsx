@@ -25,6 +25,25 @@ const AVATAR_OPTIONS = [
   "Falcon", "Raven", "Eagle", "Hawk", "Wolf", "Bear", "Lion", "Tiger", "Fox", "Panda"
 ];
 
+// 🤖 รูป avatar พร้อม skeleton ระหว่างรอโหลด — ไม่โชว์ alt text ค้างเป็นชื่อ
+function BotAvatar({ src, alt, className }: { src: string; alt: string; className: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <span className="relative block w-full h-full">
+      {!loaded && <span className="absolute inset-0 rounded-full animate-pulse bg-orange-100 dark:bg-white/10 hacker:bg-green-900/40" />}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        // เผื่อรูปมาจาก cache แล้ว complete ก่อน React ผูก onLoad ทัน
+        ref={(el) => { if (el?.complete && el.naturalWidth > 0) setLoaded(true); }}
+        className={`${className} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </span>
+  );
+}
+
 export default function ProfilePage() {
   const router = useRouter();
 
@@ -331,11 +350,10 @@ export default function ProfilePage() {
                       />
                     </div>
                   ) : (
-                    <img
+                    <BotAvatar
                       src={editAvatar.startsWith('data:') ? editAvatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${editAvatar}&radius=50`}
                       alt="Avatar"
                       className="w-full h-full object-cover p-2 transition-transform duration-500 ease-out hover:scale-110"
-                      loading="lazy"
                     />
                   )}
                 </div>
@@ -433,10 +451,9 @@ export default function ProfilePage() {
                             }
                           `}
                         >
-                          <img
+                          <BotAvatar
                             src={`https://api.dicebear.com/7.x/bottts/svg?seed=${seed}&radius=50`}
                             alt={seed}
-                            loading="lazy"
                             className={`w-full h-full rounded-full transition-transform duration-300 ${isActive ? 'scale-100' : 'group-hover:scale-110'}`}
                           />
                         </button>
