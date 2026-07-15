@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
-import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck, Eye, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 // 🌟 Import Components 
 import VirtualFileSystemPanel from '@/components/VirtualFileSystemPanel';
@@ -96,6 +96,14 @@ export default function GamePage() {
   const [terminalColor, setTerminalColor] = useState('orange');
   const [terminalSize, setTerminalSize] = useState(15);
   const [terminalBg, setTerminalBg] = useState('#050505');
+
+  // 🌟 ให้ terminal เปลี่ยนชุดสีตามธีมเว็บอัตโนมัติ (ผู้เล่นยังปรับเองต่อได้ผ่านแผงสี)
+  useEffect(() => {
+    if (!currentTheme) return;
+    if (isHacker) { setTerminalColor('retro'); setTerminalBg('#050505'); }
+    else if (isDark) { setTerminalColor('yellow'); setTerminalBg('#1E1B2E'); }
+    else { setTerminalColor('orange'); setTerminalBg('#050505'); }
+  }, [currentTheme, isDark, isHacker]);
 
   const terminalUsername = userData?.displayName?.replace(/\s+/g, '_') || userData?.username?.split('@')[0] || 'student';
   const currentExp = targetOs === 'windows' ? (userData?.windowsExp || 0) : (userData?.linuxExp || 0);

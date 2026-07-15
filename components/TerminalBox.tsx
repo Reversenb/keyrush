@@ -19,6 +19,32 @@ export const TERMINAL_THEMES: Record<string, { hex: string; rgb: string; foregro
   retro: { hex: '#39ff14', rgb: '57;255;20', foreground: '#dcfce7' },        // 10. Retro Matrix
 };
 
+// สร้าง theme object ของ xterm จากชุดสี — ตัวหนังสือหลักใช้โทนอ่อน (foreground)
+// ให้อ่านง่าย ส่วนสีจัดเต็ม (hex) เก็บไว้ที่ cursor / selection / accent
+const buildXtermTheme = (t: { hex: string; rgb: string; foreground: string }, bg: string) => ({
+  background: bg,
+  foreground: t.foreground,
+  cursor: t.hex,
+  cursorAccent: '#000000',
+  selectionBackground: `rgba(${t.rgb}, 0.3)`,
+  black: '#000000',
+  red: '#fb7185',
+  green: '#4ade80',
+  yellow: '#fbbf24',
+  blue: '#60a5fa',
+  magenta: t.hex,
+  cyan: '#22d3ee',
+  white: '#ffffff',
+  brightBlack: '#64748b',
+  brightRed: '#fda4af',
+  brightGreen: '#86efac',
+  brightYellow: '#fde68a',
+  brightBlue: '#93c5fd',
+  brightMagenta: t.hex,
+  brightCyan: '#a5f3fc',
+  brightWhite: '#ffffff',
+});
+
 export interface TerminalHandle {
   writeLine: (text: string) => void;
   prompt: (path: string) => void;
@@ -71,22 +97,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
     currentThemeRef.current = selectedTheme;
 
     if (termInstance.current) {
-      termInstance.current.options.theme = {
-        background: bgColor,
-        // 🌟 บังคับใช้สี Hex สดๆ เป็นสีตัวหนังสือหลักเลย เพื่อให้เห็นการเปลี่ยนแปลงชัดเจน
-        foreground: selectedTheme.hex,
-        cursor: selectedTheme.hex,
-        cursorAccent: '#000000',
-        selectionBackground: `rgba(${selectedTheme.rgb}, 0.3)`,
-        black: '#000000',
-        red: '#fb7185',
-        green: '#4ade80',
-        yellow: '#fbbf24',
-        blue: '#60a5fa',
-        magenta: selectedTheme.hex,
-        cyan: '#22d3ee',
-        white: '#ffffff',
-      };
+      termInstance.current.options.theme = buildXtermTheme(selectedTheme, bgColor);
       // บังคับให้ Terminal วาดตัวเองใหม่ทั้งหมด
       termInstance.current.refresh(0, termInstance.current.rows - 1);
     }
@@ -99,9 +110,18 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
     audio.play().catch(() => { });
   };
 
-  // 🌟 ปลดรหัสสีตายตัวออก ให้ใช้สี Foreground อัตโนมัติ (ยกเว้น path ให้เป็นสีเหลือง) 🌟
+  // 🌟 Prompt สีตามธีม: user@keyrush เป็นสี accent (truecolor), path เหลือง, $ เป็น accent
   const drawPrompt = (term: Terminal, path: string) => {
-    term.write(`\r\n\x1b[1m${usernameRef.current}@keyrush\x1b[0m:\x1b[1;33m${path}\x1b[0m$ `);
+    const accent = `\x1b[1;38;2;${currentThemeRef.current.rgb}m`;
+    term.write(`\r\n${accent}${usernameRef.current}@keyrush\x1b[0m\x1b[2m:\x1b[0m\x1b[1;33m${path}\x1b[0m ${accent}$\x1b[0m `);
+  };
+
+  // 🌟 Banner ต้อนรับ — หัวเรื่องสี accent + คำอธิบายจางๆ
+  const drawBanner = (term: Terminal) => {
+    const accent = `\x1b[1;38;2;${currentThemeRef.current.rgb}m`;
+    term.writeln(`${accent}╭─[ KEYRUSH TERMINAL ]─────────────────╮\x1b[0m`);
+    term.writeln(`${accent}│\x1b[0m  \x1b[2mInteractive Command Training v2.0\x1b[0m   ${accent}│\x1b[0m`);
+    term.writeln(`${accent}╰──────────────────────────────────────╯\x1b[0m`);
   };
 
   useImperativeHandle(ref, () => ({
@@ -120,9 +140,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
       const term = termInstance.current;
       if (term) {
         term.write('\x1bc'); // Clear Screen
-        // 🌟 ปลดรหัสสีตายตัวออกเช่นกัน เพื่อให้วิ่งตามสี Theme อัตโนมัติ
-        term.writeln(`\x1b[1mKeyRush Interactive Terminal Training `);
-
+        drawBanner(term);
         drawPrompt(term, path);
       }
     }
@@ -148,22 +166,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
       fontSize: fontSize,
       fontWeight: '500',
       lineHeight: 1.5,
-      theme: {
-        background: bgColor,
-        // 🌟 ใช้สี Hex สดๆ เป็นสีตัวหนังสือหลักตั้งแต่โหลดครั้งแรก
-        foreground: initialTheme.hex,
-        cursor: initialTheme.hex,
-        cursorAccent: '#000000',
-        selectionBackground: `rgba(${initialTheme.rgb}, 0.3)`,
-        black: '#000000',
-        red: '#fb7185',
-        green: '#4ade80',
-        yellow: '#fbbf24',
-        blue: '#60a5fa',
-        magenta: initialTheme.hex,
-        cyan: '#22d3ee',
-        white: '#ffffff',
-      }
+      theme: buildXtermTheme(initialTheme, bgColor)
     });
 
     const fitAddon = new FitAddon();
@@ -185,8 +188,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
           setTimeout(() => {
             try {
               fitAddon.fit();
-              term.writeln(`\x1b[1mKeyRush Interactive Terminal Training`);
-
+              drawBanner(term);
               drawPrompt(term, currentPathRef.current);
             } catch (err) { }
           }, 20);
@@ -274,6 +276,17 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
 
       <div className="w-full h-full p-4 md:p-6 overflow-hidden relative" style={{ minHeight: '300px' }}>
         <div ref={terminalRef} className="absolute inset-0 p-4 md:p-6" />
+
+        {/* 🎞️ CRT scanlines จางๆ ให้ฟีลจอเก่า (ไม่บังการคลิก/พิมพ์) */}
+        <div
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{ background: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 3px)' }}
+        />
+        {/* 🌘 Vignette มืดตามขอบ + แสงเรืองสี accent บางๆ */}
+        <div
+          className="absolute inset-0 pointer-events-none z-10 transition-shadow duration-500"
+          style={{ boxShadow: `inset 0 0 110px rgba(0,0,0,0.45), inset 0 0 26px ${activeThemeHex}26` }}
+        />
       </div>
     </>
   );

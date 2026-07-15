@@ -29,6 +29,7 @@ const ALL_TEXT_COLORS = [
 
 const ALL_BG_COLORS = [
     { name: 'Dark', code: '#050505', bgClass: 'bg-[#050505]' },
+    { name: 'KeyRush Purple', code: '#1E1B2E', bgClass: 'bg-[#1E1B2E]' },
     { name: 'Navy', code: '#0f172a', bgClass: 'bg-slate-900' },
     { name: 'Forest', code: '#064e3b', bgClass: 'bg-emerald-900' },
     { name: 'Plum', code: '#4c1d95', bgClass: 'bg-violet-900' },
