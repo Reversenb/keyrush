@@ -54,6 +54,9 @@ export interface TerminalHandle {
 interface TerminalBoxProps {
   initialPath: string;
   onCommand: (command: string) => void;
+  // แจ้งคีย์ที่ "เข้า terminal จริง" สำหรับคำนวณ WPM/Accuracy
+  // ('backspace' จะถูกส่งเฉพาะตอนมีตัวอักษรให้ลบจริงเท่านั้น)
+  onMetricKey?: (type: 'char' | 'backspace') => void;
   isMuted: boolean;
   fontSize?: number;
   themeName?: string;
@@ -61,7 +64,7 @@ interface TerminalBoxProps {
 }
 
 const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
-  initialPath, onCommand, isMuted, fontSize = 15, themeName = 'orange', bgColor = '#050505'
+  initialPath, onCommand, onMetricKey, isMuted, fontSize = 15, themeName = 'orange', bgColor = '#050505'
 }, ref) => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const termInstance = useRef<Terminal | null>(null);
@@ -70,6 +73,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
 
   const usernameRef = useRef<string>('operative');
   const onCommandRef = useRef(onCommand);
+  const onMetricKeyRef = useRef(onMetricKey);
   const currentPathRef = useRef(initialPath);
   const isMutedRef = useRef(isMuted);
 
@@ -79,6 +83,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
   const historyIdx = useRef<number>(-1);
 
   useEffect(() => { onCommandRef.current = onCommand; }, [onCommand]);
+  useEffect(() => { onMetricKeyRef.current = onMetricKey; }, [onMetricKey]);
   useEffect(() => { isMutedRef.current = isMuted; }, [isMuted]);
 
   // 🌟 อัปเดต Font Size
@@ -221,6 +226,8 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
         if (inputBuffer.current.length > 0) {
           inputBuffer.current = inputBuffer.current.slice(0, -1);
           term.write('\b \b');
+          // นับเป็น error เฉพาะตอนได้ลบตัวอักษรจริง — กด Backspace ตอนว่างไม่โดนหัก
+          onMetricKeyRef.current?.('backspace');
         }
       } else if (ev.keyCode === 38) {
         if (cmdHistory.current.length > 0) {
@@ -239,6 +246,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
         playTypingSound();
         inputBuffer.current += key;
         term.write(key);
+        onMetricKeyRef.current?.('char');
       }
     });
 

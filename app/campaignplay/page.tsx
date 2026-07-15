@@ -87,12 +87,21 @@ export default function GamePage() {
   // จำรายการไฟล์ของแต่ละ path — cd ไปมาแล้วของไม่หาย/ไม่ถูกสลับเป็นไฟล์ปลอม
   const fsMapRef = useRef<Record<string, VirtualFile[]>>({ '~': [] });
 
+  // -- Server-authoritative anti-cheat tokens --
+  // sessionToken: ได้ตอนโหลดโจทย์ ต้องแนบตอน verify | clearanceToken: ได้ตอน verify ผ่าน ต้องแนบตอนเซฟ
+  const sessionTokenRef = useRef<string | null>(null);
+  const clearanceTokenRef = useRef<string | null>(null);
+  // เพิ่มค่าเพื่อบังคับโหลดโจทย์ใหม่ (กรณีเซสชันด่านหมดอายุ)
+  const [missionReload, setMissionReload] = useState(0);
+
   const terminalRef = useRef<TerminalHandle>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // -- Performance Metrics --
-  const startTimeRef = useRef<number | null>(null);
+  // ใช้ "เวลาพิมพ์จริง" สะสมจากช่องว่างระหว่างคีย์ (cap 3 วิ) — เปลี่ยนแท็บ/หยุดคิดไม่ทำ WPM พัง
+  const activeTimeMsRef = useRef(0);
+  const lastKeyTsRef = useRef<number | null>(null);
   const totalTypingKeysRef = useRef(0);
   const errorsRef = useRef(0);
   const [wpm, setWpm] = useState(0);
@@ -166,6 +175,10 @@ export default function GamePage() {
         if (result.success && result.data) {
           setMissionData(result.data); setIsAllCleared(false); setCurrentPath("~");
 
+          // 🎫 เก็บ sessionToken ประจำด่าน (backend ใหม่ส่งมา — ต้องแนบตอน verify)
+          sessionTokenRef.current = result.sessionToken || result.data.sessionToken || null;
+          clearanceTokenRef.current = null;
+
           // ✅ จุดแก้หลักที่ 1: ระบบจำลองไฟล์ (Virtual File System)
           // ไฟล์ตั้งต้นชุดเล็ก — พอให้มีของเล่นกับคำสั่งโดยไม่ดันความสูงจอ
           let initialFiles: VirtualFile[] = [
@@ -179,26 +192,26 @@ export default function GamePage() {
       } catch (error) { console.error("Error fetching mission:", error); }
     };
     fetchMission();
-  }, [currentLevel, targetOs, isInitializing]);
+  }, [currentLevel, targetOs, isInitializing, missionReload]);
 
-  useEffect(() => {
+  // 🌟 นับ WPM/Accuracy เฉพาะคีย์ที่ "เข้า terminal จริง" (ส่งมาจาก TerminalBox.onKey)
+  // — คีย์พิเศษ (F1-F12, Home, Delete ฯลฯ) และการพิมพ์นอก terminal ไม่ถูกนับอีกต่อไป
+  const handleMetricKey = (type: 'char' | 'backspace') => {
     if (isInitializing || isPassed || showNextLevel || isAllCleared) return;
-    const handleKey = (e: KeyboardEvent) => {
-      const ignoredKeys = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab', 'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
-      if (e.ctrlKey || e.altKey || e.metaKey || ignoredKeys.includes(e.key)) return;
-      if (!startTimeRef.current && e.key !== 'Backspace') startTimeRef.current = Date.now();
-      if (e.key === 'Backspace') errorsRef.current += 1; else totalTypingKeysRef.current += 1;
 
-      if (startTimeRef.current) {
-        const timeMs = Math.max(1000, Date.now() - startTimeRef.current);
-        const timeMinutes = timeMs / 60000;
-        setWpm(Math.max(0, Math.round((totalTypingKeysRef.current / 5) / timeMinutes)));
-        if (totalTypingKeysRef.current > 0) setAccuracy(Math.min(100, Math.max(0, Math.round(((totalTypingKeysRef.current - errorsRef.current) / totalTypingKeysRef.current) * 100))));
-      }
-    };
-    window.addEventListener('keydown', handleKey, { capture: true });
-    return () => window.removeEventListener('keydown', handleKey, { capture: true });
-  }, [isInitializing, isPassed, showNextLevel, isAllCleared]);
+    // สะสมเวลาพิมพ์จริง: ช่องว่างระหว่างคีย์เกิน 3 วิ (พัก/เปลี่ยนแท็บ) นับแค่ 3 วิ
+    const now = Date.now();
+    if (lastKeyTsRef.current !== null) activeTimeMsRef.current += Math.min(now - lastKeyTsRef.current, 3000);
+    lastKeyTsRef.current = now;
+
+    if (type === 'backspace') errorsRef.current += 1; else totalTypingKeysRef.current += 1;
+
+    if (totalTypingKeysRef.current > 0) {
+      const timeMinutes = Math.max(1000, activeTimeMsRef.current) / 60000;
+      setWpm(Math.max(0, Math.round((totalTypingKeysRef.current / 5) / timeMinutes)));
+      setAccuracy(Math.min(100, Math.max(0, Math.round(((totalTypingKeysRef.current - errorsRef.current) / totalTypingKeysRef.current) * 100))));
+    }
+  };
 
   const toggleMute = () => { const newState = !isMuted; setIsMuted(newState); localStorage.setItem('keyrush_muted', String(newState)); };
   const playSFX = (type: 'enter' | 'success' | 'error') => { if (isMuted) return; const audio = new Audio(`/sounds/${type}.mp3`); audio.volume = type === 'enter' ? 0.3 : 0.6; audio.play().catch(() => { }); };
@@ -250,43 +263,57 @@ export default function GamePage() {
     // ส่งข้อมูลที่ผู้เล่นพิมพ์ไปให้ Backend ตรวจแทนการเช็คที่หน้าบ้าน
     // =======================================================
     try {
-      // POST ต้องแนบ X-CSRF-Token — apiFetch จัดการให้
+      // POST ต้องแนบ X-CSRF-Token — apiFetch จัดการให้ | sessionToken = หลักฐานว่าโหลดโจทย์จริง
       const verifyRes = await apiFetch('/api/mission/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           os: targetOs,
           level: currentLevel,
-          userCommand: normalizedInput
+          userCommand: normalizedInput,
+          sessionToken: sessionTokenRef.current
         })
       });
       const verifyData = await verifyRes.json();
 
-      // 403/401 = ปัญหา session/CSRF ไม่ใช่ตอบผิด — ต้องบอกผู้เล่นตรงๆ ไม่ใช่เงียบ
-      if (verifyRes.status === 403 || verifyRes.status === 401) {
-        terminalRef.current?.writeLine(`\r\n\x1b[31m[SYSTEM] ตรวจคำตอบไม่สำเร็จ (${verifyRes.status}): ${verifyData?.message || 'เซสชันมีปัญหา'} — ลองรีเฟรชหรือเข้าสู่ระบบใหม่\x1b[0m`);
+      // 400 = เซสชันด่านหมดอายุ → โหลดโจทย์ใหม่เพื่อรับ sessionToken ใหม่
+      if (verifyRes.status === 400) {
+        terminalRef.current?.writeLine(`\r\n\x1b[33m[SYSTEM] ${verifyData?.message || 'เซสชันด่านหมดอายุ'} — กำลังโหลดโจทย์ใหม่ พิมพ์คำตอบอีกครั้งได้เลย\x1b[0m`);
+        setMissionReload(k => k + 1);
+      // 403/401 = โดนระบบกันโกง/เซสชันมีปัญหา ไม่ใช่ตอบผิด — ต้องบอกผู้เล่นตรงๆ ไม่ใช่เงียบ
+      } else if (verifyRes.status === 403 || verifyRes.status === 401) {
+        terminalRef.current?.writeLine(`\r\n\x1b[31m[SYSTEM] ${verifyData?.message || `ตรวจคำตอบไม่สำเร็จ (${verifyRes.status}) — ลองรีเฟรชหรือเข้าสู่ระบบใหม่`}\x1b[0m`);
+        setIsErrorAnim(true); setTimeout(() => setIsErrorAnim(false), 400);
       // ถ้า Backend ยืนยันว่า "คำสั่งถูกต้อง"
       } else if (verifyData.success && verifyData.isCorrect) {
         setIsPassed(true); setTimeout(() => playSFX('success'), 300);
         setRevealedCommand(verifyData.correctAnswer || normalizedInput);
+        // 🎫 clearanceToken = หลักฐานผ่านด่าน ต้องแนบตอนเซฟ ไม่งั้นโดน 403
+        clearanceTokenRef.current = verifyData.clearanceToken || null;
 
         apiFetch('/api/user/progress', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy })
+          body: JSON.stringify({ os: targetOs, level: currentLevel, wpm: wpm, accuracy: accuracy, clearanceToken: clearanceTokenRef.current })
         })
-          .then(res => res.json())
-          .then(result => {
-            if (result.success && result.data) {
+          .then(async res => {
+            const result = await res.json();
+            // 403 = ไม่มี/หลักฐานผ่านด่านไม่ถูกต้อง — เซฟไม่เข้า ต้องบอกผู้เล่น
+            if (res.status === 403 || !result.success) {
+              terminalRef.current?.writeLine(`\r\n\x1b[31m[SYSTEM] เซฟความคืบหน้าไม่สำเร็จ: ${result?.message || `(${res.status})`}\x1b[0m`);
+              return;
+            }
+            if (result.data) {
               setUserData(result.data);
               const newActiveLevel = targetOs === 'windows' ? result.data.windowsLevel : result.data.linuxLevel;
               setMaxLevel(newActiveLevel);
             }
             // EXP ที่ได้จริงรอบนี้ (โดนหักเหลือ 20% ถ้าด่านนี้เคยดูเฉลย)
-            if (result.success && typeof result.earnedExp === 'number') {
+            if (typeof result.earnedExp === 'number') {
               setEarnedExp(result.earnedExp);
             }
-          });
+          })
+          .catch(err => console.error("Save progress error:", err));
         terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
         setTimeout(() => setShowProceedButton(true), 1200);
       } else {
@@ -303,7 +330,7 @@ export default function GamePage() {
     if (!sim.clearScreen) { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
   };
 
-  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); setSolution(null); setShowRevealConfirm(false); setEarnedExp(null); startTimeRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
+  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); setSolution(null); setShowRevealConfirm(false); setEarnedExp(null); clearanceTokenRef.current = null; activeTimeMsRef.current = 0; lastKeyTsRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
 
   // ยิง /reveal เฉพาะหลังผู้เล่นกดยืนยันใน dialog เท่านั้น — แค่เรียก endpoint นี้
   // server จะจดถาวรทันทีว่าด่านนี้ใช้เฉลย (EXP เหลือ 20%)
@@ -505,7 +532,7 @@ export default function GamePage() {
             />
 
             <div className="flex-1 relative overflow-hidden p-2 transition-colors duration-300" style={{ backgroundColor: terminalBg }}>
-              <TerminalBox ref={terminalRef} initialPath={currentPath} onCommand={handleCommand} isMuted={isMuted} themeName={terminalColor} fontSize={terminalSize} bgColor={terminalBg} />
+              <TerminalBox ref={terminalRef} initialPath={currentPath} onCommand={handleCommand} onMetricKey={handleMetricKey} isMuted={isMuted} themeName={terminalColor} fontSize={terminalSize} bgColor={terminalBg} />
               <AnimatePresence>
                 {isPassed && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={`absolute inset-0 z-20 mix-blend-overlay pointer-events-none ${isHacker ? 'bg-green-500/20' : isDark ? (isLinux ? 'bg-yellow-400/20' : 'bg-blue-400/20') : (isLinux ? 'bg-orange-500/20' : 'bg-blue-500/20')}`} />}
               </AnimatePresence>
