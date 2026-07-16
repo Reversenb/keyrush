@@ -11,17 +11,19 @@ import {
   Bug, Fingerprint, Crown, ShieldCheck, Lock, CheckCircle
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { RANKS as BASE_RANKS } from '@/lib/ranks';
 
-// 🌟 ข้อมูล Ranks พื้นฐาน
-const RANKS = [
-  { id: 1, title: "Script Kiddie", minExp: 0, color: "text-slate-400", hex: "#94a3b8", border: "border-slate-200", bg: "bg-slate-100", shadow: "shadow-sm", icon: "keyboard", desc: "มือใหม่ในโลกไซเบอร์ เพิ่งเริ่มเรียนรู้คำสั่งและเครื่องมือพื้นฐาน" },
-  { id: 2, title: "Cyber Novice", minExp: 200, color: "text-green-500", hex: "#4ade80", border: "border-green-200", bg: "bg-green-100", shadow: "shadow-sm", icon: "terminal", desc: "เริ่มเข้าใจระบบ สามารถเขียนสคริปต์และเจาะระบบระดับเบื้องต้นได้" },
-  { id: 3, title: "Net Runner", minExp: 500, color: "text-amber-500", hex: "#fbbf24", border: "border-amber-200", bg: "bg-amber-100", shadow: "shadow-sm", icon: "router", desc: "นักวิ่งข้ามเครือข่าย สามารถหลบหลีกไฟร์วอลล์และจัดการเน็ตเวิร์กเบื้องต้นได้" },
-  { id: 4, title: "System Admin", minExp: 1000, color: "text-blue-500", hex: "#60a5fa", border: "border-blue-200", bg: "bg-blue-100", shadow: "shadow-sm", icon: "dns", desc: "ผู้ดูแลระบบ มีอำนาจควบคุมเซิร์ฟเวอร์และโครงสร้างพื้นฐานได้อย่างชำนาญ" },
-  { id: 5, title: "Elite Operative", minExp: 2000, color: "text-purple-500", hex: "#c084fc", border: "border-purple-200", bg: "bg-purple-100", shadow: "shadow-sm", icon: "bug_report", desc: "สายลับไซเบอร์ระดับสูง เชี่ยวชาญการค้นหาช่องโหว่และทะลวงระบบที่ซับซ้อน" },
-  { id: 6, title: "Phantom Architect", minExp: 3500, color: "text-pink-500", hex: "#f472b6", border: "border-pink-200", bg: "bg-pink-100", shadow: "shadow-sm", icon: "fingerprint", desc: "สถาปนิกไร้เงา ผู้ค้นพบและใช้งาน Zero-Day Exploit เข้าออกระบบโดยไม่ทิ้งร่องรอย" },
-  { id: 7, title: "Root Master", minExp: 5000, color: "text-rose-500", hex: "#fb7185", border: "border-rose-200", bg: "bg-rose-100", shadow: "shadow-[0_10px_30px_rgba(251,113,133,0.3)]", icon: "admin_panel_settings", desc: "จุดสูงสุดของห่วงโซ่ รูทได้ทุกเซิร์ฟเวอร์ ควบคุมทุกเครือข่ายบนโลกอินเทอร์เน็ต" },
-];
+// ข้อมูลแรงค์กลางมาจาก lib/ranks.ts — ที่นี่เก็บเฉพาะสไตล์สีประจำหน้า Ranks
+const RANK_STYLES: Record<number, { color: string; hex: string; border: string; bg: string; shadow: string }> = {
+  1: { color: "text-slate-400", hex: "#94a3b8", border: "border-slate-200", bg: "bg-slate-100", shadow: "shadow-sm" },
+  2: { color: "text-green-500", hex: "#4ade80", border: "border-green-200", bg: "bg-green-100", shadow: "shadow-sm" },
+  3: { color: "text-amber-500", hex: "#fbbf24", border: "border-amber-200", bg: "bg-amber-100", shadow: "shadow-sm" },
+  4: { color: "text-blue-500", hex: "#60a5fa", border: "border-blue-200", bg: "bg-blue-100", shadow: "shadow-sm" },
+  5: { color: "text-purple-500", hex: "#c084fc", border: "border-purple-200", bg: "bg-purple-100", shadow: "shadow-sm" },
+  6: { color: "text-pink-500", hex: "#f472b6", border: "border-pink-200", bg: "bg-pink-100", shadow: "shadow-sm" },
+  7: { color: "text-rose-500", hex: "#fb7185", border: "border-rose-200", bg: "bg-rose-100", shadow: "shadow-[0_10px_30px_rgba(251,113,133,0.3)]" },
+};
+const RANKS = BASE_RANKS.map(r => ({ ...r, ...RANK_STYLES[r.id] }));
 
 // 🌟 ฟังก์ชันแปลงชื่อ Icon เป็น Lucide Component
 const getIcon = (name: string, size: number, className: string = "") => {

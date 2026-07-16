@@ -11,6 +11,7 @@ import {
   Target, Trophy, ChevronRight, Search, X
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { RANKS } from '@/lib/ranks';
 
 // 🌟 ข้อมูลเมนูด้านซ้าย
 const DOC_TABS = [
@@ -475,15 +476,8 @@ function ClearanceContent() {
     return `${lightMap[id]} ${darkMap[id]} hacker:bg-green-500`;
   };
 
-  const ranksData = [
-    { id: 1, title: "Script Kiddie", req: "0+ EXP" },
-    { id: 2, title: "Cyber Novice", req: "200+ EXP" },
-    { id: 3, title: "Net Runner", req: "500+ EXP" },
-    { id: 4, title: "System Admin", req: "1,000+ EXP" },
-    { id: 5, title: "Elite Operative", req: "2,000+ EXP" },
-    { id: 6, title: "Phantom Architect", req: "3,500+ EXP" },
-    { id: 7, title: "Root Master", req: "5,000+ EXP" },
-  ];
+  // ดึงจากตารางแรงค์กลาง (lib/ranks.ts) — แก้ชื่อ/เกณฑ์ที่เดียวมีผลทุกหน้า
+  const ranksData = RANKS.map(r => ({ id: r.id, title: r.title, req: `${r.minExp.toLocaleString('en-US')}+ EXP` }));
 
   return (
     <div className="space-y-6">

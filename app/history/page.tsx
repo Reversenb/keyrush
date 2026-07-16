@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
@@ -9,9 +9,105 @@ import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import Link from 'next/link';
 import {
   History as HistoryIcon, ArrowLeft, Terminal, Monitor, Database,
-  FileText, Clock, Star, X, ListFilter, Zap
+  FileText, Clock, Star, X, ListFilter, Zap, ChevronLeft, ChevronRight, CalendarDays
 } from 'lucide-react';
 import { apiFetch, clearUserState } from '@/lib/api';
+
+// วันแบบ local เป็น key "YYYY-MM-DD" (ไม่ใช้ toISOString เพราะจะเพี้ยนข้ามวันตาม timezone)
+const dateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+// =========================================================================
+// 📅 ปฏิทินประวัติ — วันไหนมีภารกิจจะมีพื้นสี accent (เข้มตามจำนวน) + จุด
+// จิ้มวันเพื่อกรองตาราง จิ้มซ้ำเพื่อล้าง เลื่อนดูเดือนก่อนหน้าได้
+// =========================================================================
+function HistoryCalendar({ activityByDay, selectedDate, onSelect, isDark, isHacker }: {
+  activityByDay: Record<string, number>;
+  selectedDate: string | null;
+  onSelect: (key: string | null) => void;
+  isDark: boolean; isHacker: boolean;
+}) {
+  const today = new Date();
+  const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+
+  const y = viewDate.getFullYear(), m = viewDate.getMonth();
+  const startDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const monthLabel = viewDate.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+  const todayKey = dateKey(today);
+  const maxCount = Math.max(1, ...Object.values(activityByDay));
+
+  const accentHex = isHacker ? '#22c55e' : isDark ? '#facc15' : '#f97316';
+  const navBtn = `btn-squishy size-9 rounded-xl border-2 flex items-center justify-center transition-colors ${isHacker ? 'bg-[#111] border-green-800 text-green-500 hover:border-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-yellow-400 hover:border-yellow-400' : 'bg-white border-orange-100 text-orange-500 hover:border-orange-300'}`;
+  const selectedCls = isHacker ? 'bg-green-500 text-[#0a0a0a] border-green-300 shadow-md scale-105' : isDark ? 'bg-yellow-400 text-[#1E1B2E] border-yellow-200 shadow-md scale-105' : 'bg-orange-500 text-white border-white shadow-md scale-105';
+  const inkCls = isHacker ? 'text-green-400' : isDark ? 'text-white/90' : 'text-orange-950';
+  const mutedCls = isHacker ? 'text-green-900' : isDark ? 'text-white/25' : 'text-orange-200';
+
+  return (
+    <div className="w-full">
+      {/* หัวปฏิทิน: เดือน + ปุ่มเลื่อน */}
+      <div className="flex items-center justify-between mb-4">
+        <h3 className={`text-sm font-black uppercase tracking-widest flex items-center gap-2 transition-colors ${isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-orange-600'}`}>
+          <CalendarDays size={18} strokeWidth={3} /> {monthLabel}
+        </h3>
+        <div className="flex gap-2">
+          <button onClick={() => setViewDate(new Date(y, m - 1, 1))} className={navBtn} aria-label="เดือนก่อนหน้า"><ChevronLeft size={18} strokeWidth={3} /></button>
+          <button onClick={() => setViewDate(new Date(y, m + 1, 1))} className={navBtn} aria-label="เดือนถัดไป"><ChevronRight size={18} strokeWidth={3} /></button>
+        </div>
+      </div>
+
+      {/* หัวตาราง วันในสัปดาห์ */}
+      <div className="grid grid-cols-7 gap-1.5 mb-1.5">
+        {['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].map(d => (
+          <div key={d} className={`text-center text-[10px] font-black uppercase py-1 ${isHacker ? 'text-green-700' : isDark ? 'text-white/40' : 'text-orange-300'}`}>{d}</div>
+        ))}
+      </div>
+
+      {/* ช่องวัน */}
+      <div className="grid grid-cols-7 gap-1.5">
+        {Array.from({ length: startDow }).map((_, i) => <div key={`b${i}`} />)}
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const key = dateKey(new Date(y, m, day));
+          const count = activityByDay[key] || 0;
+          const isSelected = selectedDate === key;
+          const isToday = key === todayKey;
+          // พื้นเข้มตามสัดส่วนจำนวนภารกิจของวันนั้น
+          const tint = count > 0 ? { backgroundColor: `${accentHex}${Math.round((0.14 + 0.3 * (count / maxCount)) * 255).toString(16).padStart(2, '0')}` } : undefined;
+
+          return (
+            <button
+              key={key}
+              onClick={() => onSelect(isSelected ? null : key)}
+              title={count > 0 ? `${count} ภารกิจ` : 'ไม่มีภารกิจ'}
+              className={`relative aspect-square rounded-xl border-2 text-xs font-black flex flex-col items-center justify-center transition-all btn-squishy
+                ${isSelected ? selectedCls : `border-transparent ${count > 0 ? inkCls : mutedCls} ${isHacker ? 'hover:border-green-700' : isDark ? 'hover:border-[#4B3965]' : 'hover:border-orange-200'}`}
+                ${isToday && !isSelected ? (isHacker ? 'border-green-600' : isDark ? 'border-yellow-500/70' : 'border-orange-400') : ''}`}
+              style={isSelected ? undefined : tint}
+            >
+              {day}
+              {count > 0 && !isSelected && <span className="absolute bottom-1 size-1.5 rounded-full" style={{ backgroundColor: accentHex }} />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* แถบสถานะตัวกรองวัน */}
+      {selectedDate ? (
+        <button
+          onClick={() => onSelect(null)}
+          className={`mt-4 w-full flex items-center justify-between gap-2 px-4 py-3 rounded-2xl border-2 text-xs font-black transition-colors btn-squishy ${isHacker ? 'bg-green-900/20 border-green-700 text-green-400 hover:border-green-500' : isDark ? 'bg-yellow-400/10 border-yellow-500/50 text-yellow-300 hover:border-yellow-400' : 'bg-orange-50 border-orange-200 text-orange-600 hover:border-orange-400'}`}
+        >
+          <span>📅 {new Date(selectedDate + 'T00:00:00').toLocaleDateString('th-TH', { dateStyle: 'long' })} · {activityByDay[selectedDate] || 0} ภารกิจ</span>
+          <X size={16} strokeWidth={3} />
+        </button>
+      ) : (
+        <p className={`mt-4 text-center text-[10px] font-black uppercase tracking-widest ${isHacker ? 'text-green-800' : isDark ? 'text-white/30' : 'text-orange-300'}`}>
+          จิ้มวันที่มีจุดเพื่อดูประวัติของวันนั้น
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -27,6 +123,8 @@ export default function HistoryPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [filter, setFilter] = useState<'all' | 'linux' | 'windows'>('all');
   const [selectedLog, setSelectedLog] = useState<any>(null);
+  // วันที่เลือกจากปฏิทิน (YYYY-MM-DD) — null = แสดงทุกวัน
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -54,10 +152,21 @@ export default function HistoryPage() {
     fetchHistory();
   }, [router]);
 
-  // 🌟 กรองข้อมูลตามที่เลือก (All, Linux, Windows)
+  // 🌟 นับจำนวนภารกิจต่อวัน (สำหรับปฏิทิน)
+  const activityByDay = useMemo(() => {
+    const map: Record<string, number> = {};
+    logs.forEach(log => {
+      const key = dateKey(new Date(log.createdAt));
+      map[key] = (map[key] || 0) + 1;
+    });
+    return map;
+  }, [logs]);
+
+  // 🌟 กรองข้อมูลตาม OS + วันที่เลือกจากปฏิทิน
   const filteredLogs = logs.filter(log => {
-    if (filter === 'all') return true;
-    return log.os === filter;
+    if (filter !== 'all' && log.os !== filter) return false;
+    if (selectedDate && dateKey(new Date(log.createdAt)) !== selectedDate) return false;
+    return true;
   });
 
   // EXP ที่ได้ในรอบนั้น — เผื่อชื่อ field หลายแบบจาก backend, ไม่มีข้อมูลคืน null
@@ -211,6 +320,25 @@ export default function HistoryPage() {
           </motion.div>
         </div>
 
+        {/* 🌟 Calendar + Data Table 🌟 */}
+        <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr] gap-6 md:gap-8 items-start w-full">
+
+        {/* 📅 ปฏิทินเลือกดูประวัติรายวัน */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="glass-card p-6 shadow-sm w-full xl:sticky xl:top-24"
+        >
+          <HistoryCalendar
+            activityByDay={activityByDay}
+            selectedDate={selectedDate}
+            onSelect={setSelectedDate}
+            isDark={isDark}
+            isHacker={isHacker}
+          />
+        </motion.div>
+
         {/* 🌟 Data Table / Log List 🌟 */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -219,15 +347,15 @@ export default function HistoryPage() {
           className="w-full glass-card overflow-hidden shadow-sm relative"
         >
           <div className="overflow-x-auto w-full custom-scrollbar min-h-[500px]">
-            <table className="w-full text-left text-sm whitespace-nowrap min-w-[800px]">
+            <table className="w-full text-left text-sm whitespace-nowrap min-w-[600px]">
               <thead className="bg-orange-100 dark:bg-white/5 hacker:bg-white/5 text-orange-600 dark:text-yellow-400/70 hacker:text-green-500/70 font-black text-[11px] uppercase tracking-widest border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 transition-colors">
                 <tr>
-                  <th className="px-8 py-6 w-[40%] min-w-[300px]">Operation Target</th>
-                  <th className="px-6 py-6 text-center">Clearance Level</th>
-                  <th className="px-6 py-6 text-center">Typing Speed (WPM)</th>
-                  <th className="px-6 py-6 text-center">Precision</th>
-                  <th className="px-6 py-6 text-center">EXP Gained</th>
-                  <th className="px-8 py-6 text-right">Timestamp</th>
+                  <th className="px-5 py-5 w-[32%] min-w-[200px]">Operation Target</th>
+                  <th className="px-3 py-5 text-center">Level</th>
+                  <th className="px-3 py-5 text-center">EXP</th>
+                  <th className="px-3 py-5 text-center">WPM</th>
+                  <th className="px-3 py-5 text-center">Precision</th>
+                  <th className="px-5 py-5 text-right">Timestamp</th>
                 </tr>
               </thead>
               <tbody className="divide-y-4 divide-white dark:divide-[#382E54] hacker:divide-[#166534] transition-colors">
@@ -250,49 +378,51 @@ export default function HistoryPage() {
                           onClick={() => setSelectedLog(log)}
                           className="group hover:bg-white/60 dark:hover:bg-white/5 hacker:hover:bg-[#111] transition-colors cursor-pointer relative overflow-hidden"
                         >
-                          <td className="px-8 py-5 relative whitespace-normal">
+                          <td className="px-5 py-4 relative whitespace-normal">
                             <div className={`absolute left-0 top-0 bottom-0 w-2 ${isHacker ? 'bg-green-500' : isLinux ? 'bg-orange-500 dark:bg-yellow-400' : 'bg-blue-500 dark:bg-blue-400'} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
 
-                            <div className="flex items-center gap-5 pl-2">
-                              <div className={`w-14 h-14 shrink-0 rounded-[20px] flex items-center justify-center border-4 ${themeColor} ${bgIcon} group-hover:scale-110 transition-transform shadow-sm bg-white dark:bg-[#382E54] hacker:bg-[#0a0a0a]`}>
-                                <IconComponent size={24} strokeWidth={3} />
+                            <div className="flex items-center gap-3 pl-1">
+                              <div className={`w-11 h-11 shrink-0 rounded-[16px] flex items-center justify-center border-4 ${themeColor} ${bgIcon} group-hover:scale-110 transition-transform shadow-sm bg-white dark:bg-[#382E54] hacker:bg-[#0a0a0a]`}>
+                                <IconComponent size={20} strokeWidth={3} />
                               </div>
                               <div className="flex flex-col whitespace-normal">
-                                <span className={`font-black text-orange-950 dark:text-white hacker:text-white text-base uppercase tracking-widest leading-tight mb-1 group-hover:${themeColor} transition-colors`}>
-                                  {isLinux ? 'Linux CLI Environment' : 'Windows CMD Environment'}
+                                <span className={`font-black text-orange-950 dark:text-white hacker:text-white text-sm uppercase tracking-wider leading-tight mb-0.5 group-hover:${themeColor} transition-colors`}>
+                                  {isLinux ? 'Linux CLI' : 'Windows CMD'}
                                 </span>
-                                <span className={`text-[10px] font-black ${themeColor} uppercase tracking-widest leading-relaxed break-words`}>
-                                  {log.description || '[ Protocol Executed - Training Mission ]'}
+                                <span className={`text-[10px] font-black ${themeColor} uppercase tracking-wider leading-relaxed break-words line-clamp-1`}>
+                                  {log.description || '[ Training Mission ]'}
                                 </span>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-5 text-center">
-                            <div className="inline-flex items-center justify-center bg-white dark:bg-[#382E54] hacker:bg-[#111] border-2 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] rounded-xl px-4 py-2 text-xs font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 group-hover:border-orange-300 dark:group-hover:border-yellow-500 hacker:group-hover:border-green-400 transition-colors shadow-sm">
+                          <td className="px-3 py-4 text-center">
+                            <div className="inline-flex items-center justify-center bg-white dark:bg-[#382E54] hacker:bg-[#111] border-2 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] rounded-xl px-3 py-1.5 text-xs font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 group-hover:border-orange-300 dark:group-hover:border-yellow-500 hacker:group-hover:border-green-400 transition-colors shadow-sm">
                               LVL {log.level}
                             </div>
                           </td>
-                          <td className="px-6 py-5 text-center">
-                            <span className="font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-2xl cute-header transition-colors">{log.wpm}</span>
-                          </td>
-                          <td className="px-6 py-5 text-center">
-                            <span className={`font-black px-4 py-2 rounded-xl text-xs tracking-widest ${getAccColorClass(log.accuracy)} shadow-sm transition-colors`}>
-                              {log.accuracy}%
-                            </span>
-                          </td>
-                          <td className="px-6 py-5 text-center">
+                          <td className="px-3 py-4 text-center">
                             {getLogExp(log) !== null ? (
-                              <span className="inline-flex items-center gap-1 font-black px-4 py-2 rounded-xl text-xs tracking-widest text-yellow-600 dark:text-yellow-400 hacker:text-green-400 bg-yellow-100 dark:bg-yellow-500/20 hacker:bg-green-900/20 border-2 border-white dark:border-yellow-500/30 hacker:border-green-900/50 shadow-sm transition-colors">
+                              <span className="inline-flex items-center gap-1 font-black px-3 py-1.5 rounded-xl text-xs tracking-wider text-yellow-600 dark:text-yellow-400 hacker:text-green-400 bg-yellow-100 dark:bg-yellow-500/20 hacker:bg-green-900/20 border-2 border-white dark:border-yellow-500/30 hacker:border-green-900/50 shadow-sm transition-colors">
                                 <Zap size={14} strokeWidth={3} className="fill-current" /> +{getLogExp(log)}
                               </span>
                             ) : (
                               <span className="text-orange-300 dark:text-white/30 hacker:text-green-800 font-black text-xs">—</span>
                             )}
                           </td>
-                          <td className="px-8 py-5 text-right text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest group-hover:text-orange-600 dark:group-hover:text-yellow-400 hacker:group-hover:text-green-400 transition-colors">
+                          <td className="px-3 py-4 text-center">
+                            <span className="font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-xl cute-header transition-colors">{log.wpm}</span>
+                          </td>
+                          <td className="px-3 py-4 text-center">
+                            <span className={`font-black px-3 py-1.5 rounded-xl text-xs tracking-wider ${getAccColorClass(log.accuracy)} shadow-sm transition-colors`}>
+                              {log.accuracy}%
+                            </span>
+                          </td>
+                          <td
+                            className="px-5 py-4 text-right text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-wider group-hover:text-orange-600 dark:group-hover:text-yellow-400 hacker:group-hover:text-green-400 transition-colors"
+                            title={new Date(log.createdAt).toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'medium' })}
+                          >
                             {new Date(log.createdAt).toLocaleString('en-GB', {
-                              weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
-                              hour: '2-digit', minute: '2-digit', second: '2-digit'
+                              day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                             })}
                           </td>
                         </motion.tr>
@@ -303,12 +433,14 @@ export default function HistoryPage() {
                       <td colSpan={6} className="px-6 py-32 text-center align-middle">
                         <div className="flex flex-col items-center justify-center gap-4 text-orange-400 dark:text-white/50 hacker:text-green-600/50 font-black w-full max-w-lg mx-auto uppercase tracking-widest transition-colors">
                           <Database size={64} strokeWidth={2} className="opacity-40 mb-2 animate-bounce" />
-                          <p className="text-sm whitespace-normal">ยังไม่มีประวัติการทำภารกิจในระบบนี้</p>
+                          <p className="text-sm whitespace-normal">
+                            {selectedDate ? 'ไม่มีภารกิจในวันที่เลือก' : 'ยังไม่มีประวัติการทำภารกิจในระบบนี้'}
+                          </p>
                           <button
-                            onClick={() => router.push('/campaignpage')}
+                            onClick={() => selectedDate ? setSelectedDate(null) : router.push('/campaignpage')}
                             className="mt-4 px-8 py-4 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-500 hacker:border-green-600 rounded-[24px] text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] font-black tracking-widest text-xs uppercase shadow-[0_6px_0_#c2410c] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#14532d] btn-squishy hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400"
                           >
-                            Initiate New Mission
+                            {selectedDate ? 'ดูทุกวัน' : 'Initiate New Mission'}
                           </button>
                         </div>
                       </td>
@@ -320,6 +452,8 @@ export default function HistoryPage() {
             </table>
           </div>
         </motion.div>
+
+        </div>
 
       </main>
 
@@ -342,7 +476,7 @@ export default function HistoryPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] w-full max-w-4xl rounded-[40px] overflow-hidden shadow-2xl relative my-auto cursor-default flex flex-col md:flex-row transition-colors"
+              className="bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] w-full max-w-4xl max-h-[94vh] rounded-[40px] overflow-y-auto shadow-2xl relative my-auto cursor-default flex flex-col md:flex-row transition-colors"
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
@@ -354,16 +488,16 @@ export default function HistoryPage() {
                 return (
                   <>
                     {/* Left Column: Rank */}
-                    <div className={`w-full md:w-5/12 ${themeBgClass} p-10 flex flex-col items-center justify-center border-b-4 md:border-b-0 md:border-r-4 border-white dark:border-[#382E54] hacker:border-[#166534] relative overflow-hidden transition-colors`}>
+                    <div className={`w-full md:w-5/12 ${themeBgClass} p-6 md:p-8 flex flex-col items-center justify-center border-b-4 md:border-b-0 md:border-r-4 border-white dark:border-[#382E54] hacker:border-[#166534] relative overflow-hidden transition-colors`}>
                       <h2 className="text-orange-400 dark:text-white/50 hacker:text-green-600 font-black tracking-widest text-[10px] mb-2 uppercase transition-colors">Historical Record</h2>
-                      <h1 className="text-3xl md:text-4xl font-black text-orange-950 dark:text-white hacker:text-white mb-8 tracking-tighter text-center cute-header transition-colors">
+                      <h1 className="text-2xl md:text-3xl font-black text-orange-950 dark:text-white hacker:text-white mb-5 tracking-tighter text-center cute-header transition-colors">
                         LEVEL {selectedLog.level} <br />
-                        <span className={`${themeColorClass} text-2xl`}>{selectedLog.os.toUpperCase()}</span>
+                        <span className={`${themeColorClass} text-xl`}>{selectedLog.os.toUpperCase()}</span>
                       </h1>
 
                       <div className="relative group">
-                        <div className={`w-48 h-48 rounded-full flex items-center justify-center relative z-10 ${grade.border}`}>
-                          <span className={`text-9xl font-black italic select-none cute-header ${grade.color}`}>{grade.rank}</span>
+                        <div className={`w-36 h-36 md:w-40 md:h-40 rounded-full flex items-center justify-center relative z-10 ${grade.border}`}>
+                          <span className={`text-7xl md:text-8xl font-black italic select-none cute-header ${grade.color}`}>{grade.rank}</span>
                           <div className="absolute -bottom-4 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] px-5 py-2 rounded-[20px] flex gap-1 shadow-sm transition-colors">
                             {[...Array(5)].map((_, i) => (
                               <Star key={i} size={18} strokeWidth={3} className={i < grade.stars ? (isHacker ? 'fill-green-500 text-green-500 drop-shadow-sm' : 'fill-yellow-400 text-yellow-400 drop-shadow-sm') : 'fill-slate-100 dark:fill-white/5 hacker:fill-white/5 text-slate-200 dark:text-white/10 hacker:text-white/10'} />
@@ -371,19 +505,19 @@ export default function HistoryPage() {
                           </div>
                         </div>
                       </div>
-                      <p className={`mt-10 text-sm font-black uppercase tracking-widest text-center transition-colors ${selectedLog.accuracy === 100 ? `${themeColorClass} animate-pulse` : 'text-orange-500 dark:text-white/70 hacker:text-white/70'}`}>
+                      <p className={`mt-7 text-sm font-black uppercase tracking-widest text-center transition-colors ${selectedLog.accuracy === 100 ? `${themeColorClass} animate-pulse` : 'text-orange-500 dark:text-white/70 hacker:text-white/70'}`}>
                         {selectedLog.accuracy === 100 ? 'Flawless Execution! ✨' : `${grade.label} Performance`}
                       </p>
                     </div>
 
                     {/* Right Column: Stats & Details */}
-                    <div className="w-full md:w-7/12 p-8 md:p-10 flex flex-col justify-between bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] relative transition-colors">
+                    <div className="w-full md:w-7/12 p-5 md:p-7 flex flex-col justify-between bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] relative transition-colors">
                       {/* Mission Log Details */}
-                      <div className="mb-8 p-6 rounded-[28px] border-4 border-white dark:border-[#4B3965] hacker:border-[#166534] bg-orange-50 dark:bg-black/20 hacker:bg-[#111] shadow-sm relative overflow-hidden transition-colors">
-                        <h4 className={`text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2 ${themeColorClass}`}>
+                      <div className="mb-4 p-4 rounded-[24px] border-4 border-white dark:border-[#4B3965] hacker:border-[#166534] bg-orange-50 dark:bg-black/20 hacker:bg-[#111] shadow-sm relative overflow-hidden transition-colors">
+                        <h4 className={`text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${themeColorClass}`}>
                           <FileText size={18} strokeWidth={3} /> Mission Log Detail
                         </h4>
-                        <div className="bg-white dark:bg-[#382E54] hacker:bg-[#0a0a0a] rounded-[16px] px-5 py-3 border-2 border-white dark:border-transparent hacker:border-[#166534] mb-4 shadow-sm flex items-center gap-3 transition-colors">
+                        <div className="bg-white dark:bg-[#382E54] hacker:bg-[#0a0a0a] rounded-[16px] px-5 py-2.5 border-2 border-white dark:border-transparent hacker:border-[#166534] mb-3 shadow-sm flex items-center gap-3 transition-colors">
                           <Clock size={18} strokeWidth={3} className="text-orange-400 dark:text-yellow-500 hacker:text-green-500" />
                           <span className="text-orange-950 dark:text-white hacker:text-white font-black text-xs uppercase tracking-widest mt-0.5 transition-colors">
                             {new Date(selectedLog.createdAt).toLocaleString('en-GB', {
@@ -397,26 +531,26 @@ export default function HistoryPage() {
                       </div>
 
                       {/* สถิติการเล่นในรอบนั้น */}
-                      <div className="grid grid-cols-2 gap-4 mb-8">
+                      <div className="grid grid-cols-2 gap-3 mb-4">
                         {getLogExp(selectedLog) !== null && (
-                          <div className="col-span-2 bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-5 rounded-[24px] flex items-center justify-between shadow-sm transition-colors">
+                          <div className="col-span-2 bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-4 rounded-[24px] flex items-center justify-between shadow-sm transition-colors">
                             <div className="flex items-center gap-3">
                               <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center border-2 shadow-sm transition-colors ${isHacker ? 'bg-green-600 text-[#0a0a0a] border-green-500' : 'bg-yellow-400 text-white dark:text-[#1E1B2E] border-white dark:border-yellow-300'}`}>
                                 <Zap size={22} strokeWidth={3} className="fill-current" />
                               </div>
                               <p className="text-orange-400 dark:text-white/50 hacker:text-green-600 text-[10px] font-black uppercase tracking-widest transition-colors">EXP Gained</p>
                             </div>
-                            <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-4xl font-black cute-header transition-colors">+{getLogExp(selectedLog)} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">EXP</span></p>
+                            <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-3xl font-black cute-header transition-colors">+{getLogExp(selectedLog)} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">EXP</span></p>
                           </div>
                         )}
-                        <div className="bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-5 rounded-[24px] flex flex-col gap-1 shadow-sm transition-colors">
+                        <div className="bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-4 rounded-[24px] flex flex-col gap-1 shadow-sm transition-colors">
                           <p className="text-orange-400 dark:text-white/50 hacker:text-green-600 text-[10px] font-black uppercase tracking-widest transition-colors">Typing Speed</p>
-                          <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-4xl font-black cute-header transition-colors">{selectedLog.wpm} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">WPM</span></p>
+                          <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-3xl font-black cute-header transition-colors">{selectedLog.wpm} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">WPM</span></p>
                         </div>
 
-                        <div className="bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-5 rounded-[24px] flex flex-col gap-1 shadow-sm transition-colors">
+                        <div className="bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-4 rounded-[24px] flex flex-col gap-1 shadow-sm transition-colors">
                           <p className="text-orange-400 dark:text-white/50 hacker:text-green-600 text-[10px] font-black uppercase tracking-widest transition-colors">Accuracy</p>
-                          <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-4xl font-black cute-header transition-colors">{selectedLog.accuracy}<span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">%</span></p>
+                          <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-3xl font-black cute-header transition-colors">{selectedLog.accuracy}<span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">%</span></p>
                         </div>
                       </div>
 
@@ -424,7 +558,7 @@ export default function HistoryPage() {
                       <div className="mt-auto">
                         <button
                           onClick={() => setSelectedLog(null)}
-                          className={`w-full py-4 font-black uppercase tracking-widest text-sm rounded-[24px] flex items-center justify-center gap-2 transition-all border-4 btn-squishy 
+                          className={`w-full py-3.5 font-black uppercase tracking-widest text-sm rounded-[24px] flex items-center justify-center gap-2 transition-all border-4 btn-squishy
                             ${isHacker
                               ? 'bg-green-500 border-green-400 text-[#0a0a0a] shadow-[0_6px_0_#14532d] hover:bg-green-400'
                               : isLinux

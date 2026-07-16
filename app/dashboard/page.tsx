@@ -8,6 +8,7 @@ import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { apiFetch, clearUserState } from '@/lib/api';
+import { RANKS as BASE_RANKS } from '@/lib/ranks';
 
 
 // =========================================================================
@@ -127,15 +128,12 @@ function WpmChart({ points, avg, accentHex, isDark, isHacker }: {
   );
 }
 
-const RANKS = [
-  { id: 1, title: "Script Kiddie", minExp: 0, color: "text-slate-300", icon: "keyboard" },
-  { id: 2, title: "Cyber Novice", minExp: 200, color: "text-[#0df259]", icon: "terminal" },
-  { id: 3, title: "Net Runner", minExp: 500, color: "text-yellow-400", icon: "router" },
-  { id: 4, title: "System Admin", minExp: 1000, color: "text-cyan-400", icon: "dns" },
-  { id: 5, title: "Elite Operative", minExp: 2000, color: "text-purple-400", icon: "bug_report" },
-  { id: 6, title: "Phantom Architect", minExp: 3500, color: "text-pink-500", icon: "fingerprint" },
-  { id: 7, title: "Root Master", minExp: 5000, color: "text-red-500", icon: "admin_panel_settings" },
-];
+// ข้อมูลแรงค์กลางมาจาก lib/ranks.ts — ที่นี่เก็บเฉพาะสีประจำหน้า dashboard
+const RANK_COLORS: Record<number, string> = {
+  1: "text-slate-300", 2: "text-[#0df259]", 3: "text-yellow-400", 4: "text-cyan-400",
+  5: "text-purple-400", 6: "text-pink-500", 7: "text-red-500",
+};
+const RANKS = BASE_RANKS.map(r => ({ ...r, color: RANK_COLORS[r.id] }));
 
 function AnimatedNumber({ value, start, duration = 1.5 }: { value: number; start: boolean; duration?: number }) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -562,9 +560,12 @@ export default function DashboardPage() {
                       })
                     ) : (
                       <tr>
-                        <td colSpan={5} className="px-8 py-20 text-center text-orange-400 dark:text-white/50 hacker:text-white/50 font-black flex flex-col items-center justify-center gap-4 transition-colors">
-                          <Terminal size={48} strokeWidth={3} className="opacity-30 animate-bounce" />
-                          <span className="text-sm uppercase tracking-widest">ยังไม่มีประวัติการทำภารกิจ เริ่มฝึกพิมพ์กันเลย! 🚀</span>
+                        {/* ห้ามใส่ flex ที่ <td> ตรงๆ — จะทำลาย table layout แล้ว colSpan ไม่ทำงาน */}
+                        <td colSpan={5} className="px-8 py-20 text-center transition-colors">
+                          <div className="flex flex-col items-center justify-center gap-4 text-orange-400 dark:text-white/50 hacker:text-white/50 font-black">
+                            <Terminal size={48} strokeWidth={3} className="opacity-30 animate-bounce" />
+                            <span className="text-sm uppercase tracking-widest">ยังไม่มีประวัติการทำภารกิจ เริ่มฝึกพิมพ์กันเลย! 🚀</span>
+                          </div>
                         </td>
                       </tr>
                     )}

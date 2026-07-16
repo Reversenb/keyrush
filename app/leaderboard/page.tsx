@@ -95,7 +95,7 @@ export default function LeaderboardPage() {
 
   // 🌟 ฟังก์ชันหาชื่อแรงค์ ปรับสีให้เข้ากับทุกธีม
   const getRankDetails = (level: number) => {
-    if (level <= 3) return { title: "Script Kiddie", color: "text-slate-400 dark:text-slate-300 hacker:text-green-600" };
+    if (level <= 3) return { title: "Rookie", color: "text-slate-400 dark:text-slate-300 hacker:text-green-600" };
     if (level <= 6) return { title: "Junior Hacker", color: "text-orange-400 dark:text-yellow-500 hacker:text-green-500" };
     if (level <= 9) return { title: "SysAdmin", color: "text-blue-500 dark:text-blue-400 hacker:text-green-400" };
     return { title: "Root Master", color: "text-pink-500 font-black dark:text-pink-400 hacker:text-green-300" };

@@ -98,7 +98,7 @@ export default function CampaignPage() {
   };
 
   const getRankInfo = (level: number) => {
-    if (level <= 3) return { title: "Script Kiddie", maxExp: 300 };
+    if (level <= 3) return { title: "Rookie", maxExp: 300 };
     if (level <= 6) return { title: "Junior Hacker", maxExp: 600 };
     if (level <= 9) return { title: "SysAdmin", maxExp: 900 };
     return { title: "Root Master", maxExp: 9900 };

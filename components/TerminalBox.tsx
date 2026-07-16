@@ -125,7 +125,7 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
   const drawBanner = (term: Terminal) => {
     const accent = `\x1b[1;38;2;${currentThemeRef.current.rgb}m`;
     term.writeln(`${accent}╭─[ KEYRUSH TERMINAL ]─────────────────╮\x1b[0m`);
-    term.writeln(`${accent}│\x1b[0m  \x1b[2mInteractive Command Training v2.0\x1b[0m   ${accent}│\x1b[0m`);
+    term.writeln(`${accent}│\x1b[0m  \x1b[2mInteractive Command Training v1.0\x1b[0m   ${accent}│\x1b[0m`);
     term.writeln(`${accent}╰──────────────────────────────────────╯\x1b[0m`);
   };
 

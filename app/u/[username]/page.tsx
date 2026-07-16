@@ -12,18 +12,8 @@ import {
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
-// =========================================================================
-// 🌟 ข้อมูล Ranks (อิงตาม EXP ให้ตรงกับหน้า Ranks 100%)
-// =========================================================================
-const RANKS = [
-  { id: 1, title: "Script Kiddie", minExp: 0 },
-  { id: 2, title: "Cyber Novice", minExp: 200 },
-  { id: 3, title: "Net Runner", minExp: 500 },
-  { id: 4, title: "System Admin", minExp: 1000 },
-  { id: 5, title: "Elite Operative", minExp: 2000 },
-  { id: 6, title: "Phantom Architect", minExp: 3500 },
-  { id: 7, title: "Root Master", minExp: 5000 },
-];
+// 🌟 ข้อมูลแรงค์กลาง — แก้ที่ lib/ranks.ts ที่เดียว
+import { RANKS } from '@/lib/ranks';
 
 export default function PublicProfilePage() {
   const params = useParams();
