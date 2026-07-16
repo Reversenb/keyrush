@@ -13,9 +13,7 @@ import {
     Terminal, ShieldCheck, Flag
 } from 'lucide-react';
 
-// =========================================================================
-// 🌟 ข้อมูลโหมดการเล่นต่างๆ (Map Nodes)
-// =========================================================================
+
 const MAP_MODES = [
     {
         id: 'campaign',
@@ -31,10 +29,10 @@ const MAP_MODES = [
         id: 'survival',
         title: 'Survival Mode',
         subtitle: 'Sector 02',
-        desc: 'เอาชีวิตรอดจากกองทัพบั๊ก! พิมพ์คำสั่งให้เร็วและแม่นยำที่สุดก่อนที่เวลาจะหมดลง',
+        desc: 'เอาชีวิตรอดจากการพิมพ์คำสั่งให้เร็วและแม่นยำที่สุดก่อนที่เวลาจะหมดลง',
         icon: Zap,
-        isLocked: true, // 🔓 ปลดล็อคโหมดนี้แล้ว!
-        link: '/survival', // 🔗 เชื่อมโยงไปยังหน้า Survival
+        isLocked: false, 
+        link: '/survival', 
         colorTheme: 'blue',
     },
     {
@@ -70,7 +68,7 @@ export default function ModeSelectionMapPage() {
         checkAuth();
     }, [router]);
 
-    // 🌸 แอนิเมชัน
+  
     const fadeInUp = {
         hidden: { opacity: 0, y: 40 },
         visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 20 } }
@@ -86,7 +84,7 @@ export default function ModeSelectionMapPage() {
     return (
         <div className="min-h-screen bg-background font-sans flex flex-col selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative overflow-hidden text-foreground transition-colors duration-500">
 
-            {/* 🌸 สไตล์สำหรับคลาสพิเศษ 🌸 */}
+          
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;700;900&display=swap');
         .font-prompt { font-family: 'Prompt', sans-serif; }
