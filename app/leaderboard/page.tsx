@@ -322,9 +322,7 @@ export default function LeaderboardPage() {
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter uppercase mb-2 md:mb-4 cute-header transition-colors">
               Global <span className={styles.textMain}>Rankings</span>
             </h1>
-            <p className="text-orange-600 dark:text-yellow-500 hacker:text-green-600 font-bold text-xs md:text-sm max-w-xl mx-auto uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
-              <Users size={14} strokeWidth={3} /> ตารางจัดอันดับยอดฝีมือ {leaderboardData.length > 0 && `· ${leaderboardData.length} คน`}
-            </p>
+
           </div>
 
           {/* 🌟 ป้ายสลับสาย (Tabs) แบบ 3D 🌟 */}
