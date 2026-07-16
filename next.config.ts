@@ -18,11 +18,13 @@ const nextConfig: NextConfig = {
   // Proxy ทุก /api/* ไป backend (Cloudflare Workers) เพื่อให้ cookie auth_token/csrf_token
   // กลายเป็น first-party ของโดเมนเรา — จำเป็นสำหรับ double-submit CSRF เพราะ JS
   // อ่าน cookie ข้ามโดเมนไม่ได้ (และแก้ปัญหา Safari บล็อก third-party cookie ด้วย)
+  // ถ้าไม่ได้ตั้ง NEXT_PUBLIC_API_URL จะชี้ backend local (wrangler dev) ที่ port 8787 ให้เอง
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+        destination: `${apiUrl}/api/:path*`,
       },
     ];
   },

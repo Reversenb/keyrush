@@ -77,7 +77,6 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
   const currentPathRef = useRef(initialPath);
   const isMutedRef = useRef(isMuted);
 
-  const currentThemeRef = useRef(TERMINAL_THEMES[themeName] || TERMINAL_THEMES.orange);
 
   const cmdHistory = useRef<string[]>([]);
   const historyIdx = useRef<number>(-1);
@@ -99,7 +98,6 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
   // 🌟 อัปเดตสีข้อความ (Theme) และสีพื้นหลัง (bgColor) ทันที
   useEffect(() => {
     const selectedTheme = TERMINAL_THEMES[themeName] || TERMINAL_THEMES.orange;
-    currentThemeRef.current = selectedTheme;
 
     if (termInstance.current) {
       termInstance.current.options.theme = buildXtermTheme(selectedTheme, bgColor);
@@ -115,18 +113,19 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
     audio.play().catch(() => { });
   };
 
-  // 🌟 Prompt สีตามธีม: user@keyrush เป็นสี accent (truecolor), path เหลือง, $ เป็น accent
+  // 🌟 Prompt สีตามธีม — ใช้ palette slot "magenta" (\x1b[35m) ซึ่ง map เป็นสี accent
+  // ของธีมใน buildXtermTheme แทน truecolor เพื่อให้กดเปลี่ยนสีแล้ว "ข้อความเก่าทั้งจอ"
+  // เปลี่ยนสีตามทันที (truecolor ฝังค่า RGB ตายตัวลงในตัวอักษร เปลี่ยนธีมแล้วสีไม่ขยับ)
+  const ACCENT = '\x1b[1;35m';
   const drawPrompt = (term: Terminal, path: string) => {
-    const accent = `\x1b[1;38;2;${currentThemeRef.current.rgb}m`;
-    term.write(`\r\n${accent}${usernameRef.current}@keyrush\x1b[0m\x1b[2m:\x1b[0m\x1b[1;33m${path}\x1b[0m ${accent}$\x1b[0m `);
+    term.write(`\r\n${ACCENT}${usernameRef.current}@keyrush\x1b[0m\x1b[2m:\x1b[0m\x1b[1;33m${path}\x1b[0m ${ACCENT}$\x1b[0m `);
   };
 
   // 🌟 Banner ต้อนรับ — หัวเรื่องสี accent + คำอธิบายจางๆ
   const drawBanner = (term: Terminal) => {
-    const accent = `\x1b[1;38;2;${currentThemeRef.current.rgb}m`;
-    term.writeln(`${accent}╭─[ KEYRUSH TERMINAL ]─────────────────╮\x1b[0m`);
-    term.writeln(`${accent}│\x1b[0m  \x1b[2mInteractive Command Training v1.0\x1b[0m   ${accent}│\x1b[0m`);
-    term.writeln(`${accent}╰──────────────────────────────────────╯\x1b[0m`);
+    term.writeln(`${ACCENT}╭─[ KEYRUSH TERMINAL ]─────────────────╮\x1b[0m`);
+    term.writeln(`${ACCENT}│\x1b[0m  \x1b[2mInteractive Command Training v1.0\x1b[0m   ${ACCENT}│\x1b[0m`);
+    term.writeln(`${ACCENT}╰──────────────────────────────────────╯\x1b[0m`);
   };
 
   useImperativeHandle(ref, () => ({
