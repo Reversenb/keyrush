@@ -455,7 +455,7 @@ export default function PublicProfilePage() {
       </main>
 
       <footer className={`py-8 text-center font-black text-[10px] uppercase tracking-widest relative z-30 mt-auto border-t-4 backdrop-blur-md transition-colors duration-500 ${isHacker ? 'bg-[#0a0a0a]/80 text-green-700 border-[#166534]' : isDark ? 'bg-[#1E1B2E]/80 text-white/30 border-[#382E54]' : 'bg-white/40 text-orange-400 border-white'}`}>
-        © 2026 KeyRush Operations // NETWORK SECURED 💖
+        © 2026 KeyRush
       </footer>
 
     </div>
