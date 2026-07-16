@@ -349,149 +349,157 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          (
-          <AnimatePresence mode="wait">
-            <motion.div key={targetOs} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="w-full">
-
-              {/* 🌟 แท่น Podium Top 3 (ลำดับ 2-1-3) 🌟 */}
-              {leaderboardData.length >= 3 && (
-                <div className="flex justify-center items-end gap-2 sm:gap-4 md:gap-8 mb-8 md:mb-14 px-1 md:px-2 mt-6 md:mt-10">
-                  {renderPodium(leaderboardData[1], 2)}
-                  {renderPodium(leaderboardData[0], 1)}
-                  {renderPodium(leaderboardData[2], 3)}
-                </div>
-              )}
-
-              {/* 📌 การ์ดอันดับของคุณ 📌 */}
-              {user && myIndex >= 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className={`glass-card flex items-center gap-3 md:gap-5 px-4 md:px-8 py-3 md:py-4 mb-5 md:mb-8 ${styles.tableBorder}`}
-                >
-                  <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${styles.bgMain} ${isHacker || isDark ? 'text-[#1E1B2E]' : 'text-white'}`}>
-                    <span className="text-[8px] uppercase tracking-widest opacity-80 leading-none mt-0.5">Rank</span>
-                    <span className="text-lg md:text-xl leading-tight">#{myIndex + 1}</span>
-                  </div>
-                  <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm overflow-hidden p-0.5">
-                    <img src={getAvatarUrl(user.avatar)} alt="me" className="w-full h-full object-cover rounded-full" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">อันดับของคุณ</p>
-                    <p className={`font-black truncate text-sm md:text-base ${styles.textMain}`}>
-                      {user.displayName || user.username?.split('@')[0]}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">Total EXP</p>
-                    <p className={`font-black text-base md:text-xl cute-header ${styles.textMain} flex items-center justify-end gap-1`}>
-                      <Zap size={14} className="fill-current" /> {getPlayerExp(leaderboardData[myIndex]).toLocaleString()}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* 🌟 ตารางรายชื่อทั้งหมด 🌟 */}
-              <div className={`glass-card overflow-hidden ${styles.tableBorder}`}>
-
-                <div className={`grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 text-[10px] md:text-xs font-black uppercase tracking-widest border-b-4 ${styles.tableHeader}`}>
-                  <div className="col-span-2 md:col-span-1 text-center">Rank</div>
-                  <div className="col-span-6 md:col-span-6">Player</div>
-                  <div className="col-span-2 text-center hidden md:block">Tier</div>
-                  <div className="col-span-4 md:col-span-3 text-right">Total EXP</div>
-                </div>
-
-                <motion.div variants={containerVariants} initial="hidden" animate="show" className={`divide-y-4 ${isHacker ? 'divide-green-900' : isDark ? 'divide-[#382E54]' : 'divide-white'}`}>
-                  {leaderboardData.map((player, index) => {
-                    const isMe = user?.id === player.id;
-                    const exp = getPlayerExp(player);
-                    const level = getPlayerLevel(player);
-                    const rankDetails = getRankDetails(level);
-                    const playerProfileUrl = getProfileUrl(player);
-                    const expPct = Math.max(2, Math.round((exp / topExp) * 100));
-                    const isTop3 = index < 3;
-
-                    let rankColor = isHacker ? "text-green-700" : isDark ? "text-white/30" : "text-orange-300";
-                    if (index === 0) rankColor = isHacker ? "text-green-400" : "text-yellow-500";
-                    else if (index === 1) rankColor = isHacker ? "text-green-500" : "text-slate-400";
-                    else if (index === 2) rankColor = isHacker ? "text-green-600" : "text-orange-500";
-
-                    return (
-                      <motion.div
-                        key={player.id}
-                        variants={itemVariants}
-                        className={`grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 items-center transition-all duration-300 group ${isMe ? styles.tableRowMe : styles.tableRowHover}`}
-                      >
-                        {/* อันดับ — Top 3 ได้เหรียญ */}
-                        <div className="col-span-2 md:col-span-1 flex justify-center">
-                          {isTop3 ? (
-                            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-sm border-2 border-white dark:border-[#382E54] hacker:border-[#0a0a0a] ${medalStyles[index].badge}`}>
-                              <Medal size={16} strokeWidth={3} />
-                            </div>
-                          ) : (
-                            <span className={`font-black text-lg md:text-2xl cute-header ${rankColor}`}>{index + 1}</span>
-                          )}
-                        </div>
-
-                        <div className="col-span-6 md:col-span-6 flex items-center gap-2.5 md:gap-4 min-w-0">
-                          <Link href={playerProfileUrl} className="flex-shrink-0 cursor-pointer">
-                            <div className={`w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm flex items-center justify-center overflow-hidden p-0.5 group-hover:scale-105 transition-transform ${isMe ? `ring-4 ${targetOs === 'linux' ? 'ring-orange-500' : targetOs === 'windows' ? 'ring-blue-500' : 'ring-pink-500'}` : ''}`}>
-                              <img src={getAvatarUrl(player.avatar)} alt="avatar" className="w-full h-full object-cover rounded-full" />
-                            </div>
-                          </Link>
-
-                          <div className="truncate min-w-0">
-                            <p className={`font-black truncate text-xs sm:text-sm md:text-base tracking-wide flex items-center gap-1.5 md:gap-2 ${isMe ? styles.textMain : (isHacker ? 'text-green-500 group-hover:text-green-400' : isDark ? 'text-white group-hover:text-yellow-400' : 'text-orange-950 group-hover:text-orange-600')}`}>
-                              <Link href={playerProfileUrl} className="truncate hover:underline cursor-pointer transition-all">
-                                {getPlayerName(player)}
-                              </Link>
-                              {isMe && <span className={`text-[9px] md:text-[10px] px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[#1E1B2E] font-black uppercase tracking-widest flex-shrink-0 ${styles.bgMain}`}>You</span>}
-                            </p>
-                            <p className={`text-[9px] md:hidden mt-0.5 uppercase tracking-wider font-black ${rankDetails.color}`}>
-                              LVL {level} · {rankDetails.title}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="col-span-2 hidden md:flex flex-col items-center justify-center">
-                          <div className={`inline-flex items-center justify-center rounded-xl px-3 py-1.5 text-xs font-black shadow-sm transition-colors ${styles.bgLight} ${styles.textMain}`}>
-                            LVL {level}
-                          </div>
-                          <span className={`text-[10px] mt-2 uppercase tracking-widest font-black ${rankDetails.color}`}>
-                            {rankDetails.title}
-                          </span>
-                        </div>
-
-                        {/* EXP + แถบเทียบสัดส่วนกับแชมป์ */}
-                        <div className="col-span-4 md:col-span-3 flex flex-col items-end gap-1 md:gap-1.5 min-w-0">
-                          <span className={`font-black text-sm md:text-xl tracking-wider cute-header truncate ${isMe ? styles.textMain : (isHacker ? 'text-green-600 group-hover:text-green-400' : isDark ? 'text-white/70 group-hover:text-yellow-400' : 'text-orange-800 group-hover:text-orange-600')}`}>
-                            {exp.toLocaleString()}
-                          </span>
-                          <div className="w-16 sm:w-20 md:w-28 h-1.5 rounded-full overflow-hidden bg-black/10 dark:bg-white/10 hacker:bg-green-900/40">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${expPct}%` }}
-                              transition={{ duration: 0.8, delay: 0.2 + index * 0.04, ease: "easeOut" }}
-                              className={`h-full rounded-full ${styles.bgMain}`}
-                            />
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-
-                  {leaderboardData.length === 0 && (
-                    <div className={`py-20 flex flex-col items-center justify-center gap-4 ${styles.textMain}`}>
-                      <AlertCircle size={48} strokeWidth={3} className="opacity-50 mb-2" />
-                      <p className="font-black uppercase tracking-widest text-sm">ยังไม่มีสายลับในระบบนี้!</p>
-                    </div>
-                  )}
-                </motion.div>
+          {loading ? (
+            <div className={`flex flex-col justify-center items-center py-32 ${styles.textMain}`}>
+              <div className="relative mb-6">
+                <Trophy size={56} strokeWidth={2.5} className="animate-bounce" />
+                <RefreshCw size={22} strokeWidth={3} className="animate-spin absolute -bottom-1 -right-3 opacity-70" />
               </div>
-            </motion.div>
-          </AnimatePresence>
-          )
+              <span className="tracking-widest uppercase font-black text-sm animate-pulse">Loading Rankings...</span>
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div key={targetOs} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="w-full">
+
+                {/* 🌟 แท่น Podium Top 3 (ลำดับ 2-1-3) 🌟 */}
+                {leaderboardData.length >= 3 && (
+                  <div className="flex justify-center items-end gap-2 sm:gap-4 md:gap-8 mb-8 md:mb-14 px-1 md:px-2 mt-6 md:mt-10">
+                    {renderPodium(leaderboardData[1], 2)}
+                    {renderPodium(leaderboardData[0], 1)}
+                    {renderPodium(leaderboardData[2], 3)}
+                  </div>
+                )}
+
+                {/* 📌 การ์ดอันดับของคุณ 📌 */}
+                {user && myIndex >= 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className={`glass-card flex items-center gap-3 md:gap-5 px-4 md:px-8 py-3 md:py-4 mb-5 md:mb-8 ${styles.tableBorder}`}
+                  >
+                    <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${styles.bgMain} ${isHacker || isDark ? 'text-[#1E1B2E]' : 'text-white'}`}>
+                      <span className="text-[8px] uppercase tracking-widest opacity-80 leading-none mt-0.5">Rank</span>
+                      <span className="text-lg md:text-xl leading-tight">#{myIndex + 1}</span>
+                    </div>
+                    <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm overflow-hidden p-0.5">
+                      <img src={getAvatarUrl(user.avatar)} alt="me" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">อันดับของคุณ</p>
+                      <p className={`font-black truncate text-sm md:text-base ${styles.textMain}`}>
+                        {user.displayName || user.username?.split('@')[0]}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">Total EXP</p>
+                      <p className={`font-black text-base md:text-xl cute-header ${styles.textMain} flex items-center justify-end gap-1`}>
+                        <Zap size={14} className="fill-current" /> {getPlayerExp(leaderboardData[myIndex]).toLocaleString()}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* 🌟 ตารางรายชื่อทั้งหมด 🌟 */}
+                <div className={`glass-card overflow-hidden ${styles.tableBorder}`}>
+
+                  <div className={`grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 text-[10px] md:text-xs font-black uppercase tracking-widest border-b-4 ${styles.tableHeader}`}>
+                    <div className="col-span-2 md:col-span-1 text-center">Rank</div>
+                    <div className="col-span-6 md:col-span-6">Player</div>
+                    <div className="col-span-2 text-center hidden md:block">Tier</div>
+                    <div className="col-span-4 md:col-span-3 text-right">Total EXP</div>
+                  </div>
+
+                  <motion.div variants={containerVariants} initial="hidden" animate="show" className={`divide-y-4 ${isHacker ? 'divide-green-900' : isDark ? 'divide-[#382E54]' : 'divide-white'}`}>
+                    {leaderboardData.map((player, index) => {
+                      const isMe = user?.id === player.id;
+                      const exp = getPlayerExp(player);
+                      const level = getPlayerLevel(player);
+                      const rankDetails = getRankDetails(level);
+                      const playerProfileUrl = getProfileUrl(player);
+                      const expPct = Math.max(2, Math.round((exp / topExp) * 100));
+                      const isTop3 = index < 3;
+
+                      let rankColor = isHacker ? "text-green-700" : isDark ? "text-white/30" : "text-orange-300";
+                      if (index === 0) rankColor = isHacker ? "text-green-400" : "text-yellow-500";
+                      else if (index === 1) rankColor = isHacker ? "text-green-500" : "text-slate-400";
+                      else if (index === 2) rankColor = isHacker ? "text-green-600" : "text-orange-500";
+
+                      return (
+                        <motion.div
+                          key={player.id}
+                          variants={itemVariants}
+                          className={`grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 items-center transition-all duration-300 group ${isMe ? styles.tableRowMe : styles.tableRowHover}`}
+                        >
+                          {/* อันดับ — Top 3 ได้เหรียญ */}
+                          <div className="col-span-2 md:col-span-1 flex justify-center">
+                            {isTop3 ? (
+                              <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shadow-sm border-2 border-white dark:border-[#382E54] hacker:border-[#0a0a0a] ${medalStyles[index].badge}`}>
+                                <Medal size={16} strokeWidth={3} />
+                              </div>
+                            ) : (
+                              <span className={`font-black text-lg md:text-2xl cute-header ${rankColor}`}>{index + 1}</span>
+                            )}
+                          </div>
+
+                          <div className="col-span-6 md:col-span-6 flex items-center gap-2.5 md:gap-4 min-w-0">
+                            <Link href={playerProfileUrl} className="flex-shrink-0 cursor-pointer">
+                              <div className={`w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm flex items-center justify-center overflow-hidden p-0.5 group-hover:scale-105 transition-transform ${isMe ? `ring-4 ${targetOs === 'linux' ? 'ring-orange-500' : targetOs === 'windows' ? 'ring-blue-500' : 'ring-pink-500'}` : ''}`}>
+                                <img src={getAvatarUrl(player.avatar)} alt="avatar" className="w-full h-full object-cover rounded-full" />
+                              </div>
+                            </Link>
+
+                            <div className="truncate min-w-0">
+                              <p className={`font-black truncate text-xs sm:text-sm md:text-base tracking-wide flex items-center gap-1.5 md:gap-2 ${isMe ? styles.textMain : (isHacker ? 'text-green-500 group-hover:text-green-400' : isDark ? 'text-white group-hover:text-yellow-400' : 'text-orange-950 group-hover:text-orange-600')}`}>
+                                <Link href={playerProfileUrl} className="truncate hover:underline cursor-pointer transition-all">
+                                  {getPlayerName(player)}
+                                </Link>
+                                {isMe && <span className={`text-[9px] md:text-[10px] px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[#1E1B2E] font-black uppercase tracking-widest flex-shrink-0 ${styles.bgMain}`}>You</span>}
+                              </p>
+                              <p className={`text-[9px] md:hidden mt-0.5 uppercase tracking-wider font-black ${rankDetails.color}`}>
+                                LVL {level} · {rankDetails.title}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="col-span-2 hidden md:flex flex-col items-center justify-center">
+                            <div className={`inline-flex items-center justify-center rounded-xl px-3 py-1.5 text-xs font-black shadow-sm transition-colors ${styles.bgLight} ${styles.textMain}`}>
+                              LVL {level}
+                            </div>
+                            <span className={`text-[10px] mt-2 uppercase tracking-widest font-black ${rankDetails.color}`}>
+                              {rankDetails.title}
+                            </span>
+                          </div>
+
+                          {/* EXP + แถบเทียบสัดส่วนกับแชมป์ */}
+                          <div className="col-span-4 md:col-span-3 flex flex-col items-end gap-1 md:gap-1.5 min-w-0">
+                            <span className={`font-black text-sm md:text-xl tracking-wider cute-header truncate ${isMe ? styles.textMain : (isHacker ? 'text-green-600 group-hover:text-green-400' : isDark ? 'text-white/70 group-hover:text-yellow-400' : 'text-orange-800 group-hover:text-orange-600')}`}>
+                              {exp.toLocaleString()}
+                            </span>
+                            <div className="w-16 sm:w-20 md:w-28 h-1.5 rounded-full overflow-hidden bg-black/10 dark:bg-white/10 hacker:bg-green-900/40">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${expPct}%` }}
+                                transition={{ duration: 0.8, delay: 0.2 + index * 0.04, ease: "easeOut" }}
+                                className={`h-full rounded-full ${styles.bgMain}`}
+                              />
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+
+                    {leaderboardData.length === 0 && (
+                      <div className={`py-20 flex flex-col items-center justify-center gap-4 ${styles.textMain}`}>
+                        <AlertCircle size={48} strokeWidth={3} className="opacity-50 mb-2" />
+                        <p className="font-black uppercase tracking-widest text-sm">ยังไม่มีสายลับในระบบนี้!</p>
+                      </div>
+                    )}
+                  </motion.div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          )}
 
         </div>
       </div>
