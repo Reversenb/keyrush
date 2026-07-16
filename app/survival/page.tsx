@@ -426,28 +426,28 @@ export default function Page() {
                 >
 
                     {/* 📊 Game HUD */}
-                    <header className="shrink-0 bg-white/90 dark:bg-[#1E1B2E]/85 hacker:bg-[#0a0a0a]/90 backdrop-blur-md p-4 md:p-5 rounded-[2rem] border-4 border-white dark:border-[#382E54] hacker:border-green-800 shadow-sm flex flex-col gap-4 transition-colors">
-                        <div className="flex justify-between items-center px-2">
-                            <div className="flex items-center gap-3 md:gap-5">
+                    <header className="shrink-0 bg-white/90 dark:bg-[#1E1B2E]/85 hacker:bg-[#0a0a0a]/90 backdrop-blur-md p-3 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border-4 border-white dark:border-[#382E54] hacker:border-green-800 shadow-sm flex flex-col gap-3 md:gap-4 transition-colors">
+                        <div className="flex justify-between items-center gap-2 px-0 md:px-2">
+                            <div className="flex items-center gap-2 md:gap-5 min-w-0">
                                 {/* 🛑 ปุ่มยกเลิกด้านบน */}
                                 {gameState === 'playing' && (
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleCancel(); }}
-                                        className="flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-rose-100 text-rose-500 hover:bg-rose-200 dark:bg-rose-500/20 dark:text-rose-400 dark:hover:bg-rose-500/40 hacker:bg-red-900/20 hacker:text-red-500 font-bold transition-all border-b-4 border-rose-200 hover:border-rose-300 dark:border-rose-500/30 hacker:border-red-900/50 active:border-b-0 active:translate-y-[4px]"
+                                        className="flex items-center justify-center w-10 h-10 md:w-14 md:h-14 shrink-0 rounded-xl md:rounded-2xl bg-rose-100 text-rose-500 hover:bg-rose-200 dark:bg-rose-500/20 dark:text-rose-400 dark:hover:bg-rose-500/40 hacker:bg-red-900/20 hacker:text-red-500 font-bold transition-all border-b-4 border-rose-200 hover:border-rose-300 dark:border-rose-500/30 hacker:border-red-900/50 active:border-b-0 active:translate-y-[4px]"
                                         title="ออกจากเกม"
                                     >
-                                        <XCircle size={28} />
+                                        <XCircle className="w-5 h-5 md:w-7 md:h-7" />
                                     </button>
                                 )}
 
                                 {/* Timer */}
-                                <div className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-2xl ${isDanger ? 'bg-rose-100 text-rose-500 dark:bg-rose-500/20 hacker:bg-red-900/30 hacker:text-red-500' : 'bg-orange-100 text-orange-500 dark:bg-yellow-400/15 dark:text-yellow-400 hacker:bg-green-900/20 hacker:text-green-500'}`}>
-                                    <Clock size={28} className={isDanger ? 'animate-pulse' : ''} />
+                                <div className={`flex items-center justify-center w-10 h-10 md:w-14 md:h-14 shrink-0 rounded-xl md:rounded-2xl ${isDanger ? 'bg-rose-100 text-rose-500 dark:bg-rose-500/20 hacker:bg-red-900/30 hacker:text-red-500' : 'bg-orange-100 text-orange-500 dark:bg-yellow-400/15 dark:text-yellow-400 hacker:bg-green-900/20 hacker:text-green-500'}`}>
+                                    <Clock className={`w-5 h-5 md:w-7 md:h-7 ${isDanger ? 'animate-pulse' : ''}`} />
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600">เวลาเอาชีวิตรอด</span>
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-[10px] md:text-sm font-bold opacity-50 hacker:text-green-600 whitespace-nowrap">เวลาเอาชีวิตรอด</span>
                                     <div className="flex items-center gap-2">
-                                        <span className={`text-3xl md:text-4xl font-black tracking-tight ${isDanger ? 'text-rose-500 hacker:text-red-500' : ''}`}>
+                                        <span className={`text-2xl md:text-4xl font-black tracking-tight ${isDanger ? 'text-rose-500 hacker:text-red-500' : ''}`}>
                                             {timeLeft}
                                         </span>
                                         <AnimatePresence>
@@ -466,17 +466,17 @@ export default function Page() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-6 md:gap-10">
+                            <div className="flex items-center gap-3 md:gap-10 shrink-0">
                                 <div className="text-right">
-                                    <p className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600">EXP</p>
-                                    <motion.p key={score} initial={{ scale: 1.1, color: '#f97316' }} animate={{ scale: 1, color: 'inherit' }} className="text-2xl md:text-3xl font-black tracking-tight hacker:text-green-400">
+                                    <p className="text-[10px] md:text-sm font-bold opacity-50 hacker:text-green-600">EXP</p>
+                                    <motion.p key={score} initial={{ scale: 1.1, color: '#f97316' }} animate={{ scale: 1, color: 'inherit' }} className="text-xl md:text-3xl font-black tracking-tight hacker:text-green-400">
                                         {score}
                                     </motion.p>
                                 </div>
                                 <div className={`text-right ${combo >= 5 ? 'text-amber-500 hacker:text-yellow-400' : 'text-orange-500 dark:text-yellow-400 hacker:text-green-600'}`}>
-                                    <p className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600">คอมโบ</p>
-                                    <motion.p key={combo} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className="text-2xl md:text-3xl font-black tracking-tight flex items-center justify-end gap-1">
-                                        x{combo} <Zap size={24} className={combo >= 5 ? "animate-bounce" : ""} />
+                                    <p className="text-[10px] md:text-sm font-bold opacity-50 hacker:text-green-600">คอมโบ</p>
+                                    <motion.p key={combo} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className="text-xl md:text-3xl font-black tracking-tight flex items-center justify-end gap-1">
+                                        x{combo} <Zap className={`w-4 h-4 md:w-6 md:h-6 ${combo >= 5 ? "animate-bounce" : ""}`} />
                                     </motion.p>
                                 </div>
                             </div>
@@ -510,87 +510,89 @@ export default function Page() {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, delay: 0.2 }}
-                                className="text-center w-full max-w-2xl mx-auto flex flex-col items-center justify-center h-full p-6 md:p-10 overflow-y-auto"
+                                className="w-full h-full overflow-y-auto p-4 md:p-10"
                             >
-                                <div className="inline-flex items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-[2rem] border-4 border-white dark:border-[#382E54] hacker:border-green-800 bg-orange-100 text-orange-500 dark:bg-yellow-400/10 dark:text-yellow-400 hacker:bg-green-900/20 hacker:text-green-500 mb-6 shadow-sm transition-colors">
-                                    <Gamepad2 size={44} />
+                                <div className="text-center w-full max-w-2xl mx-auto min-h-full flex flex-col items-center justify-center">
+                                <div className="inline-flex items-center justify-center w-16 h-16 md:w-24 md:h-24 rounded-[1.5rem] md:rounded-[2rem] border-4 border-white dark:border-[#382E54] hacker:border-green-800 bg-orange-100 text-orange-500 dark:bg-yellow-400/10 dark:text-yellow-400 hacker:bg-green-900/20 hacker:text-green-500 mb-4 md:mb-6 shadow-sm transition-colors">
+                                    <Gamepad2 className="w-9 h-9 md:w-11 md:h-11" />
                                 </div>
-                                <h1 className="text-3xl md:text-5xl font-black mb-3 tracking-tighter uppercase text-orange-950 dark:text-white hacker:text-white transition-colors">
+                                <h1 className="text-2xl sm:text-3xl md:text-5xl font-black mb-2 md:mb-3 tracking-tighter uppercase text-orange-950 dark:text-white hacker:text-white transition-colors">
                                     โหมดเอาชีวิตรอด <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">60s</span>
                                 </h1>
-                                <p className="text-base md:text-lg mb-6 font-bold text-orange-400 dark:text-white/50 hacker:text-green-600 transition-colors">
+                                <p className="text-sm md:text-lg mb-4 md:mb-6 font-bold text-orange-400 dark:text-white/50 hacker:text-green-600 transition-colors">
                                     เลือกฐานข้อมูลเอกสารของระบบปฏิบัติการที่ต้องการทดสอบก่อนเริ่มลุย!
                                 </p>
 
                                 {/* 🏷️ กติกาแบบย่อ */}
-                                <div className="flex flex-wrap justify-center gap-2 mb-8">
+                                <div className="flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
                                     {[
                                         { icon: <Clock size={14} strokeWidth={3} />, label: 'เริ่มที่ 60 วินาที' },
                                         { icon: <Zap size={14} strokeWidth={3} />, label: 'ตอบถูก +2 วิ / ผิด -3 วิ' },
                                         { icon: <Trophy size={14} strokeWidth={3} />, label: 'ตอบถูกรับ 5 EXP ต่อข้อ' },
                                     ].map((chip, i) => (
-                                        <span key={i} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-black border-2 bg-white border-orange-100 text-orange-500 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-yellow-400 hacker:bg-[#111] hacker:border-green-900 hacker:text-green-500 shadow-sm transition-colors">
+                                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-2xl text-[10px] md:text-xs font-black border-2 bg-white border-orange-100 text-orange-500 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-yellow-400 hacker:bg-[#111] hacker:border-green-900 hacker:text-green-500 shadow-sm transition-colors">
                                             {chip.icon} {chip.label}
                                         </span>
                                     ))}
                                 </div>
 
                                 {/* 🌟 3D Squishy Buttons */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full mb-8">
+                                <div className="grid grid-cols-2 gap-3 md:gap-6 w-full mb-6 md:mb-8">
                                     <button
                                         onClick={() => setSelectedOS('linux')}
-                                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-[2rem] font-black text-xl uppercase tracking-wider transition-all outline-none border-4
+                                        className={`flex flex-col items-center justify-center gap-2 md:gap-3 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] font-black text-base md:text-xl uppercase tracking-wider transition-all outline-none border-4
                                             ${selectedOS === 'linux'
                                                 ? 'bg-orange-500 border-white text-white shadow-[0_8px_0_#c2410c] -translate-y-2 dark:bg-yellow-400 dark:border-yellow-200 dark:text-[#1E1B2E] dark:shadow-[0_8px_0_#ca8a04] hacker:bg-green-500 hacker:border-green-300 hacker:text-[#0a0a0a] hacker:shadow-[0_8px_0_#14532d]'
                                                 : 'bg-white border-orange-100 text-orange-300 shadow-[0_8px_0_#fed7aa] hover:-translate-y-1 hover:text-orange-400 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-white/40 dark:shadow-[0_8px_0_#1E1B2E] dark:hover:text-yellow-400 hacker:bg-[#0a0a0a] hacker:border-green-900 hacker:text-green-800 hacker:shadow-[0_8px_0_#052e16] hacker:hover:text-green-500'
                                             } active:translate-y-[4px] active:shadow-none
                                         `}
                                     >
-                                        <TerminalSquare size={40} />
+                                        <TerminalSquare className="w-8 h-8 md:w-10 md:h-10" />
                                         LINUX
                                     </button>
 
                                     <button
                                         onClick={() => setSelectedOS('windows')}
-                                        className={`flex flex-col items-center justify-center gap-3 p-6 rounded-[2rem] font-black text-xl uppercase tracking-wider transition-all outline-none border-4
+                                        className={`flex flex-col items-center justify-center gap-2 md:gap-3 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] font-black text-base md:text-xl uppercase tracking-wider transition-all outline-none border-4
                                             ${selectedOS === 'windows'
                                                 ? 'bg-blue-500 border-white text-white shadow-[0_8px_0_#1d4ed8] -translate-y-2 dark:bg-blue-400 dark:border-blue-200 dark:text-[#1E1B2E] dark:shadow-[0_8px_0_#2563eb] hacker:bg-green-500 hacker:border-green-300 hacker:text-[#0a0a0a] hacker:shadow-[0_8px_0_#14532d]'
                                                 : 'bg-white border-orange-100 text-orange-300 shadow-[0_8px_0_#fed7aa] hover:-translate-y-1 hover:text-blue-400 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-white/40 dark:shadow-[0_8px_0_#1E1B2E] dark:hover:text-blue-300 hacker:bg-[#0a0a0a] hacker:border-green-900 hacker:text-green-800 hacker:shadow-[0_8px_0_#052e16] hacker:hover:text-green-500'
                                             } active:translate-y-[4px] active:shadow-none
                                         `}
                                     >
-                                        <Monitor size={40} />
+                                        <Monitor className="w-8 h-8 md:w-10 md:h-10" />
                                         WINDOWS
                                     </button>
                                 </div>
 
                                 <button
                                     onClick={startGame}
-                                    className="w-full flex items-center justify-center gap-2 py-5 rounded-2xl font-black text-2xl uppercase tracking-widest transition-all border-4 border-white dark:border-yellow-300 hacker:border-green-400 bg-orange-500 hover:bg-orange-400 text-white shadow-[0_8px_0_#c2410c] dark:bg-yellow-400 dark:hover:bg-yellow-300 dark:text-[#1E1B2E] dark:shadow-[0_8px_0_#ca8a04] hacker:bg-green-500 hacker:hover:bg-green-400 hacker:text-[#0a0a0a] hacker:shadow-[0_8px_0_#14532d] active:translate-y-[6px] active:shadow-none"
+                                    className="w-full flex items-center justify-center gap-2 py-4 md:py-5 rounded-2xl font-black text-xl md:text-2xl uppercase tracking-widest transition-all border-4 border-white dark:border-yellow-300 hacker:border-green-400 bg-orange-500 hover:bg-orange-400 text-white shadow-[0_8px_0_#c2410c] dark:bg-yellow-400 dark:hover:bg-yellow-300 dark:text-[#1E1B2E] dark:shadow-[0_8px_0_#ca8a04] hacker:bg-green-500 hacker:hover:bg-green-400 hacker:text-[#0a0a0a] hacker:shadow-[0_8px_0_#14532d] active:translate-y-[6px] active:shadow-none"
                                 >
                                     <Play size={24} fill="currentColor" /> ลุยเลย!
                                 </button>
+                                </div>
                             </motion.div>
                         )}
 
                         {/* 🧠 เฟสบังคับอ่านโจทย์ (2 วินาที) */}
                         {gameState === 'playing' && phase === 'memorize' && activeCommands.length > 0 && (
-                            <div className="w-full h-full flex flex-col items-center justify-center p-6 md:p-10">
+                            <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-10 overflow-y-auto">
                                 <motion.div
                                     initial={{ scale: 0.9, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     exit={{ scale: 1.1, opacity: 0 }}
-                                    className="flex flex-col items-center justify-center text-center w-full"
+                                    className="flex flex-col items-center justify-center text-center w-full my-auto"
                                 >
-                                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-500/20 hacker:bg-green-900/30 text-amber-500 hacker:text-green-500 mb-6">
-                                        <Brain size={40} className="animate-pulse" />
+                                    <div className="inline-flex items-center justify-center w-14 h-14 md:w-20 md:h-20 rounded-full bg-amber-100 dark:bg-amber-500/20 hacker:bg-green-900/30 text-amber-500 hacker:text-green-500 mb-4 md:mb-6">
+                                        <Brain className="w-7 h-7 md:w-10 md:h-10 animate-pulse" />
                                     </div>
-                                    <p className="text-lg md:text-xl font-bold text-amber-500 dark:text-amber-400 hacker:text-green-500 mb-4 tracking-wide">เตรียมจำคำสั่งให้ดี!</p>
-                                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white hacker:text-green-400 leading-snug px-4 break-words max-w-4xl">
+                                    <p className="text-base md:text-xl font-bold text-amber-500 dark:text-amber-400 hacker:text-green-500 mb-3 md:mb-4 tracking-wide">เตรียมจำคำสั่งให้ดี!</p>
+                                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-800 dark:text-white hacker:text-green-400 leading-snug px-2 md:px-4 break-words max-w-4xl">
                                         "{activeCommands[currentIndex].description}"
                                     </h2>
 
-                                    <div className="w-64 h-2 bg-slate-200 dark:bg-slate-800 hacker:bg-green-900/30 rounded-full mt-10 overflow-hidden">
+                                    <div className="w-48 md:w-64 h-2 bg-slate-200 dark:bg-slate-800 hacker:bg-green-900/30 rounded-full mt-6 md:mt-10 overflow-hidden">
                                         <motion.div
                                             initial={{ width: '100%' }}
                                             animate={{ width: '0%' }}
@@ -605,7 +607,7 @@ export default function Page() {
                         {/* ⌨️ เฟสให้พิมพ์ */}
                         {gameState === 'playing' && phase === 'type' && activeCommands.length > 0 && (
                             <div className="flex flex-col w-full h-full relative">
-                                <div className="absolute top-4 right-6 z-20">
+                                <div className="absolute top-3 right-3 md:top-4 md:right-6 z-20">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setShowKeyboard(!showKeyboard); }}
                                         className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold transition-all border-b-4 active:border-b-0 active:translate-y-[4px] text-sm
@@ -640,17 +642,17 @@ export default function Page() {
                                     autoComplete="off" spellCheck="false"
                                 />
 
-                                <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start pt-8 md:pt-12 px-6 md:px-10 pb-6 w-full">
+                                <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start pt-5 md:pt-12 px-3 md:px-10 pb-4 md:pb-6 w-full">
                                     <div className="w-full max-w-4xl text-center md:text-left flex flex-col items-center md:items-start shrink-0">
-                                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-orange-100 dark:bg-yellow-400/15 hacker:bg-green-900/30 text-orange-600 dark:text-yellow-300 hacker:text-green-400 rounded-xl text-sm font-bold mb-4 mt-8 md:mt-0">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 bg-orange-100 dark:bg-yellow-400/15 hacker:bg-green-900/30 text-orange-600 dark:text-yellow-300 hacker:text-green-400 rounded-xl text-xs md:text-sm font-bold mb-3 md:mb-4 mt-8 md:mt-0">
                                             <Sparkles size={16} /> ภารกิจ ({selectedOS.toUpperCase()})
                                         </div>
-                                        <p className="text-lg md:text-xl lg:text-2xl font-medium text-slate-600 dark:text-slate-300 hacker:text-green-500 mb-6 md:mb-8 w-full leading-relaxed break-words">
+                                        <p className="text-base md:text-xl lg:text-2xl font-medium text-slate-600 dark:text-slate-300 hacker:text-green-500 mb-4 md:mb-8 w-full leading-relaxed break-words">
                                             {activeCommands[currentIndex].description}
                                         </p>
                                     </div>
 
-                                    <div className="font-mono text-3xl md:text-5xl lg:text-6xl flex flex-wrap items-center justify-center md:justify-start gap-4 bg-slate-100 dark:bg-slate-950 hacker:bg-black p-6 md:p-8 rounded-[2rem] border-2 border-slate-200 dark:border-white/5 hacker:border-green-900/60 overflow-hidden shadow-inner w-full max-w-4xl shrink-0">
+                                    <div className="font-mono text-xl sm:text-2xl md:text-5xl lg:text-6xl flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 bg-slate-100 dark:bg-slate-950 hacker:bg-black p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 border-slate-200 dark:border-white/5 hacker:border-green-900/60 overflow-hidden shadow-inner w-full max-w-4xl shrink-0">
                                         <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-600 font-bold opacity-50 shrink-0">$&gt;</span>
 
                                         <span className="flex-1 font-semibold break-words relative">
@@ -712,36 +714,36 @@ export default function Page() {
                         )}
 
                         {gameState === 'gameover' && (
-                            <div className="w-full h-full flex flex-col items-center justify-center p-6 md:p-10">
+                            <div className="w-full h-full overflow-y-auto p-4 md:p-10 flex flex-col">
                                 <motion.div
                                     initial={{ scale: 0.95, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
-                                    className="text-center w-full max-w-md mx-auto flex flex-col items-center"
+                                    className="text-center w-full max-w-md mx-auto flex flex-col items-center my-auto"
                                 >
-                                    <div className="w-24 h-24 flex items-center justify-center rounded-[2rem] bg-amber-100 dark:bg-amber-500/20 hacker:bg-green-900/30 mb-6">
-                                        <Trophy size={56} className="text-amber-500 hacker:text-green-500" />
+                                    <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center rounded-[1.5rem] md:rounded-[2rem] bg-amber-100 dark:bg-amber-500/20 hacker:bg-green-900/30 mb-4 md:mb-6">
+                                        <Trophy className="w-9 h-9 md:w-14 md:h-14 text-amber-500 hacker:text-green-500" />
                                     </div>
-                                    <h2 className="text-4xl font-black mb-3 hacker:text-green-400">หมดเวลา!</h2>
-                                    <p className="text-lg font-medium mb-8 text-slate-500 dark:text-slate-400 hacker:text-green-600">
+                                    <h2 className="text-3xl md:text-4xl font-black mb-2 md:mb-3 hacker:text-green-400">หมดเวลา!</h2>
+                                    <p className="text-base md:text-lg font-medium mb-6 md:mb-8 text-slate-500 dark:text-slate-400 hacker:text-green-600">
                                         เก่งมาก! คุณรอดชีวิตไปได้ <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 font-bold">{survivedTime}</span> วินาที
                                     </p>
 
-                                    <div className="grid grid-cols-2 gap-4 w-full mb-10">
-                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-6 rounded-3xl">
-                                            <p className="text-sm font-bold opacity-50 hacker:text-green-600 mb-1">EXP ที่ได้รับ</p>
-                                            <p className="text-5xl font-black text-orange-500 dark:text-yellow-400 hacker:text-green-400">{score}</p>
+                                    <div className="grid grid-cols-2 gap-3 md:gap-4 w-full mb-6 md:mb-10">
+                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                                            <p className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600 mb-1">EXP ที่ได้รับ</p>
+                                            <p className="text-3xl md:text-5xl font-black text-orange-500 dark:text-yellow-400 hacker:text-green-400">{score}</p>
                                         </div>
-                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-6 rounded-3xl">
-                                            <p className="text-sm font-bold opacity-50 hacker:text-green-600 mb-1">คอมโบสูงสุด</p>
-                                            <p className="text-5xl font-black text-amber-500 hacker:text-green-500">x{maxCombo}</p>
+                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                                            <p className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600 mb-1">คอมโบสูงสุด</p>
+                                            <p className="text-3xl md:text-5xl font-black text-amber-500 hacker:text-green-500">x{maxCombo}</p>
                                         </div>
-                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-6 rounded-3xl">
-                                            <p className="text-sm font-bold opacity-50 hacker:text-green-600 mb-1">ความเร็วพิมพ์</p>
-                                            <p className="text-5xl font-black text-orange-500 dark:text-yellow-400 hacker:text-green-400">{finalWpm}<span className="text-base font-black opacity-50 ml-1">WPM</span></p>
+                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                                            <p className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600 mb-1">ความเร็วพิมพ์</p>
+                                            <p className="text-3xl md:text-5xl font-black text-orange-500 dark:text-yellow-400 hacker:text-green-400">{finalWpm}<span className="text-sm md:text-base font-black opacity-50 ml-1">WPM</span></p>
                                         </div>
-                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-6 rounded-3xl">
-                                            <p className="text-sm font-bold opacity-50 hacker:text-green-600 mb-1">ความแม่นยำ</p>
-                                            <p className="text-5xl font-black text-emerald-500 dark:text-emerald-400 hacker:text-green-400">{finalAccuracy}<span className="text-base font-black opacity-50 ml-1">%</span></p>
+                                        <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-4 md:p-6 rounded-2xl md:rounded-3xl">
+                                            <p className="text-xs md:text-sm font-bold opacity-50 hacker:text-green-600 mb-1">ความแม่นยำ</p>
+                                            <p className="text-3xl md:text-5xl font-black text-emerald-500 dark:text-emerald-400 hacker:text-green-400">{finalAccuracy}<span className="text-sm md:text-base font-black opacity-50 ml-1">%</span></p>
                                         </div>
                                     </div>
 
