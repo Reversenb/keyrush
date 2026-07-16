@@ -73,6 +73,13 @@ export default function KeyRushOrangeLandingPage() {
   useEffect(() => {
     setIsMounted(true);
 
+    // แสดงจาก cache ทันทีกัน UI กระพริบ (ปุ่ม Sign In วูบก่อนแล้วค่อยเป็น avatar)
+    // — ค่าจริงจะถูก API ยืนยัน/แก้ทับด้านล่างอยู่ดี
+    const savedUser = localStorage.getItem('keyrush_user');
+    if (savedUser) {
+      try { setUser(JSON.parse(savedUser)); } catch (e) { }
+    }
+
     // เช็คสถานะ login จริงจาก backend (cookie ถูกแนบไปเอง) — 200 คือยัง login อยู่, 401 คือไม่/หมดอายุ
     const checkAuthStatus = async () => {
       try {
