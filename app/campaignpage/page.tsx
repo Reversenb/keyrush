@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { Terminal, Monitor, Zap, Medal, Activity, CheckCircle, Lock, Power } from 'lucide-react';
+import { Terminal, Monitor, Zap, Medal, Trophy, CheckCircle, Lock, Power } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import { apiFetch, clearUserState } from '@/lib/api';
+import { getRankByExp } from '@/lib/ranks';
 
 export default function CampaignPage() {
   const router = useRouter();
@@ -105,6 +107,8 @@ export default function CampaignPage() {
   };
 
   const rankInfo = getRankInfo(activeLevel);
+  // 🏆 แรงค์จริงจากตารางกลาง lib/ranks.ts (คิดจาก EXP รวมทั้งสอง OS — ตรงกับหน้า Ranks/Dashboard)
+  const globalRank = getRankByExp((user?.linuxExp || 0) + (user?.windowsExp || 0));
   const baseExpForTier = (Math.ceil(activeLevel / 3) - 1) * 300;
   const expInCurrentTier = activeExp - baseExpForTier;
   const expNeededForTier = rankInfo.maxExp - baseExpForTier;
@@ -256,15 +260,18 @@ export default function CampaignPage() {
               <p className={`text-3xl md:text-4xl font-black leading-tight cute-header transition-colors duration-500 ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>LVL {activeLevel}</p>
             </div>
 
-            <div className="glass-card p-4 md:p-5 shadow-sm hover:shadow-md group flex flex-col justify-center transition-all">
+            {/* 🏆 การ์ดแรงค์ — กดเพื่อไปดูตารางแรงค์ทั้งหมด */}
+            <Link href="/ranks" title="ดูตารางแรงค์ทั้งหมด" className="glass-card p-4 md:p-5 shadow-sm hover:shadow-md hover:-translate-y-1 group flex flex-col justify-center transition-all cursor-pointer">
               <div className="flex items-center justify-between mb-2">
-                <p className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-500 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>Status</p>
+                <p className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-500 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>Rank</p>
                 <div className={`p-1.5 rounded-xl ${themeLightBg} ${themeText} group-hover:scale-110 transition-all duration-300`}>
-                  <Activity size={18} strokeWidth={3} />
+                  <Trophy size={18} strokeWidth={3} />
                 </div>
               </div>
-              <p className={`text-2xl md:text-3xl font-black leading-tight animate-pulse mt-1 cute-header transition-colors duration-500 ${themeText}`}>ONLINE</p>
-            </div>
+              <p className={`text-xl md:text-2xl font-black leading-tight mt-1 cute-header truncate transition-colors duration-500 ${themeText}`}>
+                {globalRank.title.toUpperCase()}
+              </p>
+            </Link>
           </motion.div>
 
           {/* 🌟 พื้นที่แผนที่ (Campaign Map Area) กำหนดความสูงตายตัว 🌟 */}

@@ -105,7 +105,6 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Mission', path: '/map' },
     { name: 'Leaderboard', path: '/leaderboard' },
-    { name: 'Ranks', path: '/ranks' },
     { name: 'Docs', path: '/docs' }
   ];
 

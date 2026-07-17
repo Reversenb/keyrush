@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence, animate } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
@@ -415,27 +416,41 @@ export default function DashboardPage() {
                 { label: 'Lessons Completed', value: totalLessonsCompleted, icon: <BookOpen size={28} strokeWidth={3} />, color: 'blue' },
                 { label: 'Total XP', value: totalExp, icon: <Zap size={28} strokeWidth={3} fill="currentColor" />, color: 'primary', isXp: true },
                 { label: 'Your Rank', title: currentRank.title, icon: <Trophy size={28} strokeWidth={3} />, color: 'pink', rankColor: currentRank.color }
-              ].map((stat, i) => (
-                <div key={i} className="glass-card p-8 hover:-translate-y-2 transition-all duration-300 group shadow-sm flex flex-col justify-center">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-[20px] bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-500/10 text-orange-500 dark:text-yellow-400 hacker:text-green-500 border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm group-hover:scale-110 transition-all">
-                      {stat.icon}
+              ].map((stat, i) => {
+                const cardContent = (
+                  <>
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-4 rounded-[20px] bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-500/10 text-orange-500 dark:text-yellow-400 hacker:text-green-500 border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm group-hover:scale-110 transition-all">
+                        {stat.icon}
+                      </div>
                     </div>
+                    <div>
+                      <p className="text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest mb-1 transition-colors">{stat.label}</p>
+                      {stat.title ? (
+                        <p className={`text-2xl lg:text-3xl font-black tracking-tight cute-header transition-colors ${getLightModeRankColor(stat.rankColor!)}`}>
+                          {stat.title.toUpperCase()}
+                        </p>
+                      ) : (
+                        <p className={`text-4xl font-black tracking-tight cute-header text-orange-600 dark:text-yellow-400 hacker:text-green-500 transition-colors`}>
+                          <AnimatedNumber value={stat.value as number} start={!loading} />
+                        </p>
+                      )}
+                    </div>
+                  </>
+                );
+                const cardClass = "glass-card p-8 hover:-translate-y-2 transition-all duration-300 group shadow-sm flex flex-col justify-center";
+
+                // 🏆 การ์ดแรงค์กดได้ทั้งกล่อง → เด้งไปหน้าตารางแรงค์
+                return stat.title ? (
+                  <Link key={i} href="/ranks" title="ดูตารางแรงค์ทั้งหมด" className={`${cardClass} cursor-pointer`}>
+                    {cardContent}
+                  </Link>
+                ) : (
+                  <div key={i} className={cardClass}>
+                    {cardContent}
                   </div>
-                  <div>
-                    <p className="text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest mb-1 transition-colors">{stat.label}</p>
-                    {stat.title ? (
-                      <p className={`text-2xl lg:text-3xl font-black tracking-tight cute-header transition-colors ${getLightModeRankColor(stat.rankColor!)}`}>
-                        {stat.title.toUpperCase()}
-                      </p>
-                    ) : (
-                      <p className={`text-4xl font-black tracking-tight cute-header text-orange-600 dark:text-yellow-400 hacker:text-green-500 transition-colors`}>
-                        <AnimatedNumber value={stat.value as number} start={!loading} />
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </motion.div>
 
             {/* 🌟 GRAPHS SECTION 🌟 */}
