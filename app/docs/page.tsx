@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { RANKS } from '@/lib/ranks';
+import ModePreview from '@/components/ModePreviews';
 
 // 🌟 ข้อมูลเมนูด้านซ้าย
 const DOC_TABS = [
@@ -264,6 +265,7 @@ function GameModesContent() {
       name: 'Campaign Mission',
       tagline: 'โหมดภารกิจหลัก — ไต่ด่านตามแผนที่ทีละเลเวล',
       href: '/map',
+      preview: 'campaign',
       comingSoon: false,
       accent: 'text-orange-500 dark:text-yellow-400 hacker:text-green-500',
       accentBg: 'bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-900/20',
@@ -285,6 +287,7 @@ function GameModesContent() {
       name: 'Survival 60s',
       tagline: 'โหมดเอาชีวิตรอด — จำคำสั่งแล้วพิมพ์แข่งกับเวลา',
       href: '/survival',
+      preview: 'survival',
       comingSoon: false,
       accent: 'text-purple-500 dark:text-purple-400 hacker:text-green-500',
       accentBg: 'bg-purple-100 dark:bg-purple-400/10 hacker:bg-green-900/20',
@@ -303,16 +306,17 @@ function GameModesContent() {
     {
       icon: <Dumbbell size={26} strokeWidth={3} />,
       name: 'Training Mode',
-      tagline: 'สนามซ้อมอิสระ — ฝึกพิมพ์แบบไร้แรงกดดัน (เร็วๆ นี้)',
-      href: '#',
-      comingSoon: true,
+      tagline: 'สนามซ้อมอิสระ — ฝึกพิมพ์แบบไร้แรงกดดัน',
+      href: '/training',
+      preview: 'training',
+      comingSoon: false,
       accent: 'text-emerald-500 dark:text-emerald-400 hacker:text-green-500',
       accentBg: 'bg-emerald-100 dark:bg-emerald-400/10 hacker:bg-green-900/20',
       steps: [
-        'เลือกชุดคำสั่งที่อยากซ้อม: Linux หรือ Windows หรือเจาะเป็นรายหมวดหมู่จาก Docs',
-        'พิมพ์ตามโจทย์ไปเรื่อยๆ ไม่มีเวลาจับ ไม่มีการหักคะแนน ผิดก็แก้ใหม่ได้ทันที',
-        'ดูสถิติ WPM และความแม่นยำแบบสดๆ ระหว่างซ้อม เพื่อติดตามพัฒนาการของตัวเอง',
-        'เหมาะสำหรับวอร์มมือก่อนลง Survival หรือซ้อมคำสั่งด่านยากๆ ใน Campaign',
+        'เลือกระบบจำลองที่อยากซ้อม: Linux หรือ Windows (สลับได้ตลอดจากปุ่มบนหน้าเล่น)',
+        'พิมพ์คำสั่งอะไรก็ได้ลงใน Terminal — ไม่มีโจทย์ ไม่มีเวลาจับ ไม่มีการหักคะแนน',
+        'ดูผลจำลองของคำสั่งที่แผง Virtual File System ด้านขวา และสถิติ WPM/Accuracy สดๆ',
+        'พิมพ์ reset หรือกดปุ่มรีเซ็ต เพื่อล้างสนามกลับเป็นชุดไฟล์ตั้งต้นเมื่อไหร่ก็ได้',
       ],
       rules: [
         { icon: <Clock size={13} strokeWidth={3} />, label: 'ไม่มีเวลากดดัน' },
@@ -325,6 +329,7 @@ function GameModesContent() {
       name: 'Hacker Arena',
       tagline: 'ประลองความเร็วกับสายลับคนอื่นแบบเรียลไทม์ (เร็วๆ นี้)',
       href: '#',
+      preview: 'arena',
       comingSoon: true,
       accent: 'text-pink-500 dark:text-pink-400 hacker:text-green-500',
       accentBg: 'bg-pink-100 dark:bg-pink-400/10 hacker:bg-green-900/20',
@@ -384,6 +389,11 @@ function GameModesContent() {
                   <Play size={14} fill="currentColor" /> ไปเล่นเลย
                 </Link>
               )}
+            </div>
+
+            {/* 🖼️ ภาพจำลองหน้าจอจริงของโหมดนี้ */}
+            <div className="mb-6">
+              <ModePreview id={mode.preview} />
             </div>
 
             {/* วิธีเล่นทีละขั้น */}

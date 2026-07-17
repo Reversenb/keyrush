@@ -36,10 +36,12 @@ interface VirtualFileSystemPanelProps {
     onRevealClick?: () => void;
     // เอฟเฟกต์จาก command simulation (id ใหม่ = เล่นซ้ำได้แม้ kind เดิม)
     activeEffect?: ActiveEffect | null;
+    // โหมดฝึกซ้อม (Training) ไม่มีโจทย์ → ซ่อนกล่องคำใบ้/เฉลยทั้งแถบ
+    hideHintSection?: boolean;
 }
 
 export default function VirtualFileSystemPanel({
-    targetOs, themeText, themeBg, terminalUsername, currentPath, fileSystem, showHint, setShowHint, missionData, solution, onRevealClick, activeEffect
+    targetOs, themeText, themeBg, terminalUsername, currentPath, fileSystem, showHint, setShowHint, missionData, solution, onRevealClick, activeEffect, hideHintSection
 }: VirtualFileSystemPanelProps) {
 
     // 🌟 ดึงค่า Theme เพื่อเปลี่ยนสีสันต่างๆ ให้เข้ากับโหมด
@@ -277,7 +279,8 @@ export default function VirtualFileSystemPanel({
                 </div>
             </div>
 
-            {/* 🌟 Hint Section 🌟 */}
+            {/* 🌟 Hint Section (ซ่อนในโหมดฝึกซ้อม) 🌟 */}
+            {!hideHintSection && (
             <div className={`w-full border-4 rounded-[32px] p-6 flex items-center gap-5 relative overflow-hidden shadow-sm transition-colors duration-500 ${isHacker ? 'bg-[#0a0a0a] border-[#166534]' : isDark ? 'bg-[#1E1B2E] border-[#382E54]' : 'bg-white border-white'}`}>
                 {showHint && <div className={`absolute top-0 left-0 w-2 h-full ${themeBg}`}></div>}
                 <button
@@ -336,6 +339,7 @@ export default function VirtualFileSystemPanel({
                     )}
                 </div>
             </div>
+            )}
         </div>
     );
 }
