@@ -126,11 +126,16 @@ export default function HistoryPage() {
   // วันที่เลือกจากปฏิทิน (YYYY-MM-DD) — null = แสดงทุกวัน
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
+  // 🛡️ กัน hydration mismatch: สีปฏิทิน/เกรดคำนวณจาก useTheme() ใน JS
+  // ตอน SSR server ไม่รู้ธีม → รอ mount ฝั่ง client ก่อนค่อย render ของจริง
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        // เช็คสถานะ login ด้วยการยิง endpoint ที่ต้อง auth ตรงๆ (cookie ถูกแนบไปเอง)
-        const res = await apiFetch('/api/user/stats');
+        // ดึงประวัติทั้งหมด (endpoint /stats ตัดเหลือ 5 รายการล่าสุด ทำให้วันเก่าๆ หาย)
+        const res = await apiFetch('/api/user/history');
 
         if (res.status === 401 || res.status === 403) {
           clearUserState();
@@ -139,8 +144,8 @@ export default function HistoryPage() {
         }
 
         const data = await res.json();
-        if (data.success && data.data?.recentLessons) {
-          setLogs(data.data.recentLessons);
+        if (data.success && Array.isArray(data.data)) {
+          setLogs(data.data);
         }
       } catch (err) {
         console.error("Failed to load history", err);
@@ -197,6 +202,11 @@ export default function HistoryPage() {
     if (acc >= 50) return { rank: 'C', color: isHacker ? 'text-green-700' : 'text-orange-400 dark:text-orange-400', border: isHacker ? 'border-4 border-green-900/50 bg-black shadow-sm' : 'border-4 border-white dark:border-orange-400/30 bg-orange-100 dark:bg-orange-400/10 shadow-sm', stars: 2, label: 'Pass' };
     return { rank: 'D', color: isHacker ? 'text-red-700' : 'text-rose-500 dark:text-rose-400', border: isHacker ? 'border-4 border-red-900/50 bg-black shadow-sm' : 'border-4 border-white dark:border-rose-400/30 bg-rose-100 dark:bg-rose-400/10 shadow-sm', stars: 1, label: 'Poor' };
   };
+
+  // ⏳ ยังไม่ mount = ยังไม่รู้ธีมจริง → โชว์พื้นเปล่าธีมกลางไปก่อน กัน hydration mismatch
+  if (!mounted) {
+    return <div className="bg-background min-h-screen" />;
+  }
 
   return (
     <div className="bg-background font-sans min-h-screen flex flex-col overflow-x-hidden text-foreground selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative transition-colors duration-500">
@@ -328,7 +338,7 @@ export default function HistoryPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="glass-card p-6 shadow-sm w-full xl:sticky xl:top-24"
+          className="glass-card p-4 md:p-6 shadow-sm w-full max-w-md mx-auto xl:max-w-none xl:mx-0 xl:sticky xl:top-24"
         >
           <HistoryCalendar
             activityByDay={activityByDay}
