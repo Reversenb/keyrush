@@ -193,8 +193,8 @@ export default function ModeSelectionMapPage() {
                 {/* 🌟 เส้นทาง Map (Timeline Layout) 🌟 */}
                 <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="relative w-full pb-20">
 
-                    {/* เส้นประเชื่อมต่อ (Dashed Line) สลับสีตามโหมด */}
-                    <div className="absolute left-[50px] md:left-1/2 top-10 bottom-10 w-2 border-l-8 border-dashed border-orange-500/60 dark:border-yellow-500/30 hacker:border-green-600/40 md:-translate-x-1/2 z-0 transition-colors"></div>
+                    {/* เส้นประเชื่อมต่อ (Dashed Line) สลับสีตามโหมด — จุดศูนย์กลางแกน 48px บนมือถือ / 50% บนจอใหญ่ */}
+                    <div className="absolute left-12 md:left-1/2 top-10 bottom-10 w-2 border-l-8 border-dashed border-orange-500/60 dark:border-yellow-500/30 hacker:border-green-600/40 -translate-x-1/2 z-0 transition-colors"></div>
 
                     {MAP_MODES.map((mode, index) => {
                         const isEven = index % 2 === 0;
@@ -203,8 +203,8 @@ export default function ModeSelectionMapPage() {
                         return (
                             <motion.div key={mode.id} id={`mode-${mode.id}`} variants={fadeInUp} className={`relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full mb-16 scroll-mt-24 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
 
-                                {/* 🌟 พื้นที่ฝั่งเนื้อหา (Card) */}
-                                <div className="w-full md:w-1/2 flex flex-col items-center md:items-start pl-24 md:pl-0">
+                                {/* 🌟 พื้นที่ฝั่งเนื้อหา (Card) — flex-1 + min-w-0 ให้หดเท่ากันสองข้าง node จะได้อยู่กลางเส้นเป๊ะ */}
+                                <div className="w-full md:flex-1 md:min-w-0 flex flex-col items-center md:items-start pl-24 md:pl-0">
                                     <div className={`glass-card p-6 md:p-8 w-full max-w-lg ${isLocked ? 'opacity-70 dark:opacity-60 hacker:opacity-50 grayscale-[50%] dark:grayscale-[30%] hacker:grayscale-[40%]' : 'hover:-translate-y-2 border-orange-200 dark:border-yellow-500/30 hacker:border-green-600/50 shadow-md'} relative overflow-hidden group transition-all`}>
 
                                         {/* Badge Sector */}
@@ -245,8 +245,8 @@ export default function ModeSelectionMapPage() {
                                     </div>
                                 </div>
 
-                                {/* 🌟 พื้นที่ฝั่งไอคอน (Node บนเส้นประ) */}
-                                <div className="absolute left-[26px] md:relative md:left-auto md:w-auto flex justify-center shrink-0">
+                                {/* 🌟 พื้นที่ฝั่งไอคอน (Node บนเส้นประ) — มือถือ pin กลางแกน 48px / จอใหญ่ in-flow ให้ flex จัดกึ่งกลาง */}
+                                <div className="absolute left-12 top-1/2 -translate-x-1/2 -translate-y-1/2 md:static md:translate-x-0 md:translate-y-0 md:w-auto flex justify-center shrink-0">
                                     <div className={`w-24 h-24 md:w-28 md:h-28 rounded-full border-8 border-white dark:border-[#382E54] hacker:border-[#166534] flex items-center justify-center z-10 shadow-lg transition-all duration-500
                                         ${isLocked
                                             ? 'bg-slate-100 dark:bg-[#1E1B2E] hacker:bg-[#111] text-slate-400 dark:text-white/30 hacker:text-white/30'
@@ -260,8 +260,8 @@ export default function ModeSelectionMapPage() {
                                     </div>
                                 </div>
 
-                                {/* 🌟 พื้นที่ว่างอีกฝั่งเพื่อดัน Layout (เฉพาะ Desktop) */}
-                                <div className="hidden md:block w-full md:w-1/2"></div>
+                                {/* 🌟 พื้นที่ว่างอีกฝั่งเพื่อดัน Layout (เฉพาะ Desktop) — flex-1 เท่าฝั่งการ์ด */}
+                                <div className="hidden md:block md:flex-1"></div>
 
                             </motion.div>
                         );
