@@ -6,9 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import Link from 'next/link';
 import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
-  Target, Trophy, ChevronRight, Search, X
+  Target, Trophy, ChevronRight, Search, X,
+  Gamepad2, Map as MapIcon, Clock, Zap, Brain, Play, History as HistoryIcon
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { RANKS } from '@/lib/ranks';
@@ -16,6 +18,7 @@ import { RANKS } from '@/lib/ranks';
 // 🌟 ข้อมูลเมนูด้านซ้าย
 const DOC_TABS = [
   { id: 'getting-started', label: 'Getting Started', icon: <Rocket size={20} strokeWidth={3} />, color: 'text-orange-500 dark:text-yellow-400 hacker:text-green-500' },
+  { id: 'game-modes', label: 'Game Modes', icon: <Gamepad2 size={20} strokeWidth={3} />, color: 'text-purple-500 dark:text-purple-400 hacker:text-green-500' },
   { id: 'linux-cheat-sheet', label: 'Linux Commands', icon: <Terminal size={20} strokeWidth={3} />, color: 'text-orange-600 dark:text-orange-400 hacker:text-green-500' },
   { id: 'windows-cheat-sheet', label: 'Windows CMD', icon: <Monitor size={20} strokeWidth={3} />, color: 'text-blue-500 dark:text-blue-400 hacker:text-green-500' },
   { id: 'clearance-levels', label: 'Clearance Levels', icon: <Medal size={20} strokeWidth={3} />, color: 'text-pink-500 dark:text-pink-400 hacker:text-green-500' },
@@ -153,6 +156,7 @@ export default function DatabankPage() {
               className="h-full flex flex-col"
             >
               {activeTab === 'getting-started' && <GettingStartedContent />}
+              {activeTab === 'game-modes' && <GameModesContent />}
               {activeTab === 'linux-cheat-sheet' && <LinuxContent docs={linuxDocs} onSelect={setSelectedDoc} />}
               {activeTab === 'windows-cheat-sheet' && <WindowsContent docs={windowsDocs} onSelect={setSelectedDoc} />}
               {activeTab === 'clearance-levels' && <ClearanceContent />}
@@ -248,6 +252,129 @@ function GettingStartedContent() {
     </div>
   );
 }
+// =========================================================================
+// 🌟 Component: GAME MODES CONTENT — อธิบายวิธีเล่นแต่ละโหมด
+// =========================================================================
+function GameModesContent() {
+  // ข้อมูลโหมดทั้งหมด — เพิ่มโหมดใหม่ในอนาคตแค่เติม object ในลิสต์นี้
+  const modes = [
+    {
+      icon: <MapIcon size={26} strokeWidth={3} />,
+      name: 'Campaign Mission',
+      tagline: 'โหมดภารกิจหลัก — ไต่ด่านตามแผนที่ทีละเลเวล',
+      href: '/map',
+      accent: 'text-orange-500 dark:text-yellow-400 hacker:text-green-500',
+      accentBg: 'bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-900/20',
+      steps: [
+        'เลือกสายฝึกที่ต้องการ: Linux หรือ Windows',
+        'อ่านโจทย์ของด่าน แล้วพิมพ์คำสั่งที่ถูกต้องลงใน Terminal แล้วกด Enter',
+        'ตอบถูก = ผ่านด่าน รับ EXP เต็มจำนวนของด่านนั้น และปลดล็อกด่านถัดไป',
+        'ติดตรงไหนกดดูคำใบ้ (Hint) ได้ฟรี หรือกดดูเฉลยก็ได้ แต่ EXP ด่านนั้นจะเหลือ 20%',
+        'กลับมาเล่นด่านเก่าซ้ำเพื่อฝึก WPM/Accuracy ได้ตลอด (รอบเล่นซ้ำไม่ได้ EXP เพิ่ม)',
+      ],
+      rules: [
+        { icon: <Zap size={13} strokeWidth={3} />, label: 'EXP เต็มเมื่อผ่านด่านครั้งแรก' },
+        { icon: <Target size={13} strokeWidth={3} />, label: 'ดูเฉลย = EXP เหลือ 20%' },
+        { icon: <Trophy size={13} strokeWidth={3} />, label: 'ปลดล็อกด่านถัดไปเมื่อผ่าน' },
+      ],
+    },
+    {
+      icon: <Gamepad2 size={26} strokeWidth={3} />,
+      name: 'Survival 60s',
+      tagline: 'โหมดเอาชีวิตรอด — จำคำสั่งแล้วพิมพ์แข่งกับเวลา',
+      href: '/survival',
+      accent: 'text-purple-500 dark:text-purple-400 hacker:text-green-500',
+      accentBg: 'bg-purple-100 dark:bg-purple-400/10 hacker:bg-green-900/20',
+      steps: [
+        'เลือกฐานข้อมูลคำสั่งที่จะใช้เป็นโจทย์: Linux Docs หรือ Windows Docs แล้วกด "ลุยเลย!"',
+        'ระบบจะโชว์โจทย์ให้ "จำ" 2 วินาที จากนั้นต้องพิมพ์คำสั่งจากความจำแล้วกด Enter',
+        'ตอบถูกได้เวลาเพิ่ม +2 วินาที ตอบผิดโดนหักเวลา -3 วินาที เอาชีวิตรอดให้นานที่สุด!',
+        'หมดเวลาเมื่อไหร่เกมจบ — ดูสรุป EXP, คอมโบสูงสุด, WPM และความแม่นยำได้ทันที',
+      ],
+      rules: [
+        { icon: <Clock size={13} strokeWidth={3} />, label: 'เริ่มต้นที่ 60 วินาที' },
+        { icon: <Zap size={13} strokeWidth={3} />, label: 'ตอบถูกรับ 5 EXP ต่อข้อ ไม่จำกัด' },
+        { icon: <Brain size={13} strokeWidth={3} />, label: 'จำโจทย์ 2 วิ ก่อนพิมพ์ทุกข้อ' },
+      ],
+    },
+  ];
+
+  return (
+    <div className="space-y-6 overflow-y-auto custom-scrollbar pr-2">
+      <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-6 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 cute-header transition-colors">
+        <Gamepad2 className="text-purple-500 dark:text-purple-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
+        Game Modes
+      </h2>
+
+      <p className="text-orange-800 dark:text-white/70 hacker:text-white/70 text-sm md:text-base font-bold leading-relaxed transition-colors">
+        KeyRush มีโหมดการเล่นให้เลือกฝึกตามสไตล์ของคุณ — ทุกโหมดเก็บ <strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">EXP</strong> เข้าแรงค์เดียวกัน และบันทึกผลทุกรอบลงหน้า History อัตโนมัติ
+      </p>
+
+      <div className="space-y-6 pb-10">
+        {modes.map((mode, i) => (
+          <div key={i} className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] p-5 md:p-8 shadow-sm transition-colors">
+
+            {/* หัวการ์ดโหมด */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`p-3 rounded-[16px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm shrink-0 ${mode.accentBg} ${mode.accent} transition-colors`}>
+                  {mode.icon}
+                </div>
+                <div className="min-w-0">
+                  <h3 className={`text-xl md:text-2xl font-black tracking-tight ${mode.accent} transition-colors`}>{mode.name}</h3>
+                  <p className="text-[11px] md:text-xs font-black uppercase tracking-widest text-orange-400 dark:text-white/40 hacker:text-green-700 transition-colors">{mode.tagline}</p>
+                </div>
+              </div>
+              <Link
+                href={mode.href}
+                className="btn-squishy shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border-4 transition-colors
+                  bg-orange-500 border-white text-white shadow-[0_4px_0_#c2410c] hover:bg-orange-400
+                  dark:bg-yellow-400 dark:border-yellow-300 dark:text-[#1E1B2E] dark:shadow-[0_4px_0_#ca8a04] dark:hover:bg-yellow-300
+                  hacker:bg-green-500 hacker:border-green-400 hacker:text-[#0a0a0a] hacker:shadow-[0_4px_0_#14532d] hacker:hover:bg-green-400"
+              >
+                <Play size={14} fill="currentColor" /> ไปเล่นเลย
+              </Link>
+            </div>
+
+            {/* วิธีเล่นทีละขั้น */}
+            <div className="mb-5">
+              <h4 className="text-xs font-black uppercase tracking-widest mb-3 text-orange-950 dark:text-white hacker:text-white flex items-center gap-2 transition-colors">
+                <BookOpen size={16} strokeWidth={3} className={mode.accent} /> วิธีเล่น
+              </h4>
+              <ol className="space-y-2.5">
+                {mode.steps.map((step, si) => (
+                  <li key={si} className="flex items-start gap-3 text-sm font-bold leading-relaxed text-orange-800 dark:text-white/70 hacker:text-white/70 transition-colors">
+                    <span className={`shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black border-2 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm ${mode.accentBg} ${mode.accent} transition-colors`}>
+                      {si + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* ชิปกติกาสำคัญ */}
+            <div className="flex flex-wrap gap-2">
+              {mode.rules.map((rule, ri) => (
+                <span key={ri} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] md:text-[11px] font-black border-2 shadow-sm transition-colors
+                  bg-white border-orange-100 text-orange-500 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-yellow-400 hacker:bg-[#111] hacker:border-green-900 hacker:text-green-500">
+                  {rule.icon} {rule.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* หมายเหตุท้ายหน้า */}
+        <div className="flex items-start gap-3 p-4 md:p-5 rounded-[20px] border-4 border-dashed border-orange-200 dark:border-[#4B3965] hacker:border-green-900 text-orange-600 dark:text-white/50 hacker:text-green-600 text-xs md:text-sm font-bold leading-relaxed transition-colors">
+          <HistoryIcon size={18} strokeWidth={3} className="shrink-0 mt-0.5" />
+          <span>ผลการเล่นทุกโหมด (EXP, WPM, Accuracy) ถูกบันทึกอัตโนมัติ ดูย้อนหลังได้ที่หน้า History และ EXP สะสมจะยกระดับแรงค์ของคุณในหน้า Ranks</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // =========================================================================
 // 🌟 Component: LINUX CONTENT
 // =========================================================================
