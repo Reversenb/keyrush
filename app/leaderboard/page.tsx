@@ -23,6 +23,11 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [targetOs, setTargetOs] = useState<'linux' | 'windows' | 'combined'>('linux');
 
+  // 🛡️ กัน hydration mismatch: สี/สไตล์หลายจุดคำนวณจาก useTheme() ใน JS
+  // ตอน SSR server ไม่รู้ธีมของผู้ใช้ → ต้องรอ mount ฝั่ง client ก่อนค่อย render ของจริง
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     const fetchUserAndLeaderboard = async () => {
       // เช็คสถานะ login + ดึงข้อมูล user สดจาก backend (401 → apiFetch พาไปหน้า login ให้)
@@ -232,6 +237,11 @@ export default function LeaderboardPage() {
     );
   };
 
+  // ⏳ ยังไม่ mount = ยังไม่รู้ธีมจริงของผู้ใช้ → โชว์พื้นเปล่าธีมกลางไปก่อน กัน hydration mismatch
+  if (!mounted) {
+    return <div className="bg-background min-h-screen" />;
+  }
+
   return (
     <div className={`bg-background font-sans font-black min-h-screen flex flex-col overflow-x-hidden text-foreground relative transition-colors duration-500 ${styles.selection}`}>
 
@@ -310,16 +320,16 @@ export default function LeaderboardPage() {
         <Navbar theme="linux" />
       </div>
 
-      <div className="flex flex-1 w-full justify-center relative z-10 pt-6 md:pt-8 pb-16 md:pb-20">
-        <div className="w-full max-w-5xl flex flex-col px-3 sm:px-4 md:px-8 gap-6 md:gap-10 relative z-10">
+      <div className="flex flex-1 w-full justify-center relative z-10 pt-4 md:pt-6 pb-16 md:pb-20">
+        <div className="w-full max-w-5xl flex flex-col px-3 sm:px-4 md:px-8 gap-4 md:gap-6 relative z-10">
 
           {/* Header */}
           <div className="text-center animate-in fade-in slide-in-from-top-4 duration-700">
-            <div className={`inline-flex items-center gap-2 px-4 py-1.5 mb-3 md:mb-4 rounded-2xl border-2 text-[10px] md:text-xs font-black uppercase tracking-widest shadow-sm transition-colors
+            <div className={`inline-flex items-center gap-2 px-4 py-1.5 mb-2 rounded-2xl border-2 text-[10px] md:text-xs font-black uppercase tracking-widest shadow-sm transition-colors
               bg-white border-orange-100 text-orange-500 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-yellow-400 hacker:bg-[#111] hacker:border-green-900 hacker:text-green-500`}>
               <Trophy size={14} strokeWidth={3} /> Hall of Fame
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter uppercase mb-2 md:mb-4 cute-header transition-colors">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter uppercase mb-1 md:mb-2 cute-header transition-colors">
               Global <span className={styles.textMain}>Rankings</span>
             </h1>
 
@@ -361,22 +371,14 @@ export default function LeaderboardPage() {
             <AnimatePresence mode="wait">
               <motion.div key={targetOs} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="w-full">
 
-                {/* 🌟 แท่น Podium Top 3 (ลำดับ 2-1-3) 🌟 */}
-                {leaderboardData.length >= 3 && (
-                  <div className="flex justify-center items-end gap-2 sm:gap-4 md:gap-8 mb-8 md:mb-14 px-1 md:px-2 mt-6 md:mt-10">
-                    {renderPodium(leaderboardData[1], 2)}
-                    {renderPodium(leaderboardData[0], 1)}
-                    {renderPodium(leaderboardData[2], 3)}
-                  </div>
-                )}
-
-                {/* 📌 การ์ดอันดับของคุณ 📌 */}
+                {/* 📌 การ์ดอันดับของคุณ — อยู่บนสุด เปิดหน้ามาเห็นทันที กดแล้วไปหน้าตารางแรงค์ 📌 */}
                 {user && myIndex >= 0 && (
+                  <Link href="/ranks" title="ดูตารางแรงค์ทั้งหมด" className="block">
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className={`glass-card flex items-center gap-3 md:gap-5 px-4 md:px-8 py-3 md:py-4 mb-5 md:mb-8 ${styles.tableBorder}`}
+                    transition={{ delay: 0.15 }}
+                    className={`glass-card flex items-center gap-3 md:gap-5 px-4 md:px-8 py-3 md:py-4 mb-4 md:mb-6 cursor-pointer hover:-translate-y-1 hover:shadow-md ${styles.tableBorder}`}
                   >
                     <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${styles.bgMain} ${isHacker || isDark ? 'text-[#1E1B2E]' : 'text-white'}`}>
                       <span className="text-[8px] uppercase tracking-widest opacity-80 leading-none mt-0.5">Rank</span>
@@ -398,6 +400,16 @@ export default function LeaderboardPage() {
                       </p>
                     </div>
                   </motion.div>
+                  </Link>
+                )}
+
+                {/* 🌟 แท่น Podium Top 3 (ลำดับ 2-1-3) 🌟 */}
+                {leaderboardData.length >= 3 && (
+                  <div className="flex justify-center items-end gap-2 sm:gap-4 md:gap-8 mb-6 md:mb-10 px-1 md:px-2 mt-2 md:mt-4">
+                    {renderPodium(leaderboardData[1], 2)}
+                    {renderPodium(leaderboardData[0], 1)}
+                    {renderPodium(leaderboardData[2], 3)}
+                  </div>
                 )}
 
                 {/* 🌟 ตารางรายชื่อทั้งหมด 🌟 */}
