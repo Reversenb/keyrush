@@ -3,6 +3,7 @@ import { Prompt, Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from "@/components/ThemeProvider"; // 🌟 1. นำเข้า ThemeProvider
+import CursorGlow from "@/components/CursorGlow"; // ✨ แสงเรืองตามเมาส์ตามธีม
 
 // 🌸 ตั้งค่าฟอนต์ภาษาไทย (Prompt) ให้อ่านง่าย สบายตา
 const prompt = Prompt({
@@ -44,6 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* 🌟 4. เอา ThemeProvider มาครอบแอปพลิเคชันทั้งหมด */}
           <ThemeProvider>
             {children}
+            {/* ✨ แสงเรืองตามเมาส์ (เฉพาะเครื่องที่มีเมาส์จริง) */}
+            <CursorGlow />
           </ThemeProvider>
         </GoogleOAuthProvider>
       </body>
