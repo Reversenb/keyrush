@@ -28,6 +28,7 @@ export default function CursorGlow() {
   const [mounted, setMounted] = useState(false);
   const layerRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
+  const starRef = useRef<SVGSVGElement>(null);
 
   // อ่านธีมล่าสุดจาก ref ให้ event handler ใช้สีปัจจุบันเสมอ
   const themeRef = useRef(currentTheme);
@@ -102,10 +103,21 @@ export default function CursorGlow() {
     };
     raf.current = requestAnimationFrame(tick);
 
+    // ดาวนำหมุนช้าๆ + เต้นเบาๆ ตลอดเวลา ให้ดูมีชีวิต
+    const starSpin = starRef.current?.animate(
+      [
+        { transform: 'rotate(0deg) scale(1)' },
+        { transform: 'rotate(180deg) scale(1.18)' },
+        { transform: 'rotate(360deg) scale(1)' },
+      ],
+      { duration: 4000, iterations: Infinity, easing: 'ease-in-out' }
+    );
+
     window.addEventListener('mousemove', onMove);
     return () => {
       window.removeEventListener('mousemove', onMove);
       if (raf.current) cancelAnimationFrame(raf.current);
+      starSpin?.cancel();
     };
   }, [mounted]);
 
@@ -120,18 +132,26 @@ export default function CursorGlow() {
     <div className="pointer-events-none fixed inset-0 z-[9998] overflow-hidden" aria-hidden>
       {/* ชั้นดาวประกาย */}
       <div ref={layerRef} className="absolute inset-0" />
-      {/* จุดนำนุ่มๆ ตามหลัง */}
+      {/* ดาวนำตามเมาส์ (แทนวงกลม) */}
       <div
         ref={dotRef}
-        className="absolute top-0 left-0 h-4 w-4 rounded-full will-change-transform"
+        className="absolute top-0 left-0 will-change-transform"
         style={{
           transform: 'translate(-50%,-50%) translate(50vw, 50vh)',
           opacity: 0,
-          background: `radial-gradient(circle, ${dotColor} 0%, transparent 70%)`,
-          boxShadow: `0 0 14px 4px ${dotShadow}`,
           transition: 'opacity 0.3s ease',
         }}
-      />
+      >
+        <svg
+          ref={starRef}
+          viewBox="0 0 24 24"
+          width={26}
+          height={26}
+          style={{ display: 'block', filter: `drop-shadow(0 0 6px ${dotShadow})` }}
+        >
+          <path d={STAR_PATH} fill={dotColor} />
+        </svg>
+      </div>
     </div>
   );
 }
