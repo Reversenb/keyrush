@@ -23,7 +23,7 @@ const DOC_TABS = [
   { id: 'game-modes', label: 'Game Modes', icon: <Gamepad2 size={20} strokeWidth={3} />, color: 'text-purple-500 dark:text-purple-400 hacker:text-green-500' },
   { id: 'linux-cheat-sheet', label: 'Linux Commands', icon: <Terminal size={20} strokeWidth={3} />, color: 'text-orange-600 dark:text-orange-400 hacker:text-green-500' },
   { id: 'windows-cheat-sheet', label: 'Windows CMD', icon: <Monitor size={20} strokeWidth={3} />, color: 'text-blue-500 dark:text-blue-400 hacker:text-green-500' },
-  { id: 'clearance-levels', label: 'Clearance Levels', icon: <Medal size={20} strokeWidth={3} />, color: 'text-pink-500 dark:text-pink-400 hacker:text-green-500' },
+  { id: 'clearance-levels', label: 'Rank & Levels', icon: <Medal size={20} strokeWidth={3} />, color: 'text-pink-500 dark:text-pink-400 hacker:text-green-500' },
   { id: 'faq', label: 'FAQ', icon: <HelpCircle size={20} strokeWidth={3} />, color: 'text-yellow-500 dark:text-yellow-400 hacker:text-green-500' },
 ];
 
@@ -670,7 +670,7 @@ function ClearanceContent() {
     <div className="space-y-6">
       <h2 className="text-3xl font-black text-orange-950 dark:text-white hacker:text-white flex items-center gap-3 mb-6 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 pb-6 cute-header transition-colors">
         <Medal className="text-pink-500 dark:text-pink-400 hacker:text-green-500 transition-colors" size={32} strokeWidth={3} />
-        Clearance Levels
+        Rank &amp; Levels
       </h2>
       <div className="text-orange-800 dark:text-white/70 hacker:text-white/70 space-y-4 text-sm leading-relaxed font-bold transition-colors">
         <p>ในระบบ KeyRush สายลับไซเบอร์ทุกคนจะถูกจัดระดับตามประสบการณ์ (EXP) ที่สะสมได้จากการทำภารกิจ ยิ่งคุณสะสมคะแนนได้มาก แรงค์ของคุณก็จะสูงขึ้น</p>
