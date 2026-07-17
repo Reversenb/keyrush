@@ -10,7 +10,8 @@ import Link from 'next/link';
 import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
   Target, Trophy, ChevronRight, Search, X,
-  Gamepad2, Map as MapIcon, Clock, Zap, Brain, Play, History as HistoryIcon
+  Gamepad2, Map as MapIcon, Clock, Zap, Brain, Play, History as HistoryIcon,
+  Dumbbell, Lock
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { RANKS } from '@/lib/ranks';
@@ -263,6 +264,7 @@ function GameModesContent() {
       name: 'Campaign Mission',
       tagline: 'โหมดภารกิจหลัก — ไต่ด่านตามแผนที่ทีละเลเวล',
       href: '/map',
+      comingSoon: false,
       accent: 'text-orange-500 dark:text-yellow-400 hacker:text-green-500',
       accentBg: 'bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-900/20',
       steps: [
@@ -283,6 +285,7 @@ function GameModesContent() {
       name: 'Survival 60s',
       tagline: 'โหมดเอาชีวิตรอด — จำคำสั่งแล้วพิมพ์แข่งกับเวลา',
       href: '/survival',
+      comingSoon: false,
       accent: 'text-purple-500 dark:text-purple-400 hacker:text-green-500',
       accentBg: 'bg-purple-100 dark:bg-purple-400/10 hacker:bg-green-900/20',
       steps: [
@@ -295,6 +298,44 @@ function GameModesContent() {
         { icon: <Clock size={13} strokeWidth={3} />, label: 'เริ่มต้นที่ 60 วินาที' },
         { icon: <Zap size={13} strokeWidth={3} />, label: 'ตอบถูกรับ 5 EXP ต่อข้อ ไม่จำกัด' },
         { icon: <Brain size={13} strokeWidth={3} />, label: 'จำโจทย์ 2 วิ ก่อนพิมพ์ทุกข้อ' },
+      ],
+    },
+    {
+      icon: <Dumbbell size={26} strokeWidth={3} />,
+      name: 'Training Mode',
+      tagline: 'สนามซ้อมอิสระ — ฝึกพิมพ์แบบไร้แรงกดดัน (เร็วๆ นี้)',
+      href: '#',
+      comingSoon: true,
+      accent: 'text-emerald-500 dark:text-emerald-400 hacker:text-green-500',
+      accentBg: 'bg-emerald-100 dark:bg-emerald-400/10 hacker:bg-green-900/20',
+      steps: [
+        'เลือกชุดคำสั่งที่อยากซ้อม: Linux หรือ Windows หรือเจาะเป็นรายหมวดหมู่จาก Docs',
+        'พิมพ์ตามโจทย์ไปเรื่อยๆ ไม่มีเวลาจับ ไม่มีการหักคะแนน ผิดก็แก้ใหม่ได้ทันที',
+        'ดูสถิติ WPM และความแม่นยำแบบสดๆ ระหว่างซ้อม เพื่อติดตามพัฒนาการของตัวเอง',
+        'เหมาะสำหรับวอร์มมือก่อนลง Survival หรือซ้อมคำสั่งด่านยากๆ ใน Campaign',
+      ],
+      rules: [
+        { icon: <Clock size={13} strokeWidth={3} />, label: 'ไม่มีเวลากดดัน' },
+        { icon: <Zap size={13} strokeWidth={3} />, label: 'ไม่ได้และไม่เสีย EXP' },
+        { icon: <BookOpen size={13} strokeWidth={3} />, label: 'เลือกหมวดฝึกเองได้' },
+      ],
+    },
+    {
+      icon: <Trophy size={26} strokeWidth={3} />,
+      name: 'Hacker Arena',
+      tagline: 'ประลองความเร็วกับสายลับคนอื่นแบบเรียลไทม์ (เร็วๆ นี้)',
+      href: '#',
+      comingSoon: true,
+      accent: 'text-pink-500 dark:text-pink-400 hacker:text-green-500',
+      accentBg: 'bg-pink-100 dark:bg-pink-400/10 hacker:bg-green-900/20',
+      steps: [
+        'จับคู่กับสายลับคนอื่นที่ออนไลน์อยู่ แล้วรับโจทย์คำสั่งชุดเดียวกัน',
+        'พิมพ์แข่งกันสดๆ ใครพิมพ์ถูกและเร็วกว่าเป็นฝ่ายชนะ',
+        'สะสมชัยชนะเพื่อไต่กระดานผู้นำระดับโลก',
+      ],
+      rules: [
+        { icon: <Trophy size={13} strokeWidth={3} />, label: 'แข่งขันแบบเรียลไทม์' },
+        { icon: <Zap size={13} strokeWidth={3} />, label: 'ชนะได้แต้มไต่อันดับ' },
       ],
     },
   ];
@@ -325,15 +366,24 @@ function GameModesContent() {
                   <p className="text-[11px] md:text-xs font-black uppercase tracking-widest text-orange-400 dark:text-white/40 hacker:text-green-700 transition-colors">{mode.tagline}</p>
                 </div>
               </div>
-              <Link
-                href={mode.href}
-                className="btn-squishy shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border-4 transition-colors
-                  bg-orange-500 border-white text-white shadow-[0_4px_0_#c2410c] hover:bg-orange-400
-                  dark:bg-yellow-400 dark:border-yellow-300 dark:text-[#1E1B2E] dark:shadow-[0_4px_0_#ca8a04] dark:hover:bg-yellow-300
-                  hacker:bg-green-500 hacker:border-green-400 hacker:text-[#0a0a0a] hacker:shadow-[0_4px_0_#14532d] hacker:hover:bg-green-400"
-              >
-                <Play size={14} fill="currentColor" /> ไปเล่นเลย
-              </Link>
+              {mode.comingSoon ? (
+                <span className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border-4 cursor-not-allowed transition-colors
+                  bg-slate-100 border-white text-slate-400 shadow-[0_4px_0_#e2e8f0]
+                  dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-white/40 dark:shadow-[0_4px_0_#1E1B2E]
+                  hacker:bg-[#111] hacker:border-[#333] hacker:text-white/40 hacker:shadow-[0_4px_0_#000]">
+                  <Lock size={14} strokeWidth={3} /> เร็วๆ นี้
+                </span>
+              ) : (
+                <Link
+                  href={mode.href}
+                  className="btn-squishy shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border-4 transition-colors
+                    bg-orange-500 border-white text-white shadow-[0_4px_0_#c2410c] hover:bg-orange-400
+                    dark:bg-yellow-400 dark:border-yellow-300 dark:text-[#1E1B2E] dark:shadow-[0_4px_0_#ca8a04] dark:hover:bg-yellow-300
+                    hacker:bg-green-500 hacker:border-green-400 hacker:text-[#0a0a0a] hacker:shadow-[0_4px_0_#14532d] hacker:hover:bg-green-400"
+                >
+                  <Play size={14} fill="currentColor" /> ไปเล่นเลย
+                </Link>
+              )}
             </div>
 
             {/* วิธีเล่นทีละขั้น */}
