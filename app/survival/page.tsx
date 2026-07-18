@@ -8,6 +8,7 @@ import { Gamepad2, Zap, Clock, Trophy, Loader2, Play, AlertCircle, XCircle, Keyb
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { apiFetch, clearUserState } from '@/lib/api';
+import CoinIcon from '@/components/CoinIcon';
 
 interface CommandMission {
     id: string;
@@ -56,6 +57,8 @@ export default function Page() {
     const keystrokesRef = useRef({ typed: 0, correct: 0 });
     const [finalWpm, setFinalWpm] = useState(0);
     const [finalAccuracy, setFinalAccuracy] = useState(0);
+    // 🪙 เหรียญที่ได้รอบนี้ (server แจ้งกลับตอน submit)
+    const [finalCoins, setFinalCoins] = useState<number | null>(null);
 
     // 🎫 Rolling token: server นับข้อที่ถูกเองทุกคำตอบ — เก็บใบล่าสุดไว้ใน ref
     // และต่อคิวรายงานคำตอบให้ยิงเรียงลำดับ (token ใบใหม่ต้องมาจากใบก่อนหน้าเสมอ)
@@ -144,6 +147,7 @@ export default function Page() {
                 keystrokesRef.current = { typed: 0, correct: 0 };
                 setFinalWpm(0);
                 setFinalAccuracy(0);
+                setFinalCoins(null);
             } else {
                 throw new Error('ไม่พบข้อมูลคำสั่งในระบบ');
             }
@@ -186,6 +190,7 @@ export default function Page() {
                 if (typeof data.wpm === 'number') setFinalWpm(data.wpm);
                 if (typeof data.accuracy === 'number') setFinalAccuracy(data.accuracy);
                 if (typeof data.earnedExp === 'number') setScore(data.earnedExp);
+                if (typeof data.earnedCoins === 'number') setFinalCoins(data.earnedCoins);
             } else {
                 console.error("❌ Backend ปฏิเสธการบันทึก:", data.message);
                 alert("บันทึกคะแนนไม่สำเร็จ: " + data.message);
@@ -727,6 +732,13 @@ export default function Page() {
                                     <p className="text-base md:text-lg font-medium mb-6 md:mb-8 text-slate-500 dark:text-slate-400 hacker:text-green-600">
                                         เก่งมาก! คุณรอดชีวิตไปได้ <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500 font-bold">{survivedTime}</span> วินาที
                                     </p>
+
+                                    {/* 🪙 แจ้งเหรียญที่ได้รอบนี้ */}
+                                    {finalCoins !== null && finalCoins > 0 && (
+                                        <div className="mb-4 md:mb-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl border-2 font-black text-sm md:text-base shadow-sm bg-amber-100 border-white text-amber-600 dark:bg-yellow-400/15 dark:border-yellow-500/30 dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
+                                            <CoinIcon size={18} /> ได้รับ +{finalCoins.toLocaleString()} เหรียญ
+                                        </div>
+                                    )}
 
                                     <div className="grid grid-cols-2 gap-3 md:gap-4 w-full mb-6 md:mb-10">
                                         <div className="bg-slate-100 dark:bg-slate-800 hacker:bg-green-900/10 hacker:border hacker:border-green-900/50 p-4 md:p-6 rounded-2xl md:rounded-3xl">

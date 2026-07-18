@@ -76,6 +76,8 @@ export default function GamePage() {
   const [isRevealing, setIsRevealing] = useState(false);
   // EXP ที่ได้จริงรอบนี้จาก PUT /progress (โดนหักถ้าด่านนี้เคยดูเฉลย)
   const [earnedExp, setEarnedExp] = useState<number | null>(null);
+  // 🪙 เหรียญที่ได้รอบนี้ (server แจ้งกลับตอนเซฟ)
+  const [earnedCoins, setEarnedCoins] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isErrorAnim, setIsErrorAnim] = useState(false);
 
@@ -316,6 +318,9 @@ export default function GamePage() {
             if (typeof result.earnedExp === 'number') {
               setEarnedExp(result.earnedExp);
             }
+            if (typeof result.earnedCoins === 'number') {
+              setEarnedCoins(result.earnedCoins);
+            }
           })
           .catch(err => console.error("Save progress error:", err));
         terminalRef.current?.writeLine(`\r\n\x1b[1;32m=== [ SYSTEM ACCESS GRANTED: MISSION ACCOMPLISHED ] ===\x1b[0m`);
@@ -334,7 +339,7 @@ export default function GamePage() {
     if (!sim.clearScreen) { terminalRef.current?.writeLine(''); terminalRef.current?.prompt(newPath); }
   };
 
-  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); setSolution(null); setShowRevealConfirm(false); setEarnedExp(null); clearanceTokenRef.current = null; activeTimeMsRef.current = 0; lastKeyTsRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
+  const resetMetrics = () => { setIsPassed(false); setShowProceedButton(false); setShowNextLevel(false); setShowHint(false); setRevealedCommand(null); setSolution(null); setShowRevealConfirm(false); setEarnedExp(null); setEarnedCoins(null); clearanceTokenRef.current = null; activeTimeMsRef.current = 0; lastKeyTsRef.current = null; totalTypingKeysRef.current = 0; errorsRef.current = 0; setWpm(0); setAccuracy(100); window.history.replaceState(null, '', '/campaignplay'); };
 
   // ยิง /reveal เฉพาะหลังผู้เล่นกดยืนยันใน dialog เท่านั้น — แค่เรียก endpoint นี้
   // server จะจดถาวรทันทีว่าด่านนี้ใช้เฉลย (EXP เหลือ 20%)
@@ -621,6 +626,7 @@ export default function GamePage() {
           isReplaying={isReplaying}
           missionReward={missionReward}
           earnedExp={earnedExp}
+          earnedCoins={earnedCoins}
           wpm={wpm}
           handleNextLevel={handleNextLevel}
           handleReplayLevel={handleReplayLevel}

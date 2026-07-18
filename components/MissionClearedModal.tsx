@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Star, BookOpen, Zap, Terminal as TerminalIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
+import CoinIcon from '@/components/CoinIcon';
 
 interface MissionClearedModalProps {
     targetOs: 'linux' | 'windows';
@@ -18,13 +19,15 @@ interface MissionClearedModalProps {
     missionReward: number;
     // EXP ที่ได้จริงจาก PUT /progress (โดนหักเหลือ 20% ถ้าด่านนี้เคยดูเฉลย) — null ถ้า backend ไม่ส่งมา
     earnedExp?: number | null;
+    // 🪙 เหรียญที่ได้รอบนี้ — null/0 = ไม่ได้ (เช่นรอบเล่นซ้ำ)
+    earnedCoins?: number | null;
     wpm: number;
     handleNextLevel: () => void;
     handleReplayLevel: () => void;
 }
 
 export default function MissionClearedModal({
-    targetOs, grade, accuracy, missionData, revealedCommand, themeText, currentExp, isReplaying, missionReward, earnedExp, wpm, handleNextLevel, handleReplayLevel
+    targetOs, grade, accuracy, missionData, revealedCommand, themeText, currentExp, isReplaying, missionReward, earnedExp, earnedCoins, wpm, handleNextLevel, handleReplayLevel
 }: MissionClearedModalProps) {
     const router = useRouter();
 
@@ -92,6 +95,11 @@ export default function MissionClearedModal({
                             </div>
                             <div className="text-right flex flex-col items-end">
                                 <span className={`text-2xl font-black cute-header transition-colors ${isPenalized ? 'text-rose-500' : isReplaying ? (isHacker ? 'text-green-800' : isDark ? 'text-white/30' : 'text-orange-300') : themeText}`}>+{displayExp} EXP</span>
+                                {typeof earnedCoins === 'number' && earnedCoins > 0 && (
+                                    <span className={`text-sm font-black mt-1 flex items-center gap-1.5 transition-colors ${isHacker ? 'text-green-400' : isDark ? 'text-yellow-300' : 'text-amber-500'}`}>
+                                        <CoinIcon size={16} /> +{earnedCoins} เหรียญ
+                                    </span>
+                                )}
                                 {isPenalized && <span className={`text-[9px] font-black uppercase tracking-widest mt-1 px-3 py-1 rounded-[8px] shadow-sm transition-colors ${isHacker ? 'bg-rose-900 text-rose-400' : isDark ? 'bg-rose-900/60 text-rose-300' : 'bg-rose-400 text-white'}`}>ใช้เฉลย -80%</span>}
                                 {isReplaying && <span className={`text-[9px] font-black uppercase tracking-widest mt-1 px-3 py-1 rounded-[8px] shadow-sm transition-colors ${isHacker ? 'bg-green-900 text-green-400' : isDark ? 'bg-[#4B3965] text-white' : 'bg-orange-300 text-white'}`}>Practice Mode</span>}
                             </div>

@@ -11,6 +11,7 @@ import {
   FileText, Clock, Star, X, ListFilter, Zap, ChevronLeft, ChevronRight, CalendarDays
 } from 'lucide-react';
 import { apiFetch, clearUserState } from '@/lib/api';
+import CoinIcon from '@/components/CoinIcon';
 
 // วันแบบ local เป็น key "YYYY-MM-DD" (ไม่ใช้ toISOString เพราะจะเพี้ยนข้ามวันตาม timezone)
 const dateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -177,6 +178,12 @@ export default function HistoryPage() {
   const getLogExp = (log: any): number | null => {
     const v = log.earnedExp ?? log.exp ?? log.expEarned ?? log.rewardExp;
     return typeof v === 'number' ? v : null;
+  };
+
+  // 🪙 เหรียญที่ได้ในรอบนั้น — null ถ้ารอบเก่าก่อนระบบเหรียญ / รอบที่ไม่ได้เหรียญ
+  const getLogCoins = (log: any): number | null => {
+    const v = log.earnedCoins;
+    return typeof v === 'number' && v > 0 ? v : null;
   };
 
   const getAccColorClass = (acc: number) => {
@@ -409,9 +416,16 @@ export default function HistoryPage() {
                             </td>
                             <td className="px-3 py-4 text-center">
                               {getLogExp(log) !== null ? (
-                                <span className="inline-flex items-center gap-1 font-black px-3 py-1.5 rounded-xl text-xs tracking-wider text-yellow-600 dark:text-yellow-400 hacker:text-green-400 bg-yellow-100 dark:bg-yellow-500/20 hacker:bg-green-900/20 border-2 border-white dark:border-yellow-500/30 hacker:border-green-900/50 shadow-sm transition-colors">
-                                  <Zap size={14} strokeWidth={3} className="fill-current" /> +{getLogExp(log)}
-                                </span>
+                                <div className="inline-flex flex-col items-center gap-1">
+                                  <span className="inline-flex items-center gap-1 font-black px-3 py-1.5 rounded-xl text-xs tracking-wider text-yellow-600 dark:text-yellow-400 hacker:text-green-400 bg-yellow-100 dark:bg-yellow-500/20 hacker:bg-green-900/20 border-2 border-white dark:border-yellow-500/30 hacker:border-green-900/50 shadow-sm transition-colors">
+                                    <Zap size={14} strokeWidth={3} className="fill-current" /> +{getLogExp(log)}
+                                  </span>
+                                  {getLogCoins(log) !== null && (
+                                    <span className="inline-flex items-center gap-1 font-black px-2.5 py-1 rounded-xl text-[10px] tracking-wider text-amber-600 dark:text-yellow-300 hacker:text-green-400 bg-amber-100 dark:bg-yellow-400/15 hacker:bg-green-900/20 border-2 border-white dark:border-yellow-500/30 hacker:border-green-900/50 shadow-sm transition-colors">
+                                      <CoinIcon size={12} /> +{getLogCoins(log)}
+                                    </span>
+                                  )}
+                                </div>
                               ) : (
                                 <span className="text-orange-300 dark:text-white/30 hacker:text-green-800 font-black text-xs">—</span>
                               )}
@@ -547,7 +561,14 @@ export default function HistoryPage() {
                               </div>
                               <p className="text-orange-400 dark:text-white/50 hacker:text-green-600 text-[10px] font-black uppercase tracking-widest transition-colors">EXP Gained</p>
                             </div>
-                            <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-3xl font-black cute-header transition-colors">+{getLogExp(selectedLog)} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">EXP</span></p>
+                            <div className="text-right">
+                              <p className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-3xl font-black cute-header transition-colors">+{getLogExp(selectedLog)} <span className="text-sm text-orange-400 dark:text-yellow-600 hacker:text-green-700 font-black">EXP</span></p>
+                              {getLogCoins(selectedLog) !== null && (
+                                <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-black text-amber-500 dark:text-yellow-300 hacker:text-green-400 transition-colors">
+                                  <CoinIcon size={15} /> +{getLogCoins(selectedLog)} เหรียญ
+                                </p>
+                              )}
+                            </div>
                           </div>
                         )}
                         <div className="bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] p-4 rounded-[24px] flex flex-col gap-1 shadow-sm transition-colors">
