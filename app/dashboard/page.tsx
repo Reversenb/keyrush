@@ -131,9 +131,9 @@ function WpmChart({ points, avg, accentHex, isDark, isHacker }: {
 
 // ข้อมูลแรงค์กลางมาจาก lib/ranks.ts — ที่นี่เก็บเฉพาะสีประจำหน้า dashboard
 const RANK_COLORS: Record<number, string> = {
-  1: "text-slate-300", 2: "text-[#0df259]", 3: "text-yellow-400", 4: "text-cyan-400",
+  1: "text-slate-300", 2: "text-[#92400e]", 3: "text-yellow-400", 4: "text-cyan-400",
   5: "text-purple-400", 6: "text-pink-500", 7: "text-red-500",
-  8: "text-[#0f172a]", // 🖤 Keyrush Master (token เฉพาะ กันชน keyword 'slate' ของ Rookie)
+  8: "text-[#059669]", // 💚 Keyrush Master
 };
 const RANKS = BASE_RANKS.map(r => ({ ...r, color: RANK_COLORS[r.id] }));
 
@@ -243,10 +243,10 @@ export default function DashboardPage() {
 
   // 🌟 เพิ่มการรองรับสีของ Hacker Mode 🌟
   const getLightModeRankColor = (colorClass: string) => {
-    // 🖤 Keyrush Master — โทนดำ (ธีมมืดใช้ขาวให้อ่านออก) เช็คก่อน 'slate' กันชนกัน
-    if (colorClass.includes('0f172a')) return 'text-slate-900 dark:text-white hacker:text-green-100';
+    // 💚 Keyrush Master — โทนเขียว | 🤎 Bronze — โทนน้ำตาล (เช็ค hex เฉพาะก่อน keyword ทั่วไป)
+    if (colorClass.includes('059669')) return 'text-emerald-600 dark:text-emerald-400 hacker:text-green-300';
+    if (colorClass.includes('92400e')) return 'text-amber-800 dark:text-amber-500 hacker:text-green-600';
     if (colorClass.includes('slate')) return 'text-slate-500 dark:text-slate-300 hacker:text-green-500';
-    if (colorClass.includes('0df259')) return 'text-green-500 dark:text-green-400 hacker:text-green-400';
     if (colorClass.includes('yellow')) return 'text-amber-500 dark:text-yellow-400 hacker:text-green-400';
     if (colorClass.includes('cyan')) return 'text-blue-500 dark:text-cyan-400 hacker:text-green-400';
     if (colorClass.includes('purple')) return 'text-purple-500 dark:text-purple-400 hacker:text-green-400';

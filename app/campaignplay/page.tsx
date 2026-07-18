@@ -127,7 +127,9 @@ export default function GamePage() {
 
   useEffect(() => {
     const initializeGame = async () => {
-      const os = (localStorage.getItem('keyrush_target_os') as 'linux' | 'windows') || 'linux';
+      // ⚠️ หน้า leaderboard เขียน 'combined' ลง key เดียวกันได้ — ต้อง validate ไม่ใช่ cast เฉยๆ
+      const saved = localStorage.getItem('keyrush_target_os');
+      const os: 'linux' | 'windows' = saved === 'windows' ? 'windows' : 'linux';
       setTargetOs(os);
 
       try {

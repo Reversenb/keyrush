@@ -105,13 +105,13 @@ export default function LeaderboardPage() {
   // สีประจำแรงค์แต่ละขั้น รองรับทุกธีม
   const RANK_COLORS: Record<number, string> = {
     1: 'text-slate-400 dark:text-slate-300 hacker:text-green-700',
-    2: 'text-green-500 dark:text-green-400 hacker:text-green-600',
+    2: 'text-amber-800 dark:text-amber-500 hacker:text-green-600',
     3: 'text-amber-500 dark:text-yellow-400 hacker:text-green-500',
     4: 'text-blue-500 dark:text-blue-400 hacker:text-green-400',
     5: 'text-purple-500 dark:text-purple-400 hacker:text-green-400',
     6: 'text-pink-500 dark:text-pink-400 hacker:text-green-300',
     7: 'text-rose-500 dark:text-rose-400 hacker:text-green-200',
-    8: 'text-slate-900 dark:text-white hacker:text-green-100', // 🖤 Keyrush Master
+    8: 'text-emerald-600 dark:text-emerald-400 hacker:text-green-300', // 💚 Keyrush Master
   };
   const getRankDetails = (exp: number) => {
     const r = getRankByExp(exp);

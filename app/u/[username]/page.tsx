@@ -116,26 +116,26 @@ export default function PublicProfilePage() {
     if (isDark) {
       const darkMap: Record<number, any> = {
         1: { titleColor: "text-slate-300", style: "text-slate-300 border-[#382E54] bg-[#2D223B]" },
-        2: { titleColor: "text-green-400", style: "text-green-400 border-[#382E54] bg-green-900/30" },
+        2: { titleColor: "text-amber-500", style: "text-amber-500 border-[#382E54] bg-amber-900/30" },
         3: { titleColor: "text-yellow-400", style: "text-yellow-400 border-[#382E54] bg-yellow-900/30" },
         4: { titleColor: "text-blue-400", style: "text-blue-400 border-[#382E54] bg-blue-900/30" },
         5: { titleColor: "text-purple-400", style: "text-purple-400 border-[#382E54] bg-purple-900/30" },
         6: { titleColor: "text-pink-400", style: "text-pink-400 border-[#382E54] bg-pink-900/30" },
         7: { titleColor: "text-rose-400", style: "text-rose-400 border-[#382E54] bg-rose-900/30 font-black" },
-        8: { titleColor: "text-white", style: "text-white border-white/40 bg-black/60 font-black" },
+        8: { titleColor: "text-emerald-400", style: "text-emerald-400 border-[#382E54] bg-emerald-900/30 font-black" },
       };
       return { title: rank.title, ...darkMap[rank.id] };
     }
     // 3. โหมดสว่างปกติ (Cute / Pastel)
     const lightMap: Record<number, any> = {
       1: { titleColor: "text-slate-500", style: "text-slate-600 border-white bg-slate-100" },
-      2: { titleColor: "text-green-500", style: "text-green-600 border-white bg-green-100" },
+      2: { titleColor: "text-amber-800", style: "text-amber-800 border-white bg-amber-100" },
       3: { titleColor: "text-amber-500", style: "text-amber-600 border-white bg-amber-100" },
       4: { titleColor: "text-blue-500", style: "text-blue-600 border-white bg-blue-100" },
       5: { titleColor: "text-purple-500", style: "text-purple-600 border-white bg-purple-100" },
       6: { titleColor: "text-pink-500", style: "text-pink-600 border-white bg-pink-100" },
       7: { titleColor: "text-rose-500 font-black", style: "text-rose-600 border-white bg-rose-100 font-black" },
-      8: { titleColor: "text-slate-900 font-black", style: "text-slate-900 border-slate-300 bg-slate-200 font-black" },
+      8: { titleColor: "text-emerald-600 font-black", style: "text-emerald-700 border-white bg-emerald-100 font-black" },
     };
     return { title: rank.title, ...lightMap[rank.id] };
   };

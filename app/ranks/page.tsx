@@ -16,14 +16,14 @@ import { RANKS as BASE_RANKS } from '@/lib/ranks';
 // ข้อมูลแรงค์กลางมาจาก lib/ranks.ts — ที่นี่เก็บเฉพาะสไตล์สีประจำหน้า Ranks
 const RANK_STYLES: Record<number, { color: string; hex: string; border: string; bg: string; shadow: string }> = {
   1: { color: "text-slate-400", hex: "#94a3b8", border: "border-slate-200", bg: "bg-slate-100", shadow: "shadow-sm" },
-  2: { color: "text-green-500", hex: "#4ade80", border: "border-green-200", bg: "bg-green-100", shadow: "shadow-sm" },
+  2: { color: "text-amber-800", hex: "#92400e", border: "border-amber-200", bg: "bg-amber-100", shadow: "shadow-sm" },
   3: { color: "text-amber-500", hex: "#fbbf24", border: "border-amber-200", bg: "bg-amber-100", shadow: "shadow-sm" },
   4: { color: "text-blue-500", hex: "#60a5fa", border: "border-blue-200", bg: "bg-blue-100", shadow: "shadow-sm" },
   5: { color: "text-purple-500", hex: "#c084fc", border: "border-purple-200", bg: "bg-purple-100", shadow: "shadow-sm" },
   6: { color: "text-pink-500", hex: "#f472b6", border: "border-pink-200", bg: "bg-pink-100", shadow: "shadow-sm" },
   7: { color: "text-rose-500", hex: "#fb7185", border: "border-rose-200", bg: "bg-rose-100", shadow: "shadow-[0_10px_30px_rgba(251,113,133,0.3)]" },
-  // 🖤 Keyrush Master — แรงค์สูงสุด โทนดำ
-  8: { color: "text-slate-900", hex: "#0f172a", border: "border-slate-800", bg: "bg-slate-200", shadow: "shadow-[0_10px_30px_rgba(15,23,42,0.35)]" },
+  // 💚 Keyrush Master — แรงค์สูงสุด โทนเขียว
+  8: { color: "text-emerald-600", hex: "#059669", border: "border-emerald-300", bg: "bg-emerald-100", shadow: "shadow-[0_10px_30px_rgba(5,150,105,0.35)]" },
 };
 const RANKS = BASE_RANKS.map(r => ({ ...r, ...RANK_STYLES[r.id] }));
 
@@ -61,20 +61,21 @@ export default function RanksPage() {
         color: "text-green-400",
         hex: "#4ade80",
         bg: "bg-green-900/20",
-        shadow: rank.id === 7 ? "shadow-[0_10px_30px_rgba(34,197,94,0.3)]" : "shadow-sm"
+        shadow: rank.id >= 7 ? "shadow-[0_10px_30px_rgba(34,197,94,0.3)]" : "shadow-sm"
       };
     }
     if (isDark) {
       const darkMap: any = {
         1: { color: 'text-slate-300', hex: '#cbd5e1', bg: 'bg-slate-800/50' },
-        2: { color: 'text-green-400', hex: '#4ade80', bg: 'bg-green-900/30' },
+        2: { color: 'text-amber-600', hex: '#d97706', bg: 'bg-amber-900/30' },
         3: { color: 'text-yellow-400', hex: '#facc15', bg: 'bg-yellow-900/30' },
         4: { color: 'text-blue-400', hex: '#60a5fa', bg: 'bg-blue-900/30' },
         5: { color: 'text-purple-400', hex: '#c084fc', bg: 'bg-purple-900/30' },
         6: { color: 'text-pink-400', hex: '#f472b6', bg: 'bg-pink-900/30' },
         7: { color: 'text-rose-400', hex: '#fb7185', bg: 'bg-rose-900/30' },
+        8: { color: 'text-emerald-400', hex: '#34d399', bg: 'bg-emerald-900/30' },
       };
-      return { ...darkMap[rank.id], shadow: rank.id === 7 ? "shadow-[0_10px_30px_rgba(251,113,133,0.3)]" : "shadow-sm" };
+      return { ...darkMap[rank.id], shadow: rank.id >= 7 ? "shadow-[0_10px_30px_rgba(52,211,153,0.3)]" : "shadow-sm" };
     }
     return { color: rank.color, hex: rank.hex, bg: rank.bg, shadow: rank.shadow };
   };
@@ -236,7 +237,7 @@ export default function RanksPage() {
                   <div className={`text-6xl md:text-7xl font-black tracking-tighter leading-none mb-1 cute-header ${currentRankDetails.color} transition-colors duration-500`}>
                     {totalExp.toLocaleString()}
                   </div>
-                  <p className="text-xs text-orange-500 dark:text-yellow-500 hacker:text-green-600 font-black tracking-widest uppercase mt-2 transition-colors duration-500">Data Points Acquired</p>
+
                 </div>
               </div>
 

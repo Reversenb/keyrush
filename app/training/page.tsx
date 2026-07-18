@@ -106,7 +106,9 @@ export default function TrainingPage() {
 
   useEffect(() => {
     const initialize = async () => {
-      const os = (localStorage.getItem('keyrush_target_os') as 'linux' | 'windows') || 'linux';
+      // ⚠️ หน้า leaderboard เขียน 'combined' ลง key เดียวกันได้ — ต้อง validate ไม่ใช่ cast เฉยๆ
+      const saved = localStorage.getItem('keyrush_target_os');
+      const os: 'linux' | 'windows' = saved === 'windows' ? 'windows' : 'linux';
       setTargetOs(os);
 
       try {
@@ -299,7 +301,7 @@ export default function TrainingPage() {
               ไม่มีโจทย์ ไม่มีเวลาจับ พิมพ์คำสั่งอะไรก็ได้แล้วดูผลจำลองที่แผงด้านขวาได้เลย ✨ ลองพิมพ์:
             </p>
             <div className="flex flex-wrap gap-2">
-              {SUGGESTED_COMMANDS[targetOs].map((cmd) => (
+              {(SUGGESTED_COMMANDS[targetOs] ?? SUGGESTED_COMMANDS.linux).map((cmd) => (
                 <code key={cmd} className="px-3 py-1.5 rounded-xl text-xs font-black font-mono border-2 shadow-sm transition-colors bg-white border-orange-100 text-orange-500 dark:bg-[#2D223B] dark:border-[#4B3965] dark:text-yellow-400 hacker:bg-[#111] hacker:border-green-900 hacker:text-green-500">
                   {cmd}
                 </code>
