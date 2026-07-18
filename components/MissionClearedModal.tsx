@@ -37,7 +37,7 @@ export default function MissionClearedModal({
     const { theme: activeTheme, resolvedTheme } = useTheme();
     const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
     const isDark = currentTheme === 'dark';
-    const isHacker = currentTheme === 'hacker';
+    const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
     return (
         <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-300 overflow-y-auto transition-colors ${isHacker ? 'bg-black/80' : isDark ? 'bg-black/60' : 'bg-orange-950/40'}`}>

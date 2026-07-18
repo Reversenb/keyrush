@@ -32,21 +32,26 @@ export default function HackerLoadingScreen() {
 
     // 🌟 เช็คโหมดเพื่อกำหนดสี Matrix Rain
     const isDark = currentTheme === 'dark';
-    const isHacker = currentTheme === 'hacker';
+    const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
+    const isSakura = currentTheme === 'sakura';
 
     // สีพื้นหลังเวลาตัวอักษรจางลง (Fade)
     const fadeColor = isHacker
-      ? 'rgba(10, 10, 10, 0.15)' // แฮกเกอร์: ดำสนิท
+      ? (isDragon ? 'rgba(20, 3, 3, 0.15)' : 'rgba(10, 10, 10, 0.15)') // แฮกเกอร์/มังกร: ดำสนิท
       : isDark
         ? 'rgba(30, 27, 46, 0.15)' // ดาร์ก: ม่วงเข้ม
-        : 'rgba(255, 247, 237, 0.15)'; // สว่าง: ส้มอ่อน
+        : isSakura
+          ? 'rgba(255, 241, 245, 0.15)' // ซากุระ: ชมพูอ่อน
+          : 'rgba(255, 247, 237, 0.15)'; // สว่าง: ส้มอ่อน
 
     // สีตัวอักษร Matrix
     const textColor = isHacker
-      ? '#22c55e' // แฮกเกอร์: เขียวสว่าง (green-500)
+      ? (isDragon ? '#ef4444' : '#22c55e') // แฮกเกอร์: เขียวสว่าง / มังกร: แดง
       : isDark
         ? '#facc15' // ดาร์ก: เหลือง (yellow-400)
-        : '#f97316'; // สว่าง: ส้ม (orange-500)
+        : isSakura
+          ? '#ec4899' // ซากุระ: ชมพู (pink-500)
+          : '#f97316'; // สว่าง: ส้ม (orange-500)
 
     const draw = () => {
       ctx.fillStyle = fadeColor;

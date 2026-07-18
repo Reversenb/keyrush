@@ -48,7 +48,7 @@ export default function VirtualFileSystemPanel({
     const { theme: activeTheme, resolvedTheme } = useTheme();
     const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
     const isDark = currentTheme === 'dark';
-    const isHacker = currentTheme === 'hacker';
+    const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
     // 🎬 เอฟเฟกต์ที่กำลังเล่น — โชว์ ~2.4 วิแล้วหายเอง
     const [fx, setFx] = useState<ActiveEffect | null>(null);
@@ -61,7 +61,7 @@ export default function VirtualFileSystemPanel({
 
     const fxKind = fx?.effect.kind;
     const fxTargets: string[] = (fx?.effect.kind === 'permission' || fx?.effect.kind === 'scan') ? fx.effect.targets : [];
-    const accentHex = isHacker ? '#22c55e' : isDark ? '#facc15' : (targetOs === 'linux' ? '#f97316' : '#3b82f6');
+    const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#facc15' : (targetOs === 'linux' ? '#f97316' : '#3b82f6');
     const FxIcon = fxKind ? EFFECT_ICONS[fxKind] : Activity;
 
     const getFileStyle = (fileName: string) => {

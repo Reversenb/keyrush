@@ -24,7 +24,7 @@ export default function PublicProfilePage() {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
-  const isHacker = currentTheme === 'hacker';
+  const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   const [profileData, setProfileData] = useState<any>(null);
   const [ranks, setRanks] = useState({ linux: 0, windows: 0 });
@@ -222,6 +222,13 @@ export default function PublicProfilePage() {
               <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-[12px] border-4 inline-block w-max mx-auto md:mx-0 shadow-sm transition-colors duration-500 ${mainRankTheme.style}`}>
                 {mainRankTheme.title}
               </span>
+
+              {/* 🏷️ ฉายาจากร้านค้า (ถ้าใส่อยู่) */}
+              {profileData.title && (
+                <span className={`px-4 py-1.5 text-[10px] font-black tracking-widest rounded-[12px] border-4 inline-block w-max mx-auto md:mx-0 shadow-sm transition-colors duration-500 ${isHacker ? 'bg-green-900/30 border-green-800 text-green-400' : isDark ? 'bg-yellow-400/15 border-[#4B3965] text-yellow-300' : 'bg-orange-100 border-white text-orange-600'}`}>
+                  ✦ {profileData.title}
+                </span>
+              )}
             </div>
 
             {/* ไบโอ (Bio) */}

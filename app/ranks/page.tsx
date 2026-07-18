@@ -52,16 +52,20 @@ export default function RanksPage() {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
-  const isHacker = currentTheme === 'hacker';
+  const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   // 🌟 ฟังก์ชันคำนวณสีของแต่ละ Rank ตาม Theme ปัจจุบัน
   const getRankTheme = (rank: any) => {
     if (isHacker) {
+      // 🐉 Dragon ใช้โครงเดียวกับ hacker แต่ค่า hex ใน JS ต้องสลับเอง
+      // (hex พวกนี้ถูกใช้ผ่าน inline style ซึ่ง CSS override ไม่ถึง)
       return {
         color: "text-green-400",
-        hex: "#4ade80",
+        hex: isDragon ? "#f87171" : "#4ade80",
         bg: "bg-green-900/20",
-        shadow: rank.id >= 7 ? "shadow-[0_10px_30px_rgba(34,197,94,0.3)]" : "shadow-sm"
+        shadow: rank.id >= 7
+          ? (isDragon ? "shadow-[0_10px_30px_rgba(239,68,68,0.3)]" : "shadow-[0_10px_30px_rgba(34,197,94,0.3)]")
+          : "shadow-sm"
       };
     }
     if (isDark) {
@@ -310,7 +314,7 @@ export default function RanksPage() {
                     {/* 🌟 จุดเชื่อม Timeline (Dot) 🌟 */}
                     <div className={`absolute top-1/2 left-[-32px] md:left-[-80px] -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full border-4 flex items-center justify-center transition-colors duration-500 z-20 ${isCurrent ? 'shadow-md scale-110' : 'shadow-sm'} 
                       ${isUnlocked ? (isHacker ? 'bg-[#0a0a0a]' : isDark ? 'bg-[#1E1B2E]' : 'bg-white') : (isHacker ? 'bg-[#111]' : isDark ? 'bg-[#2D223B]' : 'bg-orange-50')}`}
-                      style={{ borderColor: isUnlocked ? rTheme.hex : (isHacker ? '#166534' : isDark ? '#382E54' : 'white') }}
+                      style={{ borderColor: isUnlocked ? rTheme.hex : (isHacker ? (isDragon ? '#7f1d1d' : '#166534') : isDark ? '#382E54' : 'white') }}
                     >
                       {isCurrent && <div className="w-3 h-3 rounded-full animate-pulse transition-colors duration-500" style={{ backgroundColor: rTheme.hex }}></div>}
                     </div>

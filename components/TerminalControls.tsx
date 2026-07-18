@@ -53,7 +53,7 @@ export default function TerminalControls({
     const { theme: activeTheme, resolvedTheme } = useTheme();
     const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
     const isDark = currentTheme === 'dark';
-    const isHacker = currentTheme === 'hacker';
+    const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
     // 🌟 State สำหรับเปิด/ปิด แผงสีแบบเต็ม
     const [showAllColors, setShowAllColors] = useState(false);

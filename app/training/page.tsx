@@ -51,7 +51,7 @@ export default function TrainingPage() {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
-  const isHacker = currentTheme === 'hacker';
+  const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   // -- User & Session States --
   const [isInitializing, setIsInitializing] = useState(true);
@@ -85,7 +85,9 @@ export default function TrainingPage() {
   // 🌟 ให้ terminal เปลี่ยนชุดสีตามธีมเว็บอัตโนมัติ
   useEffect(() => {
     if (!currentTheme) return;
-    if (isHacker) { setTerminalColor('retro'); setTerminalBg('#050505'); }
+    if (currentTheme === 'dragon') { setTerminalColor('red'); setTerminalBg('#140303'); }
+    else if (currentTheme === 'sakura') { setTerminalColor('pink'); setTerminalBg('#1a0f16'); }
+    else if (isHacker) { setTerminalColor('retro'); setTerminalBg('#050505'); }
     else if (isDark) { setTerminalColor('yellow'); setTerminalBg('#1E1B2E'); }
     else { setTerminalColor('orange'); setTerminalBg('#050505'); }
   }, [currentTheme, isDark, isHacker]);
@@ -217,8 +219,8 @@ export default function TrainingPage() {
   const themeText = isHacker ? 'text-green-500' : isDark ? (isLinux ? 'text-yellow-400' : 'text-blue-400') : (isLinux ? 'text-orange-500' : 'text-blue-500');
   const themeBg = isHacker ? 'bg-green-600' : isDark ? (isLinux ? 'bg-yellow-400' : 'bg-blue-500') : (isLinux ? 'bg-orange-500' : 'bg-blue-500');
 
-  const wpmTextHex = isHacker ? '#22c55e' : isDark ? '#ffffff' : '#431407';
-  const highlightHex = isHacker ? '#4ade80' : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
+  const wpmTextHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#ffffff' : '#431407';
+  const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
 
   if (isInitializing) return <HackerLoadingScreen />;
 

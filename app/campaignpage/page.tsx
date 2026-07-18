@@ -18,7 +18,7 @@ export default function CampaignPage() {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
-  const isHacker = currentTheme === 'hacker';
+  const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   const [user, setUser] = useState<any>(null);
   const [targetOs, setTargetOs] = useState<'linux' | 'windows'>('linux');
@@ -119,7 +119,7 @@ export default function CampaignPage() {
   // 🌟 Dynamic Theme Variables 🌟
   const isLinux = targetOs === 'linux';
 
-  const themeColorHex = isHacker ? '#22c55e' : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
+  const themeColorHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
   const themeText = isHacker ? 'text-green-500' : isDark ? (isLinux ? 'text-yellow-400' : 'text-blue-400') : (isLinux ? 'text-orange-500' : 'text-blue-500');
   const themeBg = isHacker ? 'bg-green-600' : isDark ? (isLinux ? 'bg-yellow-400' : 'bg-blue-500') : (isLinux ? 'bg-orange-500' : 'bg-blue-500');
   const themeLightBg = isHacker ? 'bg-green-900/30' : isDark ? (isLinux ? 'bg-yellow-400/20' : 'bg-blue-500/20') : (isLinux ? 'bg-orange-100' : 'bg-blue-100');

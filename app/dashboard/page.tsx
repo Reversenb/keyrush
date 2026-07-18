@@ -7,6 +7,7 @@ import { motion, AnimatePresence, animate } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
+import CoinIcon from '@/components/CoinIcon';
 import Navbar from '@/components/Navbar';
 import { apiFetch, clearUserState } from '@/lib/api';
 import { RANKS as BASE_RANKS } from '@/lib/ranks';
@@ -17,8 +18,8 @@ import { RANKS as BASE_RANKS } from '@/lib/ranks';
 // จุดข้อมูลมีวงแหวนสี surface, เส้นอ้างอิงค่าเฉลี่ย, crosshair + tooltip ตอน hover
 // (วาดใน viewBox สัดส่วนจริง ไม่ใช้ preserveAspectRatio=none ที่ทำให้เส้น/ตัวเลขเบี้ยว)
 // =========================================================================
-function WpmChart({ points, avg, accentHex, isDark, isHacker }: {
-  points: number[]; avg: number; accentHex: string; isDark: boolean; isHacker: boolean;
+function WpmChart({ points, avg, accentHex, isDark, isHacker, isDragon, isSakura }: {
+  points: number[]; avg: number; accentHex: string; isDark: boolean; isHacker: boolean; isDragon: boolean; isSakura: boolean;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -42,9 +43,9 @@ function WpmChart({ points, avg, accentHex, isDark, isHacker }: {
     : '';
 
   // สีตามธีม: กริด/ตัวหนังสือใช้ ink ของธีม (ไม่ใช้สี series กับข้อความ)
-  const gridColor = isHacker ? 'rgba(34,197,94,0.14)' : isDark ? 'rgba(255,255,255,0.10)' : 'rgba(154,52,18,0.14)';
-  const inkMuted = isHacker ? 'rgba(74,222,128,0.55)' : isDark ? 'rgba(255,255,255,0.5)' : 'rgba(124,45,18,0.6)';
-  const ink = isHacker ? '#86efac' : isDark ? '#ffffff' : '#431407';
+  const gridColor = isHacker ? (isDragon ? 'rgba(239,68,68,0.14)' : 'rgba(34,197,94,0.14)') : isDark ? 'rgba(255,255,255,0.10)' : isSakura ? 'rgba(190,24,93,0.14)' : 'rgba(154,52,18,0.14)';
+  const inkMuted = isHacker ? (isDragon ? 'rgba(248,113,113,0.55)' : 'rgba(74,222,128,0.55)') : isDark ? 'rgba(255,255,255,0.5)' : isSakura ? 'rgba(157,23,77,0.6)' : 'rgba(124,45,18,0.6)';
+  const ink = isHacker ? (isDragon ? '#fca5a5' : '#86efac') : isDark ? '#ffffff' : isSakura ? '#500724' : '#431407';
   const surface = isHacker ? '#0a0a0a' : isDark ? '#1E1B2E' : '#ffffff';
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -169,10 +170,11 @@ export default function DashboardPage() {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
-  const isHacker = currentTheme === 'hacker';
+  const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
-  // สีหลักของแต่ละธีม (ส้ม -> เหลือง -> เขียว)
-  const primaryHex = isHacker ? '#22c55e' : (isDark ? '#facc15' : '#f97316');
+  // สีหลักของแต่ละธีม (ส้ม -> เหลือง -> เขียว/แดง -> ชมพู)
+  const isSakura = currentTheme === 'sakura';
+  const primaryHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : (isDark ? '#facc15' : isSakura ? '#ec4899' : '#f97316');
 
   useEffect(() => {
     setIsMounted(true); // ✅ เซ็ตค่า Mounted เมื่อรันฝั่ง Client สำเร็จ
@@ -261,7 +263,7 @@ export default function DashboardPage() {
     const onDark = isDark || isHacker;
     if (acc < 80) return onDark ? '#fb7185' : '#e11d48';
     if (acc < 95) return onDark ? '#fbbf24' : '#d97706';
-    return onDark ? '#4ade80' : '#16a34a';
+    return onDark ? (isDragon ? '#f87171' : '#4ade80') : (isDragon ? '#dc2626' : '#16a34a');
   };
 
   const getAccColorClass = (acc: number) => {
@@ -415,10 +417,11 @@ export default function DashboardPage() {
             </motion.div>
 
             {/* 🌟 STATS CARDS 🌟 */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
               {[
                 { label: 'Lessons Completed', value: totalLessonsCompleted, icon: <BookOpen size={28} strokeWidth={3} />, color: 'blue' },
                 { label: 'Total XP', value: totalExp, icon: <Zap size={28} strokeWidth={3} fill="currentColor" />, color: 'primary', isXp: true },
+                { label: 'Coins', value: user?.coins || 0, icon: <CoinIcon size={28} />, color: 'amber', isCoins: true },
                 { label: 'Your Rank', title: currentRank.title, icon: <Trophy size={28} strokeWidth={3} />, color: 'pink', rankColor: currentRank.color }
               ].map((stat, i) => {
                 const cardContent = (
@@ -435,7 +438,7 @@ export default function DashboardPage() {
                           {stat.title.toUpperCase()}
                         </p>
                       ) : (
-                        <p className={`text-4xl font-black tracking-tight cute-header text-orange-600 dark:text-yellow-400 hacker:text-green-500 transition-colors`}>
+                        <p className={`text-4xl font-black tracking-tight cute-header transition-colors ${stat.isCoins ? 'text-amber-500 dark:text-yellow-400 hacker:text-green-400' : 'text-orange-600 dark:text-yellow-400 hacker:text-green-500'}`}>
                           <AnimatedNumber value={stat.value as number} start={!loading} />
                         </p>
                       )}
@@ -444,9 +447,10 @@ export default function DashboardPage() {
                 );
                 const cardClass = "glass-card p-8 hover:-translate-y-2 transition-all duration-300 group shadow-sm flex flex-col justify-center";
 
-                // 🏆 การ์ดแรงค์กดได้ทั้งกล่อง → เด้งไปหน้าตารางแรงค์
-                return stat.title ? (
-                  <Link key={i} href="/ranks" title="ดูตารางแรงค์ทั้งหมด" className={`${cardClass} cursor-pointer`}>
+                // 🏆 การ์ดแรงค์ → ตารางแรงค์ | 🪙 การ์ดเหรียญ → ร้านค้า (กดได้ทั้งกล่อง)
+                const linkHref = stat.title ? '/ranks' : stat.isCoins ? '/shop' : null;
+                return linkHref ? (
+                  <Link key={i} href={linkHref} title={stat.title ? 'ดูตารางแรงค์ทั้งหมด' : 'ไปที่ร้านค้า'} className={`${cardClass} cursor-pointer`}>
                     {cardContent}
                   </Link>
                 ) : (
@@ -478,7 +482,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="relative w-full z-10">
-                  <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} />
+                  <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} isDragon={isDragon} isSakura={isSakura} />
                 </div>
               </div>
 

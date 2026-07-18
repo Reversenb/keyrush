@@ -11,7 +11,7 @@ import { apiFetch, clearUserState, logout } from '@/lib/api';
 import {
   Map as MapIcon, Lock, Play, Zap, Trophy,
   Terminal, ShieldCheck, Flag, Sparkles, Code, ChevronRight,
-  MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon,
+  MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon, ShoppingBag, Heart, Flame,
   CheckCircle, AlertTriangle, RefreshCw
 } from 'lucide-react';
 
@@ -195,11 +195,25 @@ export default function KeyRushOrangeLandingPage() {
     setShowDropdown(false);
   };
 
+  // 🌟 สลับธีม: พื้นฐาน 3 ธีม + ธีมพรีเมียมที่ "ใส่อยู่" (ระบบเดียวกับ Navbar)
+  const equippedThemeId: string | null = user?.activeTheme ?? null;
+  const themeRing = ['light', 'dark', 'hacker', ...(equippedThemeId ? [equippedThemeId] : [])];
+
   const cycleTheme = () => {
-    if (currentTheme === 'light') setTheme('dark');
-    else if (currentTheme === 'dark') setTheme('hacker');
-    else setTheme('light');
+    const idx = themeRing.indexOf(currentTheme || 'light');
+    setTheme(themeRing[(idx + 1) % themeRing.length]);
   };
+
+  // ชื่อ + ไอคอนของแต่ละธีม (ครอบคลุมธีมพรีเมียม ไม่งั้นปุ่มจะว่าง/ขึ้น Cute ผิดๆ)
+  const THEME_META: Record<string, { label: string; icon: React.ReactNode }> = {
+    light: { label: 'Cute', icon: <Sun size={18} strokeWidth={3} /> },
+    dark: { label: 'Dark', icon: <Moon size={18} strokeWidth={3} /> },
+    hacker: { label: 'Hacker', icon: <Code size={18} strokeWidth={3} /> },
+    sakura: { label: 'Sakura', icon: <Heart size={18} strokeWidth={3} fill="currentColor" /> },
+    dragon: { label: 'Red Dragon', icon: <Flame size={18} strokeWidth={3} /> },
+  };
+  const themeMeta = THEME_META[currentTheme || 'light'] || THEME_META.light;
+  const nextThemeMeta = THEME_META[themeRing[(themeRing.indexOf(currentTheme || 'light') + 1) % themeRing.length]] || THEME_META.light;
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 40 },
@@ -329,9 +343,7 @@ export default function KeyRushOrangeLandingPage() {
 
           <div className="flex items-center gap-2 md:gap-4 ml-4 border-l-4 border-white dark:border-[#382E54] hacker:border-green-800 pl-4 md:pl-6 transition-colors">
             <button onClick={cycleTheme} className="btn-squishy hidden md:flex items-center justify-center p-2.5 rounded-2xl border-4 bg-white dark:bg-yellow-400 hacker:bg-[#0a0a0a] text-orange-600 dark:text-[#1E1B2E] hacker:text-green-500 border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d]">
-              {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
-              {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
-              {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}
+              {themeMeta.icon}
             </button>
 
             {user ? (
@@ -374,6 +386,11 @@ export default function KeyRushOrangeLandingPage() {
                             <MapIcon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" /> Mission
                           </div>
                         </button>
+                        <button onClick={() => { setShowDropdown(false); router.push('/shop'); }} className={dropdownBtnStyle}>
+                          <div className="flex items-center gap-3">
+                            <ShoppingBag size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" /> Shop
+                          </div>
+                        </button>
                         <button onClick={() => { setShowDropdown(false); router.push('/profile'); }} className={dropdownBtnStyle}>
                           <div className="flex items-center gap-3">
                             <UserIcon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" /> Edit Profile
@@ -382,13 +399,11 @@ export default function KeyRushOrangeLandingPage() {
 
                         <button onClick={cycleTheme} className={dropdownBtnStyle}>
                           <div className="flex items-center gap-3">
-                            {currentTheme === 'dark' && <Moon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />}
-                            {currentTheme === 'light' && <Sun size={18} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />}
-                            {currentTheme === 'hacker' && <Code size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />}
+                            <span className="group-hover:scale-110 transition-transform">{themeMeta.icon}</span>
                             Theme
                           </div>
                           <span className="text-[10px] opacity-60 uppercase tracking-wider">
-                            {currentTheme === 'dark' ? 'Dark' : currentTheme === 'hacker' ? 'Hacker' : 'Cute'}
+                            {themeMeta.label}
                           </span>
                         </button>
 
@@ -456,10 +471,8 @@ export default function KeyRushOrangeLandingPage() {
               <div className="w-full h-1 bg-orange-100/50 dark:bg-white/10 hacker:bg-green-900/50 my-2 rounded-full"></div>
               <button onClick={cycleTheme} className={dropdownBtnStyle}>
                 <div className="flex items-center gap-3">
-                  {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
-                  {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
-                  {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}
-                  Switch to {currentTheme === 'dark' ? 'Hacker Mode' : currentTheme === 'hacker' ? 'Cute Mode' : 'Dark Mode'}
+                  {themeMeta.icon}
+                  Switch to {nextThemeMeta.label} Mode
                 </div>
               </button>
             </motion.div>

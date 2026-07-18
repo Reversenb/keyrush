@@ -5,7 +5,9 @@
 
 /* 🌟 เคล็ดลับสำคัญ: บังคับให้ Tailwind v4 เปลี่ยนธีมตามปุ่มกดเท่านั้น (ปิดการดึงธีมจากระบบเครื่อง) 🌟 */
 @custom-variant dark (&:where(.dark, .dark *));
-@custom-variant hacker (&:where(.hacker, .hacker *));
+/* 🐉 Dragon ยืมสไตล์ชุดเดียวกับ hacker: (ซึ่งเขียนไว้ครบทุกจุด = ไม่รั่ว)
+   แล้วค่อย override พาเลตต์เขียว → แดงทับอีกที */
+@custom-variant hacker (&:where(.hacker, .hacker *, .dragon, .dragon *));
 
 :root {
   /* 🍊 โหมดสว่าง: โทนสีหลัก ส้มสดใส (อิงตาม bg-orange-50 และ text-orange-950) */
@@ -24,9 +26,188 @@
 }
 .hacker {
   /* 💻 โหมดแฮกเกอร์: พื้นดำไม่สนิท / ตัวหนังสือเขียว */
-  --background: #001809;       
-  --foreground: #4ade80; /* สี green-400 */     
+  --background: #001809;
+  --foreground: #4ade80; /* สี green-400 */
 }
+
+/* =========================================================================
+   🛍️ ธีมพรีเมียม (ซื้อจากร้านค้า)
+   เทคนิค: ยืมสไตล์ธีมพื้นฐานมาทั้งชุด (sakura=สว่าง, dragon=มืด)
+   แล้ว override ตัวแปรสีของ Tailwind ทับ → เปลี่ยนสีทั้งเว็บโดยไม่ต้องแก้คลาส
+   ⚠️ ฝั่ง JS ต้องให้ isDark รู้จัก dragon ด้วย (ดู lib/themes.ts)
+   ========================================================================= */
+
+/* 🌸 Sakura — ฐานธีมสว่าง: เปลี่ยนพาเลตต์ส้มทั้งชุดเป็นชมพูหวาน
+   ⚠️ ต้องใช้ :root.sakura ไม่ใช่ .sakura เฉยๆ — เพราะ Tailwind ประกาศตัวแปรสีไว้ที่
+   :root ซึ่ง specificity เท่ากัน (0,1,0) และอยู่ "หลัง" ในไฟล์ที่คอมไพล์ออกมา
+   ถ้าใช้ .sakura เฉยๆ :root จะชนะ → override ไม่ติดเลย */
+:root.sakura {
+  --background: #fff1f5;
+  --foreground: #500724;
+  --shimmer-base: rgba(236, 72, 153, 0.15);
+  --shimmer-highlight: rgba(236, 72, 153, 0.35);
+
+  --color-orange-50: #fff1f2;
+  --color-orange-100: #ffe4e6;
+  --color-orange-200: #fecdd3;
+  --color-orange-300: #fda4af;
+  --color-orange-400: #fb7185;
+  --color-orange-500: #ec4899;
+  --color-orange-600: #db2777;
+  --color-orange-700: #be185d;
+  --color-orange-800: #9d174d;
+  --color-orange-900: #831843;
+  --color-orange-950: #500724;
+
+  /* สีรองที่ธีมสว่างใช้ประกอบ (amber) ให้เป็นโทนชมพูตาม — ต้องครบทุกเฉด
+     ไม่งั้นเฉดที่ตกหล่นจะโผล่เป็นส้ม/น้ำตาลเข้มคาไว้ (เช่น border-amber-600) */
+  --color-amber-50: #fff1f2;
+  --color-amber-100: #ffe4e6;
+  --color-amber-200: #fecdd3;
+  --color-amber-300: #fda4af;
+  --color-amber-400: #f472b6;
+  --color-amber-500: #ec4899;
+  --color-amber-600: #db2777;
+  --color-amber-700: #be185d;
+  --color-amber-800: #9d174d;
+  --color-amber-900: #831843;
+  --color-amber-950: #500724;
+
+  /* สีที่ประกาศเองใน @theme (ค่าตั้งต้นเป็นส้ม) */
+  --color-primary: #ec4899;
+  --color-primary-light: #fda4af;
+  --color-accent: #f472b6;
+  --color-peach: #ffe4e6;
+  --color-surface-darker: #fff1f5;
+}
+
+/* 🐉 Red Dragon — ฐานธีม Hacker: เปลี่ยนพาเลตต์เขียวทั้งชุดเป็นแดงเพลิง
+   ⚠️ ใช้ :root.dragon ด้วยเหตุผลเดียวกับ Sakura (ต้องชนะ :root ของ Tailwind) */
+:root.dragon {
+  --background: #140303;
+  --foreground: #fca5a5;
+
+  /* เขียวทุกเฉดที่ hacker ใช้ → แดง (ครอบคลุม hacker:*-green-* กว่า 500 จุดในทีเดียว) */
+  --color-green-100: #fee2e2;
+  --color-green-200: #fecaca;
+  --color-green-300: #fca5a5;
+  --color-green-400: #f87171;
+  --color-green-500: #ef4444;
+  --color-green-600: #dc2626;
+  --color-green-700: #b91c1c;
+  --color-green-800: #991b1b;
+  --color-green-900: #7f1d1d;
+  --color-green-950: #450a0a;
+
+  /* ตระกูลเขียวอื่นๆ ต้องครบทุกเฉดด้วย ไม่งั้นคลาสที่ไม่มี hacker: กำกับ
+     (เช่น text-emerald-500 ของแรงค์ Keyrush Master) จะโผล่เป็นเขียวคาไว้ */
+  --color-emerald-50: #fef2f2;
+  --color-emerald-100: #fee2e2;
+  --color-emerald-200: #fecaca;
+  --color-emerald-300: #fca5a5;
+  --color-emerald-400: #f87171;
+  --color-emerald-500: #ef4444;
+  --color-emerald-600: #dc2626;
+  --color-emerald-700: #b91c1c;
+  --color-emerald-800: #991b1b;
+  --color-emerald-900: #7f1d1d;
+  --color-emerald-950: #450a0a;
+
+  --color-teal-300: #fca5a5;
+  --color-teal-400: #f87171;
+  --color-teal-500: #ef4444;
+  --color-teal-600: #dc2626;
+  --color-teal-700: #b91c1c;
+
+  --color-lime-300: #fca5a5;
+  --color-lime-400: #f87171;
+  --color-lime-500: #ef4444;
+}
+
+/* -------------------------------------------------------------------------
+   🐉 Dragon: ธีม hacker ฝังสีเขียว/ดำเป็น hex ตรงๆ อยู่ 5 สี (~446 จุด)
+   ซึ่ง override ด้วยตัวแปรไม่ได้ → ดักจากชื่อคลาสแล้วทับเฉพาะในขอบเขต .dragon
+   (แมตช์แบบ contains + ไม่สนตัวพิมพ์ → กฎเดียวครอบคลุม hacker:bg-[...] ด้วย)
+   ------------------------------------------------------------------------- */
+.dragon [class*="bg-[#0a0a0a]" i] { background-color: #140303 !important; }
+.dragon [class*="bg-[#050505]" i] { background-color: #0d0202 !important; }
+.dragon [class*="bg-[#111]" i]    { background-color: #1f0707 !important; }
+.dragon [class*="bg-[#166534]" i] { background-color: #7f1d1d !important; }
+
+.dragon [class*="border-[#166534]" i] { border-color: #991b1b !important; }
+.dragon [class*="border-[#0a0a0a]" i] { border-color: #140303 !important; }
+.dragon [class*="border-[#333]" i]    { border-color: #4a1717 !important; }
+
+/* Tailwind v4 ตีเส้น divide ด้วย border-bottom บนลูก "ทุกตัว" (ยกเว้นตัวสุดท้าย)
+   ต้องครอบลูกทุกตัว ไม่ใช่ * + * ไม่งั้นเส้นแรกหลุดเป็นสีเดิม */
+.dragon [class*="divide-[#166534]" i] > * { border-color: #991b1b !important; }
+.dragon [class*="divide-green-900" i] > * { border-color: #7f1d1d !important; }
+
+/* ตัวหนังสือสีเข้มบนปุ่มเขียว (ที่กลายเป็นแดง) → ขาวอมชมพูให้อ่านออกชัด */
+.dragon [class*="text-[#0a0a0a]" i] { color: #fff1f1 !important; }
+
+/* เงาสีเขียวทุกแบบที่ hacker ใช้ → แดง (สแกนจากโค้ดจริงทั้งหมด ไม่ตกหล่น) */
+.dragon [class*="shadow-[0_0_20px_rgba(34,197,94,0.2)]" i] { box-shadow: 0 0 20px rgba(239,68,68,0.2) !important; }
+.dragon [class*="shadow-[0_0_30px_rgba(34,197,94,0.3)]" i] { box-shadow: 0 0 30px rgba(239,68,68,0.3) !important; }
+.dragon [class*="shadow-[0_10px_0_#15803d]" i] { box-shadow: 0 10px 0 #b91c1c !important; }
+.dragon [class*="shadow-[0_10px_0_rgba(34,197,94,0.2)]" i] { box-shadow: 0 10px 0 rgba(239,68,68,0.2) !important; }
+.dragon [class*="shadow-[0_10px_30px_rgba(34,197,94,0.3)]" i] { box-shadow: 0 10px 30px rgba(239,68,68,0.3) !important; }
+.dragon [class*="shadow-[0_10px_40px_rgba(34,197,94,0.2)]" i] { box-shadow: 0 10px 40px rgba(239,68,68,0.2) !important; }
+.dragon [class*="shadow-[0_15px_30px_rgba(34,197,94,0.1)]" i] { box-shadow: 0 15px 30px rgba(239,68,68,0.1) !important; }
+.dragon [class*="shadow-[0_20px_50px_rgba(34,197,94,0.15)]" i] { box-shadow: 0 20px 50px rgba(239,68,68,0.15) !important; }
+.dragon [class*="shadow-[0_4px_0_#052e16]" i] { box-shadow: 0 4px 0 #450a0a !important; }
+.dragon [class*="shadow-[0_4px_0_#064e3b]" i] { box-shadow: 0 4px 0 #7f1d1d !important; }
+.dragon [class*="shadow-[0_4px_0_#14532d]" i] { box-shadow: 0 4px 0 #7f1d1d !important; }
+.dragon [class*="shadow-[0_4px_0_#15803d]" i] { box-shadow: 0 4px 0 #b91c1c !important; }
+.dragon [class*="shadow-[0_4px_0_#16a34a]" i] { box-shadow: 0 4px 0 #dc2626 !important; }
+.dragon [class*="shadow-[0_4px_0_#166534]" i] { box-shadow: 0 4px 0 #991b1b !important; }
+.dragon [class*="shadow-[0_6px_0_#14532d]" i] { box-shadow: 0 6px 0 #7f1d1d !important; }
+.dragon [class*="shadow-[0_6px_0_#15803d]" i] { box-shadow: 0 6px 0 #b91c1c !important; }
+.dragon [class*="shadow-[0_6px_0_#166534]" i] { box-shadow: 0 6px 0 #991b1b !important; }
+.dragon [class*="shadow-[0_8px_0_#14532d]" i] { box-shadow: 0 8px 0 #7f1d1d !important; }
+.dragon [class*="shadow-[0_8px_0_#15803d]" i] { box-shadow: 0 8px 0 #b91c1c !important; }
+.dragon [class*="shadow-[0_8px_0_#4ade80]" i] { box-shadow: 0 8px 0 #f87171 !important; }
+.dragon [class*="shadow-[0_8px_0_rgba(34,197,94,0.2)]" i] { box-shadow: 0 8px 0 rgba(239,68,68,0.2) !important; }
+.dragon [class*="shadow-[0_6px_0_#000]" i] { box-shadow: 0 6px 0 #0d0202 !important; }
+
+/* -------------------------------------------------------------------------
+   🐉 แต่ละหน้ามี <style> เขียน CSS ตรงๆ แบบ ".hacker .glass-card" ซึ่งไม่ใช่
+   Tailwind variant → ไม่รู้จัก .dragon เลยตกไปใช้ค่าพื้นฐาน (พื้นขาว/กรอบขาว)
+   จึงต้องมิเรอร์กฎเหล่านั้นมาให้ .dragon เอง
+   specificity :root.dragon .x = (0,3,0) ชนะ .hacker .x = (0,2,0) แน่นอน
+   ------------------------------------------------------------------------- */
+:root.dragon .glass-card {
+  background: rgba(20, 3, 3, 0.88);
+  border-color: #991b1b;
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
+}
+:root.dragon .cute-header { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8); }
+:root.dragon .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(239, 68, 68, 0.3); }
+:root.dragon .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(239, 68, 68, 0.6); }
+
+/* 🌸 Sakura ใช้ฐานสว่าง (การ์ดขาวถูกต้องแล้ว) แค่ปรับเงา/แถบเลื่อนให้เป็นโทนชมพู */
+:root.sakura .glass-card { box-shadow: 0 10px 30px rgba(236, 72, 153, 0.12); }
+:root.sakura .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(236, 72, 153, 0.3); }
+:root.sakura .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(236, 72, 153, 0.6); }
+
+/* เงาสีส้มทุกแบบที่ธีมสว่างใช้ → ชมพู (สแกนจากโค้ดจริงทั้งหมด ไม่ตกหล่น) */
+.sakura [class*="shadow-[0_0_20px_rgba(249,115,22,0.2)]" i] { box-shadow: 0 0 20px rgba(236,72,153,0.2) !important; }
+.sakura [class*="shadow-[0_0_30px_rgba(249,115,22,0.4)]" i] { box-shadow: 0 0 30px rgba(236,72,153,0.4) !important; }
+.sakura [class*="shadow-[0_10px_0_#c2410c]" i] { box-shadow: 0 10px 0 #be185d !important; }
+.sakura [class*="shadow-[0_10px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 10px 0 rgba(236,72,153,0.2) !important; }
+.sakura [class*="shadow-[0_10px_40px_rgba(249,115,22,0.12)]" i] { box-shadow: 0 10px 40px rgba(236,72,153,0.12) !important; }
+.sakura [class*="shadow-[0_15px_30px_rgba(249,115,22,0.15)]" i] { box-shadow: 0 15px 30px rgba(236,72,153,0.15) !important; }
+.sakura [class*="shadow-[0_20px_50px_rgba(249,115,22,0.15)]" i] { box-shadow: 0 20px 50px rgba(236,72,153,0.15) !important; }
+.sakura [class*="shadow-[0_4px_0_#c2410c]" i] { box-shadow: 0 4px 0 #be185d !important; }
+.sakura [class*="shadow-[0_4px_0_#ea580c]" i] { box-shadow: 0 4px 0 #db2777 !important; }
+.sakura [class*="shadow-[0_4px_0_#fdba74]" i] { box-shadow: 0 4px 0 #fda4af !important; }
+.sakura [class*="shadow-[0_4px_0_#fed7aa]" i] { box-shadow: 0 4px 0 #fecdd3 !important; }
+.sakura [class*="shadow-[0_6px_0_#c2410c]" i] { box-shadow: 0 6px 0 #be185d !important; }
+.sakura [class*="shadow-[0_6px_0_#fed7aa]" i] { box-shadow: 0 6px 0 #fecdd3 !important; }
+.sakura [class*="shadow-[0_6px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 6px 0 rgba(236,72,153,0.2) !important; }
+.sakura [class*="shadow-[0_8px_0_#c2410c]" i] { box-shadow: 0 8px 0 #be185d !important; }
+.sakura [class*="shadow-[0_8px_0_#fed7aa]" i] { box-shadow: 0 8px 0 #fecdd3 !important; }
+.sakura [class*="shadow-[0_8px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 8px 0 rgba(236,72,153,0.2) !important; }
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

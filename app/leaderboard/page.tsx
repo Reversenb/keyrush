@@ -17,7 +17,7 @@ export default function LeaderboardPage() {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
   const isDark = currentTheme === 'dark';
-  const isHacker = currentTheme === 'hacker';
+  const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   const [user, setUser] = useState<any>(null);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
@@ -481,6 +481,12 @@ export default function LeaderboardPage() {
                                 </Link>
                                 {isMe && <span className={`text-[9px] md:text-[10px] px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[#1E1B2E] font-black uppercase tracking-widest flex-shrink-0 ${styles.bgMain}`}>You</span>}
                               </p>
+                              {/* 🏷️ ฉายาจากร้านค้า */}
+                              {player.title && (
+                                <span className="inline-block mt-0.5 text-[9px] md:text-[10px] font-black px-2 py-0.5 rounded-lg border-2 shadow-sm bg-orange-100 border-white text-orange-600 dark:bg-yellow-400/15 dark:border-[#4B3965] dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
+                                  {player.title}
+                                </span>
+                              )}
                               <p className={`text-[9px] md:hidden mt-0.5 uppercase tracking-wider font-black ${rankDetails.color}`}>
                                 LVL {level} · {rankDetails.title}
                               </p>

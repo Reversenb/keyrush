@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
   Terminal, LayoutDashboard, User as UserIcon, LogOut,
-  ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code
+  ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code, Zap, Heart, Flame, ShoppingBag
 } from 'lucide-react'; // 🌟 เพิ่มไอคอน Code สำหรับธีม Hacker
 import { apiFetch, logout } from '@/lib/api';
+import CoinIcon from '@/components/CoinIcon';
 
 interface NavbarProps {
   theme?: 'linux' | 'windows';
@@ -57,6 +58,14 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
       } catch (e) { }
     };
     syncUser();
+
+    // 🛍️ ฟังสัญญาณจากหน้า Shop: กดใส่/ถอดธีมแล้วให้วงจรสลับธีมอัปเดตทันที ไม่ต้องรีเฟรช
+    const onUserUpdated = () => {
+      const s = localStorage.getItem('keyrush_user');
+      if (s) { try { setUser(JSON.parse(s)); } catch (e) { } }
+    };
+    window.addEventListener('keyrush-user-updated', onUserUpdated);
+    return () => window.removeEventListener('keyrush-user-updated', onUserUpdated);
   }, []);
 
   useEffect(() => {
@@ -94,17 +103,33 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     return 'Hacker';
   };
 
-  // 🌟 ฟังก์ชันสลับ 3 ธีม (Cute -> Dark -> Hacker -> Cute) 🌟
+  // 🌟 สลับธีม: พื้นฐาน 3 ธีม + ธีมพรีเมียมเฉพาะที่ "กดใส่อยู่" เท่านั้น 🌟
+  // (ซื้อแล้วแต่ยังไม่ใส่ = ไม่โผล่ในวงจร / กดถอดในร้าน = หายไป)
+  const equippedThemeId: string | null = user?.activeTheme ?? null;
+  const themeRing = ['light', 'dark', 'hacker', ...(equippedThemeId ? [equippedThemeId] : [])];
+
   const cycleTheme = () => {
-    if (currentTheme === 'light') setTheme('dark');
-    else if (currentTheme === 'dark') setTheme('hacker');
-    else setTheme('light');
+    const idx = themeRing.indexOf(currentTheme || 'light');
+    setTheme(themeRing[(idx + 1) % themeRing.length]);
   };
+
+  // ชื่อ + ไอคอนของธีมปัจจุบัน (ครอบคลุมธีมพรีเมียมด้วย ไม่งั้นปุ่มจะว่างเปล่า)
+  const THEME_META: Record<string, { label: string; icon: React.ReactNode }> = {
+    light: { label: 'Cute', icon: <Sun size={20} strokeWidth={3} /> },
+    dark: { label: 'Dark', icon: <Moon size={20} strokeWidth={3} /> },
+    hacker: { label: 'Hacker', icon: <Code size={20} strokeWidth={3} /> },
+    sakura: { label: 'Sakura', icon: <Heart size={20} strokeWidth={3} fill="currentColor" /> },
+    dragon: { label: 'Red Dragon', icon: <Flame size={20} strokeWidth={3} /> },
+  };
+  const themeMeta = THEME_META[currentTheme || 'light'] || THEME_META.light;
+  // ธีมถัดไปในวงจร (ไว้โชว์ "Switch to ..." ในเมนูมือถือ)
+  const nextThemeMeta = THEME_META[themeRing[(themeRing.indexOf(currentTheme || 'light') + 1) % themeRing.length]] || THEME_META.light;
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'Mission', path: '/map' },
     { name: 'Leaderboard', path: '/leaderboard' },
+    { name: 'Shop', path: '/shop' },
     { name: 'Docs', path: '/docs' }
   ];
 
@@ -185,12 +210,10 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
           {/* 🌟 3D Theme Toggle Button (Cute → Dark → Hacker) 🌟 */}
           <button
             onClick={cycleTheme}
-            title={`ธีมปัจจุบัน: ${currentTheme === 'dark' ? 'Dark' : currentTheme === 'hacker' ? 'Hacker' : 'Cute'} — กดเพื่อสลับ`}
+            title={`ธีมปัจจุบัน: ${themeMeta.label} — กดเพื่อสลับ`}
             className={`rounded-2xl p-2.5 ${styles.btn3D}`}
           >
-            {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
-            {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
-            {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}
+            {themeMeta.icon}
           </button>
 
           {user ? (
@@ -210,13 +233,35 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -10 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="absolute right-0 mt-4 w-64 bg-white/95 dark:bg-[#1E1B2E]/95 hacker:bg-[#0a0a0a]/95 backdrop-blur-2xl border-4 border-white dark:border-[#382E54] hacker:border-green-600 rounded-[24px] shadow-xl overflow-hidden z-50 p-3"
+                    className="absolute right-0 mt-4 w-72 bg-white/95 dark:bg-[#1E1B2E]/95 hacker:bg-[#0a0a0a]/95 backdrop-blur-2xl border-4 border-white dark:border-[#382E54] hacker:border-green-600 rounded-[24px] shadow-xl overflow-hidden z-50 p-3"
                   >
                     <div className="px-4 py-3 mb-3 bg-orange-50/80 dark:bg-black/20 hacker:bg-[#111] rounded-2xl border-2 border-white dark:border-white/5 hacker:border-green-900/30">
                       <p className={`font-black tracking-tight truncate text-base ${styles.textMain}`}>{getShowName()}</p>
                       <p className="text-xs text-orange-950/50 dark:text-white/50 hacker:text-green-500/60 truncate mt-0.5 font-bold">
                         {user.email || user.username || 'Hacker Operative'}
                       </p>
+
+                      {/* 🪙 เหรียญ + ⚡ EXP รวม (Linux + Windows) — รองรับเลข 5 หลักโดยไม่ตัดคำ */}
+                      <div className="grid grid-cols-2 gap-2 mt-3">
+                        <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl border-2 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-900 min-w-0">
+                          <CoinIcon size={18} className="shrink-0 text-amber-500 dark:text-yellow-400 hacker:text-green-500" />
+                          <div className="min-w-0">
+                            <p className="text-[8px] font-black uppercase tracking-widest opacity-50 leading-none">Coins</p>
+                            <p className="text-sm font-black tabular-nums whitespace-nowrap text-amber-500 dark:text-yellow-400 hacker:text-green-400 leading-tight">
+                              {(user.coins ?? 0).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 px-2.5 py-2 rounded-xl border-2 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-900 min-w-0">
+                          <Zap size={16} strokeWidth={3} className="shrink-0 text-orange-500 dark:text-yellow-400 hacker:text-green-500 fill-current" />
+                          <div className="min-w-0">
+                            <p className="text-[8px] font-black uppercase tracking-widest opacity-50 leading-none">Total EXP</p>
+                            <p className="text-sm font-black tabular-nums whitespace-nowrap text-orange-600 dark:text-yellow-400 hacker:text-green-400 leading-tight">
+                              {(((user.linuxExp ?? 0) + (user.windowsExp ?? 0))).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -231,6 +276,16 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
                           </div>
                         </button>
                       )}
+
+                      <button
+                        onClick={() => { setShowDropdown(false); router.push('/shop'); }}
+                        className={`${styles.dropdownBtn}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ShoppingBag size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+                          Shop
+                        </div>
+                      </button>
 
                       <button
                         onClick={() => { setShowDropdown(false); router.push('/profile'); }}
@@ -248,13 +303,11 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
                         className={`${styles.dropdownBtn}`}
                       >
                         <div className="flex items-center gap-3">
-                          {currentTheme === 'dark' && <Moon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />}
-                          {currentTheme === 'light' && <Sun size={18} strokeWidth={3} className="group-hover:rotate-90 transition-transform" />}
-                          {currentTheme === 'hacker' && <Code size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />}
+                          <span className="group-hover:scale-110 transition-transform">{themeMeta.icon}</span>
                           Theme
                         </div>
                         <span className="text-[10px] opacity-60 uppercase tracking-wider">
-                          {currentTheme === 'dark' ? 'Dark' : currentTheme === 'hacker' ? 'Hacker' : 'Cute'}
+                          {themeMeta.label}
                         </span>
                       </button>
 
@@ -322,10 +375,8 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
               className={`${styles.dropdownBtn} py-4`}
             >
               <div className="flex items-center gap-3">
-                {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
-                {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
-                {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}
-                Switch to {currentTheme === 'cute' ? 'Cute Mode' : currentTheme === 'dark' ? 'Hacker Mode' : currentTheme === 'hacker' ? 'Cute Mode' : 'Dark Mode'}
+                {themeMeta.icon}
+                Switch to {nextThemeMeta.label} Mode
               </div>
             </button>
           </motion.div>
