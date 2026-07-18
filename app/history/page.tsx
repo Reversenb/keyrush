@@ -6,9 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
-import Link from 'next/link';
 import {
-  History as HistoryIcon, ArrowLeft, Terminal, Monitor, Database,
+  History as HistoryIcon, Terminal, Monitor, Database,
   FileText, Clock, Star, X, ListFilter, Zap, ChevronLeft, ChevronRight, CalendarDays
 } from 'lucide-react';
 import { apiFetch, clearUserState } from '@/lib/api';
@@ -288,10 +287,6 @@ export default function HistoryPage() {
         {/* 🌟 Header & Back Button 🌟 */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-2">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <Link href="/dashboard" className="inline-flex items-center gap-2 font-black text-xs uppercase tracking-widest transition-all mb-4 group btn-squishy px-5 py-2.5 rounded-2xl border-4 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-200 dark:border-[#4B3965] hacker:border-green-800 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#1E1B2E] hacker:shadow-[0_4px_0_#166534] text-orange-500 dark:text-yellow-400 hacker:text-green-500 hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#111]">
-              <ArrowLeft size={16} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
-              Return to Dashboard
-            </Link>
             <h1 className="text-4xl md:text-6xl font-black text-orange-950 dark:text-white hacker:text-white tracking-tighter uppercase drop-shadow-sm flex items-center gap-4 cute-header transition-colors">
               <HistoryIcon className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" size={48} strokeWidth={3} />
               History

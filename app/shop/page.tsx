@@ -14,7 +14,7 @@ import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import {
-  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2
+  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X
 } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import { apiFetch, clearUserState } from '@/lib/api';
@@ -53,6 +53,8 @@ export default function ShopPage() {
   const [view, setView] = useState<'shop' | 'inventory'>('shop');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
+  // 🔍 ฉายาที่กดดูแบบขยาย (popup สไตล์เดียวกับหน้า Docs)
+  const [selectedTitle, setSelectedTitle] = useState<ShopItem | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -292,7 +294,7 @@ export default function ShopPage() {
             {view === 'inventory' && <span className="ml-0.5 opacity-70">({ownedCountOf('theme')})</span>}
           </button>
           <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>
-            <MousePointer2 size={16} strokeWidth={3} /> เมาส์
+            <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
             {view === 'inventory' && <span className="ml-0.5 opacity-70">({ownedCountOf('cursor')})</span>}
           </button>
         </div>
@@ -319,6 +321,90 @@ export default function ShopPage() {
         </div>
       </main>
 
+      {/* 🔍 Popup ขยายฉายา — สไตล์เดียวกับหน้า Docs อ่านง่ายเต็มตา */}
+      <AnimatePresence>
+        {selectedTitle && (() => {
+          const owned = ownedIds.includes(selectedTitle.id);
+          const equipped = equippedFor(selectedTitle);
+          const canAfford = coins >= selectedTitle.price;
+          const busy = busyId === selectedTitle.id;
+          return (
+            <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setSelectedTitle(null)}
+                className={`fixed inset-0 backdrop-blur-md ${isHacker ? 'bg-black/80' : isDark ? 'bg-black/70' : 'bg-orange-950/40'}`}
+              />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                className={`relative w-full max-w-2xl border-4 rounded-[32px] shadow-2xl flex flex-col z-10 ${isHacker ? 'bg-[#0a0a0a] border-green-500' : isDark ? 'bg-[#1E1B2E] border-yellow-400' : 'bg-white border-orange-400'}`}
+              >
+                <div className="p-8 md:p-10 space-y-6">
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="min-w-0">
+                      <span className={`text-xs font-black uppercase tracking-widest mb-3 flex items-center gap-2 ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>
+                        <Tag size={14} strokeWidth={3} /> ฉายา · {selectedTitle.name}
+                        {equipped && (
+                          <span className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-lg bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]">
+                            <Check size={10} strokeWidth={4} /> ใส่อยู่
+                          </span>
+                        )}
+                      </span>
+                      <h3 className={`text-3xl md:text-5xl font-black break-words leading-tight ${isHacker ? 'text-green-400' : isDark ? 'text-yellow-400' : 'text-orange-600'}`}>
+                        {selectedTitle.label}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setSelectedTitle(null)}
+                      className={`p-2 rounded-xl border-2 transition-colors btn-squishy shrink-0 ${isHacker ? 'bg-[#111] border-green-800 text-green-500 hover:text-green-400' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/50 hover:text-white' : 'bg-orange-50 border-orange-200 text-orange-400 hover:text-orange-600'}`}
+                    >
+                      <X size={24} strokeWidth={3} />
+                    </button>
+                  </div>
+
+                  <div className={`p-6 rounded-[20px] border-l-8 border-r-2 border-y-2 text-lg font-bold leading-relaxed shadow-inner ${isHacker ? 'bg-[#111] border-l-green-500 border-green-900 text-green-500' : isDark ? 'bg-[#2D223B]/50 border-l-yellow-400 border-[#382E54] text-white' : 'bg-orange-50 border-l-orange-500 border-white text-orange-950'}`}>
+                    {selectedTitle.desc}
+                  </div>
+
+                  {/* ราคา + ปุ่มซื้อ/ใส่/ถอด (ชุดเดียวกับการ์ด แต่ใหญ่เต็มความกว้าง) */}
+                  <div className="flex items-center gap-4">
+                    <span className="inline-flex items-center gap-2 text-xl font-black shrink-0 text-amber-500 dark:text-yellow-400 hacker:text-green-400">
+                      <CoinIcon size={24} /> {selectedTitle.price.toLocaleString()}
+                    </span>
+                    {owned ? (
+                      <button
+                        onClick={() => handleEquip(selectedTitle, equipped)}
+                        disabled={busy}
+                        className={`btn-squishy flex-1 py-4 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm transition-colors disabled:opacity-60 ${equipped
+                          ? 'bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-orange-200 dark:border-[#4B3965] hacker:border-green-800 text-orange-500 dark:text-yellow-400 hacker:text-green-500'
+                          : 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
+                          }`}
+                      >
+                        {busy ? '...' : equipped ? 'ถอดฉายา' : 'ใส่ฉายานี้'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleBuy(selectedTitle)}
+                        disabled={busy || !canAfford}
+                        className={`btn-squishy flex-1 py-4 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm flex items-center justify-center gap-2 transition-colors ${canAfford
+                          ? 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
+                          : 'bg-slate-100 dark:bg-[#2D223B] hacker:bg-[#111] border-white dark:border-[#4B3965] hacker:border-[#333] text-slate-400 dark:text-white/30 hacker:text-white/30 cursor-not-allowed'
+                          }`}
+                      >
+                        {busy ? '...' : canAfford ? <><Check size={18} strokeWidth={3} /> ซื้อเลย</> : <><Lock size={18} strokeWidth={3} /> เหรียญไม่พอ</>}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
+
       {/* Toast แจ้งผล */}
       <AnimatePresence>
         {toast && (
@@ -327,8 +413,8 @@ export default function ShopPage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] px-6 py-4 rounded-[24px] border-4 shadow-xl font-black text-sm flex items-center gap-3 ${toast.ok
-                ? 'bg-emerald-500 border-white text-white'
-                : 'bg-rose-500 border-white text-white'
+              ? 'bg-emerald-500 border-white text-white'
+              : 'bg-rose-500 border-white text-white'
               }`}
           >
             {toast.ok ? <Check size={20} strokeWidth={3} /> : <AlertCircle size={20} strokeWidth={3} />}
@@ -352,7 +438,9 @@ export default function ShopPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.05 }}
-        className={`glass-card p-5 md:p-6 flex flex-col gap-3 shadow-sm relative overflow-hidden ${equipped ? 'ring-4 ring-orange-400 dark:ring-yellow-400 hacker:ring-green-500' : ''}`}
+        onClick={() => { if (item.type === 'title') setSelectedTitle(item); }}
+        title={item.type === 'title' ? 'กดเพื่อดูแบบขยาย' : undefined}
+        className={`glass-card p-5 md:p-6 flex flex-col gap-3 shadow-sm relative overflow-hidden ${equipped ? 'ring-4 ring-orange-400 dark:ring-yellow-400 hacker:ring-green-500' : ''} ${item.type === 'title' ? 'cursor-pointer hover:-translate-y-1 transition-transform' : ''}`}
       >
         {/* ป้าย "ใส่อยู่" เป็น element ปกติใน flow (ไม่ absolute) — ดันเนื้อหาลงแทนการลอยทับกล่องพรีวิว */}
         {equipped && (
@@ -412,23 +500,23 @@ export default function ShopPage() {
 
           {owned ? (
             <button
-              onClick={() => handleEquip(item, equipped)}
+              onClick={(e) => { e.stopPropagation(); handleEquip(item, equipped); }}
               disabled={busy}
               className={`btn-squishy px-4 py-2.5 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest border-4 shadow-sm transition-colors disabled:opacity-60 ${equipped
-                  ? 'bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-orange-200 dark:border-[#4B3965] hacker:border-green-800 text-orange-500 dark:text-yellow-400 hacker:text-green-500'
-                  : 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
+                ? 'bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-orange-200 dark:border-[#4B3965] hacker:border-green-800 text-orange-500 dark:text-yellow-400 hacker:text-green-500'
+                : 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
                 }`}
             >
               {busy ? '...' : equipped ? 'ถอด' : 'ใส่'}
             </button>
           ) : (
             <button
-              onClick={() => handleBuy(item)}
+              onClick={(e) => { e.stopPropagation(); handleBuy(item); }}
               disabled={busy || !canAfford}
               title={canAfford ? 'ซื้อของชิ้นนี้' : 'เหรียญไม่พอ'}
               className={`btn-squishy px-4 py-2.5 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest border-4 shadow-sm flex items-center gap-1.5 transition-colors ${canAfford
-                  ? 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
-                  : 'bg-slate-100 dark:bg-[#2D223B] hacker:bg-[#111] border-white dark:border-[#4B3965] hacker:border-[#333] text-slate-400 dark:text-white/30 hacker:text-white/30 cursor-not-allowed'
+                ? 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
+                : 'bg-slate-100 dark:bg-[#2D223B] hacker:bg-[#111] border-white dark:border-[#4B3965] hacker:border-[#333] text-slate-400 dark:text-white/30 hacker:text-white/30 cursor-not-allowed'
                 }`}
             >
               {busy ? '...' : canAfford ? <><Check size={14} strokeWidth={3} /> ซื้อ</> : <><Lock size={14} strokeWidth={3} /> เหรียญไม่พอ</>}

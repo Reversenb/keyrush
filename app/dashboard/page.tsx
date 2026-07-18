@@ -394,9 +394,18 @@ export default function DashboardPage() {
                 <h1 className="text-black-600 dark:text-white hacker:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight cute-header transition-colors">
                   Welcome back, <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">{getShowName()}</span>
                 </h1>
-                <p className="text-orange-800 dark:text-white/60 hacker:text-white/60 text-sm md:text-base font-black uppercase tracking-widest mt-1 transition-colors">
-                  สถานะระบบ: <span className="text-orange-500 dark:text-green-400 hacker:text-green-400 animate-pulse">ONLINE</span> | ภารกิจที่ผ่าน: <span className="text-orange-600 dark:text-yellow-400 hacker:text-green-500"><AnimatedNumber value={totalLessonsCompleted} start={!loading} /></span>
-                </p>
+                {/* 🏷️ ฉายาจากร้านค้า (ถ้ายังไม่ใส่ ชวนไปเลือกที่ร้าน) */}
+                <div className="mt-1">
+                  {user?.title ? (
+                    <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[14px] border-2 text-sm md:text-base font-black shadow-sm transition-colors bg-orange-100 border-white text-orange-600 dark:bg-yellow-400/15 dark:border-[#4B3965] dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
+                      ✦ {user.title}
+                    </span>
+                  ) : (
+                    <Link href="/shop" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[14px] border-2 border-dashed text-xs md:text-sm font-black uppercase tracking-widest transition-colors border-orange-200 text-orange-400 hover:text-orange-600 hover:border-orange-400 dark:border-[#4B3965] dark:text-white/40 dark:hover:text-yellow-400 hacker:border-green-900 hacker:text-green-700 hacker:hover:text-green-500">
+                      ยังไม่มีฉายา — ไปเลือกที่ร้านค้า ✨
+                    </Link>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0 z-10">
