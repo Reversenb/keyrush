@@ -22,7 +22,7 @@ export default function LeaderboardPage() {
   const [user, setUser] = useState<any>(null);
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [targetOs, setTargetOs] = useState<'linux' | 'windows' | 'combined'>('linux');
+  const [targetOs, setTargetOs] = useState<'linux' | 'windows' | 'combined'>('combined');
 
   // 🛡️ กัน hydration mismatch: สี/สไตล์หลายจุดคำนวณจาก useTheme() ใน JS
   // ตอน SSR server ไม่รู้ธีมของผู้ใช้ → ต้องรอ mount ฝั่ง client ก่อนค่อย render ของจริง
@@ -42,7 +42,10 @@ export default function LeaderboardPage() {
         console.error("Auth check failed", e);
       }
 
-      const savedOs = (localStorage.getItem('keyrush_target_os') as 'linux' | 'windows' | 'combined') || 'linux';
+      // ใช้ key เฉพาะของหน้านี้ (ไม่ปนกับ keyrush_target_os ที่หน้าเล่นเกมใช้ ซึ่งรับได้แค่ linux/windows)
+      const saved = localStorage.getItem('keyrush_leaderboard_os');
+      const savedOs: 'linux' | 'windows' | 'combined' =
+        saved === 'linux' || saved === 'windows' ? saved : 'combined';
       setTargetOs(savedOs);
       await loadLeaderboard(savedOs);
     };
@@ -75,7 +78,7 @@ export default function LeaderboardPage() {
 
   const handleOsChange = (os: 'linux' | 'windows' | 'combined') => {
     setTargetOs(os);
-    localStorage.setItem('keyrush_target_os', os);
+    localStorage.setItem('keyrush_leaderboard_os', os);
     loadLeaderboard(os);
   };
 
@@ -349,7 +352,7 @@ export default function LeaderboardPage() {
           <div className="flex justify-center relative z-20 w-full animate-in fade-in zoom-in duration-500 delay-100">
             <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex w-full max-w-[650px] shadow-sm gap-2 md:gap-3 relative transition-colors">
 
-              {(['linux', 'windows', 'combined'] as const).map((os) => {
+              {(['combined', 'linux', 'windows'] as const).map((os) => {
                 const isActive = targetOs === os;
                 const icon = os === 'linux' ? <Terminal size={18} strokeWidth={3} /> : os === 'windows' ? <Monitor size={18} strokeWidth={3} /> : <Globe size={18} strokeWidth={3} />;
                 const label = os === 'combined' ? 'Total' : os.charAt(0).toUpperCase() + os.slice(1);
