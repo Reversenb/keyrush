@@ -122,6 +122,7 @@ export default function PublicProfilePage() {
         5: { titleColor: "text-purple-400", style: "text-purple-400 border-[#382E54] bg-purple-900/30" },
         6: { titleColor: "text-pink-400", style: "text-pink-400 border-[#382E54] bg-pink-900/30" },
         7: { titleColor: "text-rose-400", style: "text-rose-400 border-[#382E54] bg-rose-900/30 font-black" },
+        8: { titleColor: "text-white", style: "text-white border-white/40 bg-black/60 font-black" },
       };
       return { title: rank.title, ...darkMap[rank.id] };
     }
@@ -134,6 +135,7 @@ export default function PublicProfilePage() {
       5: { titleColor: "text-purple-500", style: "text-purple-600 border-white bg-purple-100" },
       6: { titleColor: "text-pink-500", style: "text-pink-600 border-white bg-pink-100" },
       7: { titleColor: "text-rose-500 font-black", style: "text-rose-600 border-white bg-rose-100 font-black" },
+      8: { titleColor: "text-slate-900 font-black", style: "text-slate-900 border-slate-300 bg-slate-200 font-black" },
     };
     return { title: rank.title, ...lightMap[rank.id] };
   };

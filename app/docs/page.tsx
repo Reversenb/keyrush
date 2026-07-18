@@ -652,14 +652,14 @@ function WindowsContent({ docs, onSelect }: { docs: any[], onSelect: (doc: any) 
 function ClearanceContent() {
   const getRankThemeColors = (id: number) => {
     const baseHackerColor = 'text-green-400 border-green-900 bg-[#0a0a0a]';
-    const darkMap: any = { 1: 'dark:text-slate-300 dark:border-[#382E54] dark:bg-[#2D223B]', 2: 'dark:text-green-400 dark:border-[#382E54] dark:bg-[#2D223B]', 3: 'dark:text-yellow-400 dark:border-[#382E54] dark:bg-[#2D223B]', 4: 'dark:text-blue-400 dark:border-[#382E54] dark:bg-[#2D223B]', 5: 'dark:text-purple-400 dark:border-[#382E54] dark:bg-[#2D223B]', 6: 'dark:text-pink-400 dark:border-[#382E54] dark:bg-[#2D223B]', 7: 'dark:text-rose-400 dark:border-[#382E54] dark:bg-[#2D223B]', };
-    const lightMap: any = { 1: 'text-slate-500 border-slate-100 bg-white', 2: 'text-green-500 border-green-100 bg-white', 3: 'text-amber-500 border-amber-100 bg-white', 4: 'text-blue-500 border-blue-100 bg-white', 5: 'text-purple-500 border-purple-100 bg-white', 6: 'text-pink-500 border-pink-100 bg-white', 7: 'text-rose-500 border-rose-100 bg-white', };
+    const darkMap: any = { 1: 'dark:text-slate-300 dark:border-[#382E54] dark:bg-[#2D223B]', 2: 'dark:text-green-400 dark:border-[#382E54] dark:bg-[#2D223B]', 3: 'dark:text-yellow-400 dark:border-[#382E54] dark:bg-[#2D223B]', 4: 'dark:text-blue-400 dark:border-[#382E54] dark:bg-[#2D223B]', 5: 'dark:text-purple-400 dark:border-[#382E54] dark:bg-[#2D223B]', 6: 'dark:text-pink-400 dark:border-[#382E54] dark:bg-[#2D223B]', 7: 'dark:text-rose-400 dark:border-[#382E54] dark:bg-[#2D223B]', 8: 'dark:text-white dark:border-white/40 dark:bg-black/60', };
+    const lightMap: any = { 1: 'text-slate-500 border-slate-100 bg-white', 2: 'text-green-500 border-green-100 bg-white', 3: 'text-amber-500 border-amber-100 bg-white', 4: 'text-blue-500 border-blue-100 bg-white', 5: 'text-purple-500 border-purple-100 bg-white', 6: 'text-pink-500 border-pink-100 bg-white', 7: 'text-rose-500 border-rose-100 bg-white', 8: 'text-slate-900 border-slate-300 bg-slate-100', };
     return `${lightMap[id]} ${darkMap[id]} hacker:${baseHackerColor.replace(/ /g, ' hacker:')}`;
   };
 
   const getRankDotColor = (id: number) => {
-    const lightMap: any = { 1: 'bg-slate-400', 2: 'bg-green-400', 3: 'bg-amber-400', 4: 'bg-blue-400', 5: 'bg-purple-400', 6: 'bg-pink-400', 7: 'bg-rose-500' };
-    const darkMap: any = { 1: 'dark:bg-slate-300', 2: 'dark:bg-green-400', 3: 'dark:bg-yellow-400', 4: 'dark:bg-blue-400', 5: 'dark:bg-purple-400', 6: 'dark:bg-pink-400', 7: 'dark:bg-rose-400' };
+    const lightMap: any = { 1: 'bg-slate-400', 2: 'bg-green-400', 3: 'bg-amber-400', 4: 'bg-blue-400', 5: 'bg-purple-400', 6: 'bg-pink-400', 7: 'bg-rose-500', 8: 'bg-slate-900' };
+    const darkMap: any = { 1: 'dark:bg-slate-300', 2: 'dark:bg-green-400', 3: 'dark:bg-yellow-400', 4: 'dark:bg-blue-400', 5: 'dark:bg-purple-400', 6: 'dark:bg-pink-400', 7: 'dark:bg-rose-400', 8: 'dark:bg-white' };
     return `${lightMap[id]} ${darkMap[id]} hacker:bg-green-500`;
   };
 

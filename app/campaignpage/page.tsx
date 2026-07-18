@@ -99,19 +99,21 @@ export default function CampaignPage() {
     router.push(`/campaignplay?level=${level}`);
   };
 
-  const getRankInfo = (level: number) => {
-    if (level <= 3) return { title: "Rookie", maxExp: 300 };
-    if (level <= 6) return { title: "Junior Hacker", maxExp: 600 };
-    if (level <= 9) return { title: "SysAdmin", maxExp: 900 };
-    return { title: "Root Master", maxExp: 9900 };
+  // เพดาน EXP ของช่วงเลเวลปัจจุบัน — ใช้คำนวณแถบความคืบหน้าเท่านั้น
+  // (ชื่อแรงค์ที่แสดงดึงจากตารางกลาง lib/ranks.ts ด้านล่าง)
+  const getTierMaxExp = (level: number) => {
+    if (level <= 3) return 300;
+    if (level <= 6) return 600;
+    if (level <= 9) return 900;
+    return 9900;
   };
 
-  const rankInfo = getRankInfo(activeLevel);
+  const tierMaxExp = getTierMaxExp(activeLevel);
   // 🏆 แรงค์จริงจากตารางกลาง lib/ranks.ts (คิดจาก EXP รวมทั้งสอง OS — ตรงกับหน้า Ranks/Dashboard)
   const globalRank = getRankByExp((user?.linuxExp || 0) + (user?.windowsExp || 0));
   const baseExpForTier = (Math.ceil(activeLevel / 3) - 1) * 300;
   const expInCurrentTier = activeExp - baseExpForTier;
-  const expNeededForTier = rankInfo.maxExp - baseExpForTier;
+  const expNeededForTier = tierMaxExp - baseExpForTier;
   const progressPercent = Math.min((expInCurrentTier / expNeededForTier) * 100, 100);
 
   // 🌟 Dynamic Theme Variables 🌟

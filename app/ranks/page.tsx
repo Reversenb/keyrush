@@ -22,6 +22,8 @@ const RANK_STYLES: Record<number, { color: string; hex: string; border: string; 
   5: { color: "text-purple-500", hex: "#c084fc", border: "border-purple-200", bg: "bg-purple-100", shadow: "shadow-sm" },
   6: { color: "text-pink-500", hex: "#f472b6", border: "border-pink-200", bg: "bg-pink-100", shadow: "shadow-sm" },
   7: { color: "text-rose-500", hex: "#fb7185", border: "border-rose-200", bg: "bg-rose-100", shadow: "shadow-[0_10px_30px_rgba(251,113,133,0.3)]" },
+  // 🖤 Keyrush Master — แรงค์สูงสุด โทนดำ
+  8: { color: "text-slate-900", hex: "#0f172a", border: "border-slate-800", bg: "bg-slate-200", shadow: "shadow-[0_10px_30px_rgba(15,23,42,0.35)]" },
 };
 const RANKS = BASE_RANKS.map(r => ({ ...r, ...RANK_STYLES[r.id] }));
 
@@ -36,6 +38,7 @@ const getIcon = (name: string, size: number, className: string = "") => {
     case 'bug_report': return <Bug {...props} />;
     case 'fingerprint': return <Fingerprint {...props} />;
     case 'admin_panel_settings': return <Crown {...props} />;
+    case 'master': return <ShieldCheck {...props} />;
     default: return <Terminal {...props} />;
   }
 };

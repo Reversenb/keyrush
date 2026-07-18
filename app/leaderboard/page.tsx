@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes';
 import { Terminal, Monitor, Globe, RefreshCw, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { apiFetch } from '@/lib/api';
+import { getRankByExp } from '@/lib/ranks';
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -100,12 +101,21 @@ export default function LeaderboardPage() {
   const getPlayerName = (player: any) => player?.displayName || player?.username?.split('@')[0] || '???';
   const getProfileUrl = (player: any) => `/u/${getPlayerName(player)}`;
 
-  // 🌟 ฟังก์ชันหาชื่อแรงค์ ปรับสีให้เข้ากับทุกธีม
-  const getRankDetails = (level: number) => {
-    if (level <= 3) return { title: "Rookie", color: "text-slate-400 dark:text-slate-300 hacker:text-green-600" };
-    if (level <= 6) return { title: "Junior Hacker", color: "text-orange-400 dark:text-yellow-500 hacker:text-green-500" };
-    if (level <= 9) return { title: "SysAdmin", color: "text-blue-500 dark:text-blue-400 hacker:text-green-400" };
-    return { title: "Root Master", color: "text-pink-500 font-black dark:text-pink-400 hacker:text-green-300" };
+  // 🌟 แรงค์ใช้ตารางกลาง lib/ranks.ts (คิดจาก EXP) — ตรงกับ Dashboard/Ranks/Docs
+  // สีประจำแรงค์แต่ละขั้น รองรับทุกธีม
+  const RANK_COLORS: Record<number, string> = {
+    1: 'text-slate-400 dark:text-slate-300 hacker:text-green-700',
+    2: 'text-green-500 dark:text-green-400 hacker:text-green-600',
+    3: 'text-amber-500 dark:text-yellow-400 hacker:text-green-500',
+    4: 'text-blue-500 dark:text-blue-400 hacker:text-green-400',
+    5: 'text-purple-500 dark:text-purple-400 hacker:text-green-400',
+    6: 'text-pink-500 dark:text-pink-400 hacker:text-green-300',
+    7: 'text-rose-500 dark:text-rose-400 hacker:text-green-200',
+    8: 'text-slate-900 dark:text-white hacker:text-green-100', // 🖤 Keyrush Master
+  };
+  const getRankDetails = (exp: number) => {
+    const r = getRankByExp(exp);
+    return { title: r.title, color: RANK_COLORS[r.id] || RANK_COLORS[1] };
   };
 
   // 🏅 สีเหรียญอันดับ 1-3 (รองรับทุกธีม)
@@ -164,7 +174,7 @@ export default function LeaderboardPage() {
     const medal = medalStyles[rank - 1];
     const isChampion = rank === 1;
     const name = getPlayerName(player);
-    const rankDetails = getRankDetails(getPlayerLevel(player));
+    const rankDetails = getRankDetails(getPlayerExp(player));
 
     const baseHeights = isChampion ? 'h-32 sm:h-36 md:h-44' : rank === 2 ? 'h-24 sm:h-28 md:h-32' : 'h-20 sm:h-24 md:h-28';
     const width = isChampion ? 'w-32 sm:w-40 md:w-52' : 'w-24 sm:w-32 md:w-40';
@@ -427,7 +437,7 @@ export default function LeaderboardPage() {
                       const isMe = user?.id === player.id;
                       const exp = getPlayerExp(player);
                       const level = getPlayerLevel(player);
-                      const rankDetails = getRankDetails(level);
+                      const rankDetails = getRankDetails(exp);
                       const playerProfileUrl = getProfileUrl(player);
                       const expPct = Math.max(2, Math.round((exp / topExp) * 100));
                       const isTop3 = index < 3;
