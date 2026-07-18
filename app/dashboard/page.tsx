@@ -88,7 +88,8 @@ function WpmChart({ points, avg, accentHex, isDark, isHacker }: {
         {avg > 0 && (
           <g>
             <line x1={M.left} x2={W - M.right} y1={avgY} y2={avgY} stroke={accentHex} strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray="6 5" />
-            <text x={W - M.right} y={avgY - 6} textAnchor="end" fontSize="10" fontWeight="900" fill={inkMuted}>AVG {avg}</text>
+            {/* วางชิดซ้าย — ฝั่งขวาสงวนไว้ให้ label ของจุดล่าสุด กันข้อความทับกัน */}
+            <text x={M.left + 6} y={avgY - 6} textAnchor="start" fontSize="10" fontWeight="900" fill={inkMuted}>AVG {avg}</text>
           </g>
         )}
 
