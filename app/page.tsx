@@ -328,7 +328,7 @@ export default function KeyRushOrangeLandingPage() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4 ml-4 border-l-4 border-white dark:border-[#382E54] hacker:border-green-800 pl-4 md:pl-6 transition-colors">
-            <button onClick={cycleTheme} className="btn-squishy hidden md:flex items-center justify-center p-2.5 rounded-2xl border-4 bg-white dark:bg-yellow-400 hacker:bg-[#0a0a0a] text-orange-600 dark:text-[#1E1B2E] hacker:text-green-500 border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d] hover:bg-orange-50 dark:hover:bg-yellow-300 hover:bg-[#111]">
+            <button onClick={cycleTheme} className="btn-squishy hidden md:flex items-center justify-center p-2.5 rounded-2xl border-4 bg-white dark:bg-yellow-400 hacker:bg-[#0a0a0a] text-orange-600 dark:text-[#1E1B2E] hacker:text-green-500 border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#15803d]">
               {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
               {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
               {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}

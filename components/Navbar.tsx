@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
-  Terminal, Bell, LayoutDashboard, User as UserIcon, LogOut,
+  Terminal, LayoutDashboard, User as UserIcon, LogOut,
   ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code
 } from 'lucide-react'; // 🌟 เพิ่มไอคอน Code สำหรับธีม Hacker
 import { apiFetch, logout } from '@/lib/api';
@@ -179,12 +179,18 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
           })}
         </nav>
 
-        {/* ส่วนขวา: ปุ่มกระดิ่ง + โปรไฟล์ */}
+        {/* ส่วนขวา: ปุ่มสลับธีม + โปรไฟล์ */}
         <div className="flex items-center gap-3 md:gap-4 ml-4 border-l-4 border-white dark:border-[#382E54] hacker:border-[#166534] pl-4 md:pl-6 transition-colors">
 
-          {/* 🌟 3D Notification Button 🌟 */}
-          <button className={`rounded-2xl p-2.5 ${styles.btn3D}`}>
-            <Bell size={20} strokeWidth={3} />
+          {/* 🌟 3D Theme Toggle Button (Cute → Dark → Hacker) 🌟 */}
+          <button
+            onClick={cycleTheme}
+            title={`ธีมปัจจุบัน: ${currentTheme === 'dark' ? 'Dark' : currentTheme === 'hacker' ? 'Hacker' : 'Cute'} — กดเพื่อสลับ`}
+            className={`rounded-2xl p-2.5 ${styles.btn3D}`}
+          >
+            {currentTheme === 'dark' && <Moon size={20} strokeWidth={3} />}
+            {currentTheme === 'light' && <Sun size={20} strokeWidth={3} />}
+            {currentTheme === 'hacker' && <Code size={20} strokeWidth={3} />}
           </button>
 
           {user ? (
