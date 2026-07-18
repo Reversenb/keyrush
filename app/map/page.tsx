@@ -19,7 +19,7 @@ const MAP_MODES = [
     {
         id: 'campaign',
         title: 'Campaign Mode',
-        subtitle: 'Sector 01',
+        subtitle: 'Mode 01',
         desc: 'ลุยด่านฝึกพิมพ์ตามเนื้อเรื่องสุดมันส์ พร้อมเรียนรู้คำสั่งพื้นฐานไปในตัว โหมดหลักสำหรับสายลับหน้าใหม่!',
         icon: MapIcon,
         isLocked: false,
@@ -29,17 +29,17 @@ const MAP_MODES = [
     {
         id: 'survival',
         title: 'Survival Mode',
-        subtitle: 'Sector 02',
+        subtitle: 'Mode 02',
         desc: 'เอาชีวิตรอดจากการพิมพ์คำสั่งให้เร็วและแม่นยำที่สุดก่อนที่เวลาจะหมดลง',
         icon: Zap,
-        isLocked: false, 
-        link: '/survival', 
+        isLocked: false,
+        link: '/survival',
         colorTheme: 'blue',
     },
     {
         id: 'training',
         title: 'Training Mode',
-        subtitle: 'Sector 03',
+        subtitle: 'Mode 03',
         desc: 'สนามซ้อมส่วนตัวของสายลับ พิมพ์คำสั่งเล่นได้อิสระในบรรยากาศเดียวกับ Campaign ไม่มีโจทย์ ไม่มีเวลาจับ พร้อมสถิติ WPM สดๆ',
         icon: Dumbbell,
         isLocked: false,
@@ -49,7 +49,7 @@ const MAP_MODES = [
     {
         id: 'arena',
         title: 'Hacker Arena',
-        subtitle: 'Sector 04',
+        subtitle: 'Mode 04',
         desc: 'ประลองความเร็วในการพิมพ์กับสายลับคนอื่นๆ บนกระดานผู้นำระดับโลก ใครจะไวกว่ากัน? (เร็วๆ นี้)',
         icon: Trophy,
         isLocked: true,
@@ -80,7 +80,7 @@ export default function ModeSelectionMapPage() {
         checkAuth();
     }, [router]);
 
-  
+
     const fadeInUp = {
         hidden: { opacity: 0, y: 40 },
         visible: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 100, damping: 20 } }
@@ -96,7 +96,7 @@ export default function ModeSelectionMapPage() {
     return (
         <div className="min-h-screen bg-background font-sans flex flex-col selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative overflow-hidden text-foreground transition-colors duration-500">
 
-          
+
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;700;900&display=swap');
         .font-prompt { font-family: 'Prompt', sans-serif; }
