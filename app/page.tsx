@@ -369,6 +369,11 @@ export default function KeyRushOrangeLandingPage() {
                             <LayoutDashboard size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" /> Dashboard
                           </div>
                         </button>
+                        <button onClick={() => { setShowDropdown(false); router.push('/map'); }} className={dropdownBtnStyle}>
+                          <div className="flex items-center gap-3">
+                            <MapIcon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" /> Mission
+                          </div>
+                        </button>
                         <button onClick={() => { setShowDropdown(false); router.push('/profile'); }} className={dropdownBtnStyle}>
                           <div className="flex items-center gap-3">
                             <UserIcon size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" /> Edit Profile
