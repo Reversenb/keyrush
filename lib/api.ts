@@ -21,6 +21,8 @@ export function getCsrfToken(): string | null {
 export function clearUserState() {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('keyrush_user');
+  // แจ้งทุก component ที่ฟังอยู่ (Navbar/CursorGlow) ให้เคลียร์ของไอดีเก่าทันที — กันเอฟเฟกต์เมาส์/ธีมค้างข้ามไอดี
+  window.dispatchEvent(new Event('keyrush-user-updated'));
 }
 
 function handleUnauthorized() {

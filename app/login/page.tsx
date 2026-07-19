@@ -47,6 +47,8 @@ export default function KeyRushOrangeLoginPage() {
 
         if (data.success) {
           localStorage.setItem('keyrush_user', JSON.stringify(data.user));
+          // แจ้ง CursorGlow/Navbar ให้โหลดของไอดีใหม่ทันที — กันเอฟเฟกต์เมาส์ของไอดีเก่าค้าง
+          window.dispatchEvent(new Event('keyrush-user-updated'));
           showToast('เข้าสู่ระบบสำเร็จ! 🚀', 'success');
 
           setTimeout(() => {

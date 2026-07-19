@@ -50,10 +50,13 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
           if (data.success && data.data) {
             setUser(data.data);
             localStorage.setItem('keyrush_user', JSON.stringify(data.data));
+            // ส่งต่อให้ CursorGlow อ่านค่า activeCursor สดของไอดีปัจจุบัน (กันเอฟเฟกต์ค้างข้ามไอดี)
+            window.dispatchEvent(new Event('keyrush-user-updated'));
           }
         } else if (res.status === 401) {
           setUser(null);
           localStorage.removeItem('keyrush_user');
+          window.dispatchEvent(new Event('keyrush-user-updated'));
         }
       } catch (e) { }
     };
@@ -63,6 +66,7 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     const onUserUpdated = () => {
       const s = localStorage.getItem('keyrush_user');
       if (s) { try { setUser(JSON.parse(s)); } catch (e) { } }
+      else { setUser(null); } // logout แล้ว — เคลียร์โปรไฟล์ค้างบน Navbar ด้วย
     };
     window.addEventListener('keyrush-user-updated', onUserUpdated);
     return () => window.removeEventListener('keyrush-user-updated', onUserUpdated);
