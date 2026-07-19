@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import { PageSkeleton, SkelHeader, SkelListRows, skCard, sk } from '@/components/skeleton';
+import { PageSkeleton, sk } from '@/components/skeleton';
 import {
   Keyboard, Terminal, Router as RouterIcon, Server,
   Bug, Fingerprint, Crown, ShieldCheck, Lock, CheckCircle
@@ -104,18 +104,47 @@ export default function RanksPage() {
   }, []);
 
   if (loading) return (
-    <PageSkeleton maxW="max-w-4xl">
-      <SkelHeader />
-      {/* การ์ดแรงค์ปัจจุบันของเรา */}
-      <div className={`${skCard} rounded-[28px] p-5 md:p-6 mb-4 md:mb-6 flex items-center gap-4`}>
-        <div className={`${sk} rounded-2xl w-14 h-14 md:w-16 md:h-16 shrink-0`} />
-        <div className="flex-1 flex flex-col gap-2.5">
-          <div className={`${sk} rounded-full h-4 w-40`} />
-          <div className={`${sk} rounded-full h-3 w-full max-w-xs`} />
+    <PageSkeleton maxW="max-w-5xl">
+      {/* หัวข้อ: ป้ายกลม + "YOUR RANK" ตัวใหญ่ (text-5xl / md:text-7xl) */}
+      <div className="flex flex-col items-center gap-4 mb-12">
+        <div className={`${sk} rounded-full h-11 w-56`} />
+        <div className={`${sk} rounded-2xl h-12 md:h-16 w-64 md:w-96 max-w-full`} />
+      </div>
+
+      {/* การ์ดแรงค์ปัจจุบัน (ใบใหญ่ p-8/p-12 + เว้นล่าง mb-20 เหมือนของจริง) */}
+      <div className="w-full glass-card p-8 md:p-12 mb-20 flex flex-col gap-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-10">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className={`${sk} rounded-[28px] size-28 shrink-0`} />
+            <div className="flex flex-col items-center md:items-start gap-3">
+              <div className={`${sk} rounded-full h-3 w-28`} />
+              <div className={`${sk} rounded-2xl h-9 md:h-11 w-44 md:w-56`} />
+            </div>
+          </div>
+          <div className="flex flex-col items-center md:items-end gap-3">
+            <div className={`${sk} rounded-full h-3 w-24`} />
+            <div className={`${sk} rounded-xl h-10 w-36`} />
+          </div>
+        </div>
+        {/* หลอดความคืบหน้า (h-5 border-4) */}
+        <div className={`${sk} rounded-full h-5 w-full`} />
+      </div>
+
+      {/* ไทม์ไลน์แรงค์ทั้งหมด: เส้นแนวตั้งซ้าย + การ์ดเยื้องขวา (ระยะเดียวกับของจริง) */}
+      <div className="w-full relative">
+        <div className={`${sk} absolute top-0 bottom-0 left-[32px] md:left-[80px] w-2 rounded-full`} />
+        <div className="space-y-8 md:space-y-12 pl-[64px] md:pl-[160px]">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-6" style={{ opacity: 1 - i * 0.09 }}>
+              <div className={`${sk} rounded-2xl size-14 md:size-16 shrink-0`} />
+              <div className="flex-1 min-w-0 flex flex-col gap-2.5">
+                <div className={`${sk} rounded-full h-4 md:h-5`} style={{ width: `${58 - i * 4}%` }} />
+                <div className={`${sk} rounded-full h-3 w-24`} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-      {/* ไทม์ไลน์ลำดับแรงค์ */}
-      <SkelListRows n={8} />
     </PageSkeleton>
   );
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { PageSkeleton, skCard, sk } from '@/components/skeleton';
+import { PageSkeleton, sk } from '@/components/skeleton';
 import { Terminal, ArrowRight, Edit3, Check, X, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
@@ -114,15 +114,34 @@ export default function WelcomePage() {
   };
 
   if (!isMounted || isLoading) return (
-    <PageSkeleton maxW="max-w-2xl" navbar={false}>
-      {/* การ์ดต้อนรับกลางจอ */}
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className={`${skCard} rounded-[32px] w-full p-8 md:p-10 flex flex-col items-center gap-5`}>
-          <div className={`${sk} rounded-full w-20 h-20 md:w-24 md:h-24`} />
-          <div className={`${sk} rounded-full h-6 w-48 md:w-56`} />
-          <div className={`${sk} rounded-full h-3.5 w-64 max-w-full`} />
-          <div className={`${sk} rounded-2xl h-12 w-full max-w-sm mt-3`} />
-          <div className={`${sk} rounded-2xl h-12 w-36`} />
+    <PageSkeleton maxW="max-w-3xl" navbar={false}>
+      {/* จัดกึ่งกลางจอเหมือนของจริง (main เป็น flex items-center justify-center) */}
+      <div className="min-h-[80vh] flex flex-col items-center justify-center gap-8 text-center">
+        {/* ป้ายสถานะเล็กด้านบน */}
+        <div className={`${sk} rounded-full h-10 w-52`} />
+
+        {/* หัวข้อ "Welcome back, <ชื่อ>" 2 บรรทัด (text-5xl / md:text-7xl) */}
+        <div className="flex flex-col items-center gap-3 w-full">
+          <div className={`${sk} rounded-2xl h-12 md:h-16 w-72 md:w-[26rem] max-w-full`} />
+          <div className={`${sk} rounded-2xl h-12 md:h-16 w-56 md:w-80 max-w-full`} />
+        </div>
+
+        {/* ปุ่มแก้ชื่อ / ช่องกรอกชื่อ */}
+        <div className={`${sk} rounded-full h-12 w-full max-w-lg`} />
+
+        {/* การ์ด system_boot.log ด้านล่าง */}
+        <div className="w-full max-w-2xl glass-card overflow-hidden mt-2">
+          <div className="flex items-center gap-3 px-5 py-4 border-b-4 border-orange-50 dark:border-[#382E54] hacker:border-[#166534] transition-colors">
+            <div className="flex gap-2">
+              {[0, 1, 2].map((i) => <div key={i} className={`${sk} size-3 rounded-full`} />)}
+            </div>
+            <div className={`${sk} rounded-full h-3 w-32 mx-auto`} />
+          </div>
+          <div className="p-5 flex flex-col gap-3 items-start">
+            {['78%', '92%', '64%', '46%'].map((w, i) => (
+              <div key={i} className={`${sk} rounded-full h-3.5`} style={{ width: w, opacity: 1 - i * 0.15 }} />
+            ))}
+          </div>
         </div>
       </div>
     </PageSkeleton>
