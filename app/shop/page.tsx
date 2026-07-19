@@ -14,7 +14,7 @@ import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import { PageSkeleton, SkelGridCards, skCard, sk } from '@/components/skeleton';
 import {
-  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X
+  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart
 } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import { apiFetch, clearUserState } from '@/lib/api';
@@ -263,8 +263,10 @@ export default function ShopPage() {
             </div>
 
             {/* ขวา: เหรียญ + ปุ่มคลัง */}
-            <div className="flex items-center gap-3 shrink-0 flex-wrap">
-              <div className="flex items-center gap-3 px-4 py-2.5 md:px-5 md:py-3 rounded-2xl border-4 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-800 shadow-sm transition-colors">
+            {/* items-stretch = ปุ่มคลังยืดสูงเท่ากล่องเหรียญเอง ไม่ต้องกำหนดความสูงตายตัว */}
+            <div className="flex items-stretch gap-3 shrink-0 flex-wrap">
+              {/* เงาทึบหนาเท่าปุ่ม → ฐานล่างของทั้งสองกล่องอยู่ระดับเดียวกันพอดี */}
+              <div className="flex items-center gap-3 px-4 py-2.5 md:px-5 md:py-3 rounded-2xl border-4 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-800 shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#14532d] transition-colors">
                 <div className="size-9 md:size-10 rounded-xl flex items-center justify-center shadow-sm bg-amber-400 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]">
                   <CoinIcon size={22} />
                 </div>
@@ -276,19 +278,23 @@ export default function ShopPage() {
                 </div>
               </div>
 
-              {/* 📦 ปุ่มสลับ ร้านค้า ↔ คลังของฉัน */}
-              <button
-                onClick={() => setView(view === 'inventory' ? 'shop' : 'inventory')}
-                className="btn-squishy relative flex items-center gap-2 px-4 py-3 md:px-5 md:py-3.5 rounded-2xl border-4 font-black text-[11px] md:text-xs uppercase tracking-widest transition-colors bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] shadow-[0_4px_0_#c2410c] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#14532d]"
-              >
-                {view === 'inventory' ? <ShoppingBag size={16} strokeWidth={3} /> : <Package size={16} strokeWidth={3} />}
-                {view === 'inventory' ? 'กลับร้านค้า' : 'คลังของฉัน'}
+              {/* 📦 ปุ่มสลับ ร้านค้า ↔ คลังของฉัน
+                  ⚠️ ป้ายตัวเลขต้องอยู่ "นอก" ปุ่ม เพราะ .btn-shine ใช้ overflow:hidden (กันแสงกวาดล้น)
+                     ถ้าวางไว้ในปุ่มจะโดนตัดหาย */}
+              <div className="relative flex shrink-0">
+                <button
+                  onClick={() => setView(view === 'inventory' ? 'shop' : 'inventory')}
+                  className="btn-shine btn-squishy flex items-center justify-center gap-2 w-full px-5 md:px-6 py-3 md:py-3.5 rounded-2xl border-4 font-black text-[11px] md:text-xs uppercase tracking-widest transition-colors bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#14532d]"
+                >
+                  {view === 'inventory' ? <ShoppingBag size={16} strokeWidth={3} /> : <Package size={16} strokeWidth={3} />}
+                  {view === 'inventory' ? 'กลับร้านค้า' : 'คลังของฉัน'}
+                </button>
                 {view === 'shop' && ownedIds.length > 0 && (
-                  <span className="absolute -top-2.5 -right-2.5 min-w-6 h-6 px-1.5 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white bg-rose-500 text-white shadow-sm">
+                  <span className="pointer-events-none absolute -top-2.5 -right-2.5 z-10 min-w-6 h-6 px-1.5 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white bg-rose-500 text-white shadow-sm">
                     {ownedIds.length}
                   </span>
                 )}
-              </button>
+              </div>
             </div>
           </div>
         </div>
@@ -401,12 +407,12 @@ export default function ShopPage() {
                       <button
                         onClick={() => handleEquip(selectedTitle, equipped)}
                         disabled={busy}
-                        className={`btn-squishy flex-1 py-4 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm transition-colors disabled:opacity-60 ${equipped
+                        className={`btn-squishy flex-1 py-4 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 ${equipped
                           ? 'bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-orange-200 dark:border-[#4B3965] hacker:border-green-800 text-orange-500 dark:text-yellow-400 hacker:text-green-500'
                           : 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
                           }`}
                       >
-                        {busy ? '...' : equipped ? 'ถอดฉายา' : 'ใส่ฉายานี้'}
+                        {busy ? '...' : equipped ? <><X size={18} strokeWidth={3} /> ถอดฉายา</> : <><Sparkles size={18} strokeWidth={3} /> ใส่ฉายานี้</>}
                       </button>
                     ) : (
                       <button
@@ -417,7 +423,7 @@ export default function ShopPage() {
                           : 'bg-slate-100 dark:bg-[#2D223B] hacker:bg-[#111] border-white dark:border-[#4B3965] hacker:border-[#333] text-slate-400 dark:text-white/30 hacker:text-white/30 cursor-not-allowed'
                           }`}
                       >
-                        {busy ? '...' : canAfford ? <><Check size={18} strokeWidth={3} /> ซื้อเลย</> : <><Lock size={18} strokeWidth={3} /> เหรียญไม่พอ</>}
+                        {busy ? '...' : canAfford ? <><ShoppingCart size={18} strokeWidth={3} /> ซื้อเลย</> : <><Lock size={18} strokeWidth={3} /> เหรียญไม่พอ</>}
                       </button>
                     )}
                   </div>
@@ -525,12 +531,12 @@ export default function ShopPage() {
             <button
               onClick={(e) => { e.stopPropagation(); handleEquip(item, equipped); }}
               disabled={busy}
-              className={`btn-squishy px-4 py-2.5 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest border-4 shadow-sm transition-colors disabled:opacity-60 ${equipped
+              className={`btn-squishy px-4 py-2.5 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest border-4 shadow-sm flex items-center gap-1.5 transition-colors disabled:opacity-60 ${equipped
                 ? 'bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-orange-200 dark:border-[#4B3965] hacker:border-green-800 text-orange-500 dark:text-yellow-400 hacker:text-green-500'
                 : 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
                 }`}
             >
-              {busy ? '...' : equipped ? 'ถอด' : 'ใส่'}
+              {busy ? '...' : equipped ? <><X size={14} strokeWidth={3} /> ถอด</> : <><Sparkles size={14} strokeWidth={3} /> ใส่</>}
             </button>
           ) : (
             <button
@@ -542,7 +548,7 @@ export default function ShopPage() {
                 : 'bg-slate-100 dark:bg-[#2D223B] hacker:bg-[#111] border-white dark:border-[#4B3965] hacker:border-[#333] text-slate-400 dark:text-white/30 hacker:text-white/30 cursor-not-allowed'
                 }`}
             >
-              {busy ? '...' : canAfford ? <><Check size={14} strokeWidth={3} /> ซื้อ</> : <><Lock size={14} strokeWidth={3} /> เหรียญไม่พอ</>}
+              {busy ? '...' : canAfford ? <><ShoppingCart size={14} strokeWidth={3} /> ซื้อ</> : <><Lock size={14} strokeWidth={3} /> เหรียญไม่พอ</>}
             </button>
           )}
         </div>
