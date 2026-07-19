@@ -396,9 +396,12 @@
   pointer-events: none;
   z-index: -1;
   opacity: 0;
-  animation: kr-row-tint 12s ease-in-out infinite;
-  /* หน่วงต่างกันตามลำดับแถว — ตัวแปรถ่ายทอดจาก element แม่ได้ (ต่างจาก animation-delay ที่ไม่ถ่ายทอด) */
-  animation-delay: var(--kr-row-delay, 0s);
+  /* cubic-bezier แบบ ease-out แรง = โผล่มาแล้วนิ่ง ดูพรีเมียมกว่า ease-in-out ธรรมดา
+     + ชั้นหายใจ (pulse) ให้สีเต้นเบาๆ ไม่แบนนิ่ง */
+  animation:
+    kr-row-tint 12s cubic-bezier(0.16, 1, 0.3, 1) infinite,
+    kr-row-pulse var(--kr-sway, 2.4s) ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
 }
 /* ชั้นที่ 2: แถบแสงกวาดซ้าย→ขวา (ตัวที่ทำให้สะดุดตา) */
 [class*="kr-row-"]::after {
@@ -418,8 +421,13 @@
 
 @keyframes kr-row-tint {
   0%          { opacity: 0; }
-  6%, 22%     { opacity: 1; }
-  30%, 100%   { opacity: 0; }
+  3%, 27%     { opacity: 1; }   /* เข้าไว ค้างนานขึ้น (~2.9 วิ) */
+  38%, 100%   { opacity: 0; }   /* จางออกยาว 1.3 วิ ดูนุ่มกว่าตัดจบห้วน */
+}
+/* ชั้นย้อมสีเต้นเบาๆ ให้แถวดูมีชีวิต ไม่ใช่แผ่นสีนิ่ง */
+@keyframes kr-row-pulse {
+  0%   { filter: brightness(1) saturate(1); }
+  100% { filter: brightness(1.3) saturate(1.25); }
 }
 @keyframes kr-row-sweep {
   0%          { opacity: 0; left: -50%; }
@@ -494,8 +502,8 @@
 
 @keyframes kr-row-fireshow {
   0%        { opacity: 0; }
-  5%, 24%   { opacity: 1; }
-  30%, 100% { opacity: 0; }
+  3%, 28%   { opacity: 1; }
+  38%, 100% { opacity: 0; }
 }
 /* สั่นไหวขึ้น-ลง + สว่างวูบวาบ (ต้องใส่ blur/contrast ซ้ำในนี้ ไม่งั้น filter หลักจะถูกทับหาย) */
 @keyframes kr-fire-flicker {
@@ -689,6 +697,164 @@
 @keyframes kr-prism-hue {
   0%   { filter: saturate(1.5) hue-rotate(0deg); }
   100% { filter: saturate(1.5) hue-rotate(360deg); }
+}
+
+/* =========================================================================
+   🌸 SAKURA DRIFT — กลีบซากุระปลิวเฉียงลง
+   ========================================================================= */
+.kr-row-sakura::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  /* กลีบ = วงรีเอียง ขนาด/ความทึบต่างกัน กระจายไม่เป็นระเบียบ */
+  background:
+    radial-gradient(ellipse 5px 9px at 12% 20%, rgba(251,207,232,0.95), rgba(244,114,182,0.5) 60%, transparent 72%),
+    radial-gradient(ellipse 4px 7px at 34% 62%, rgba(252,231,243,0.9), rgba(236,72,153,0.45) 60%, transparent 72%),
+    radial-gradient(ellipse 6px 10px at 58% 30%, rgba(251,207,232,0.95), rgba(244,114,182,0.5) 60%, transparent 72%),
+    radial-gradient(ellipse 4px 8px at 76% 72%, rgba(252,231,243,0.85), rgba(236,72,153,0.4) 60%, transparent 72%),
+    radial-gradient(ellipse 5px 9px at 90% 44%, rgba(251,207,232,0.9), rgba(244,114,182,0.45) 60%, transparent 72%);
+  background-size: 190px 130px;
+  filter: drop-shadow(0 0 4px rgba(244,114,182,0.6));
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-sakura-drift var(--kr-sway, 5.3s) linear infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-sakura::before {
+  background: linear-gradient(90deg, rgba(244,114,182,0.22), rgba(251,207,232,0.10) 60%, transparent);
+  box-shadow: inset 0 0 26px rgba(244,114,182,0.40);
+}
+@keyframes kr-sakura-drift {
+  0%   { background-position: 0 -40px; }
+  100% { background-position: 190px 130px; }
+}
+
+/* =========================================================================
+   🫧 OCEAN BUBBLES — ฟองลอยขึ้น ขอบฟองสว่างตรงกลางโปร่งเหมือนฟองจริง
+   ========================================================================= */
+.kr-row-ocean::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    radial-gradient(circle 7px at 10% 80%, transparent 45%, rgba(224,247,255,0.9) 55%, transparent 62%),
+    radial-gradient(circle 4px at 26% 40%, transparent 42%, rgba(165,243,252,0.85) 55%, transparent 64%),
+    radial-gradient(circle 9px at 45% 70%, transparent 48%, rgba(224,247,255,0.85) 57%, transparent 64%),
+    radial-gradient(circle 5px at 63% 25%, transparent 44%, rgba(56,189,248,0.8) 56%, transparent 64%),
+    radial-gradient(circle 6px at 82% 60%, transparent 45%, rgba(224,247,255,0.9) 56%, transparent 64%),
+    radial-gradient(circle 3px at 93% 35%, transparent 40%, rgba(165,243,252,0.9) 55%, transparent 66%);
+  background-size: 160px 110px;
+  filter: drop-shadow(0 0 5px rgba(56,189,248,0.7));
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-ocean-rise var(--kr-sway, 4.1s) linear infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-ocean::before {
+  background: linear-gradient(0deg, rgba(56,189,248,0.28), rgba(165,243,252,0.10) 60%, transparent);
+  box-shadow: inset 0 -10px 26px rgba(56,189,248,0.45);
+}
+@keyframes kr-ocean-rise {
+  0%   { background-position: 0 110px; }
+  100% { background-position: 0 0; }
+}
+
+/* =========================================================================
+   🌑 VOID WHISPER — หมอกมืดม่วงคืบจากสองฟาก หายใจเข้า-ออกช้าๆ
+   ========================================================================= */
+.kr-row-void::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    radial-gradient(ellipse 45% 130% at -5% 50%, rgba(109,40,217,0.75), rgba(76,29,149,0.35) 45%, transparent 72%),
+    radial-gradient(ellipse 45% 130% at 105% 50%, rgba(109,40,217,0.75), rgba(76,29,149,0.35) 45%, transparent 72%),
+    radial-gradient(ellipse 30% 90% at 50% 110%, rgba(167,139,250,0.45), transparent 68%);
+  filter: blur(9px) contrast(1.35);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-void-breathe var(--kr-sway, 3.3s) ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-void::before {
+  background: linear-gradient(90deg, rgba(76,29,149,0.45), rgba(30,27,75,0.18) 50%, rgba(76,29,149,0.45));
+  box-shadow: inset 0 0 34px rgba(76,29,149,0.65);
+}
+@keyframes kr-void-breathe {
+  0%   { transform: scaleX(1); filter: blur(9px) contrast(1.35) brightness(0.95); }
+  100% { transform: scaleX(1.12); filter: blur(12px) contrast(1.55) brightness(1.2); }
+}
+
+/* =========================================================================
+   🌌 STARFALL GALAXY — ทุ่งดาวกะพริบ + ดาวตกพาดเฉียง
+   ========================================================================= */
+.kr-row-galaxy::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  /* ดาวตก: เส้นเฉียงบางคม หัวสว่างจัด */
+  background: linear-gradient(114deg,
+    transparent 46%,
+    rgba(224,231,255,0.25) 48%,
+    rgba(255,255,255,0.95) 50%,
+    rgba(224,231,255,0.25) 52%,
+    transparent 54%);
+  background-size: 250% 100%;
+  filter: drop-shadow(0 0 6px rgba(199,210,254,0.95));
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-galaxy-fall 12s cubic-bezier(0.3, 0, 0.2, 1) infinite;
+  animation-delay: var(--kr-row-delay, 0s), var(--kr-row-delay, 0s);
+}
+/* ทุ่งดาว: จุดเล็กหลายขนาดกะพริบพร้อมกันช้าๆ */
+.kr-row-galaxy::before {
+  background:
+    radial-gradient(circle 1.5px at 8% 30%, rgba(255,255,255,0.95), transparent),
+    radial-gradient(circle 1px at 19% 70%, rgba(199,210,254,0.9), transparent),
+    radial-gradient(circle 2px at 31% 22%, rgba(255,255,255,0.95), transparent),
+    radial-gradient(circle 1px at 44% 62%, rgba(165,180,252,0.9), transparent),
+    radial-gradient(circle 1.5px at 57% 34%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(circle 1px at 68% 76%, rgba(199,210,254,0.85), transparent),
+    radial-gradient(circle 2px at 81% 28%, rgba(255,255,255,0.95), transparent),
+    radial-gradient(circle 1px at 92% 58%, rgba(165,180,252,0.9), transparent),
+    linear-gradient(90deg, rgba(30,41,59,0.42), rgba(49,46,129,0.24) 55%, transparent);
+  box-shadow: inset 0 0 30px rgba(79,70,229,0.5);
+  animation: kr-row-tint 12s ease-in-out infinite, kr-galaxy-twinkle var(--kr-flick, 1.9s) ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+@keyframes kr-galaxy-fall {
+  0%        { background-position: -140% 0; }
+  22%, 100% { background-position: 140% 0; }
+}
+@keyframes kr-galaxy-twinkle {
+  0%   { filter: brightness(0.85); }
+  100% { filter: brightness(1.5); }
+}
+
+/* =========================================================================
+   📺 CYBER GLITCH — สัญญาณภาพแตก: แถบ RGB เหลื่อม + กระตุกเป็นเฟรม
+   ========================================================================= */
+.kr-row-glitch::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    repeating-linear-gradient(180deg,
+      rgba(34,211,238,0.55) 0 2px,
+      transparent 2px 5px,
+      rgba(244,63,94,0.45) 5px 7px,
+      transparent 7px 13px),
+    linear-gradient(90deg, transparent 20%, rgba(34,211,238,0.35) 50%, transparent 80%);
+  /* ตัดเป็นท่อนไม่เท่ากัน = ภาพขาดแบบจอเสีย */
+  clip-path: polygon(0 8%, 100% 8%, 100% 26%, 0 26%, 0 44%, 100% 44%, 100% 58%, 0 58%, 0 76%, 100% 76%, 100% 92%, 0 92%);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-glitch-jitter var(--kr-flick, 0.16s) steps(2, end) infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-glitch::before {
+  background: linear-gradient(90deg, rgba(34,211,238,0.22), rgba(244,63,94,0.16) 55%, transparent);
+  box-shadow: inset 0 0 28px rgba(34,211,238,0.45);
+}
+/* เลื่อนกระตุกซ้าย-ขวาเป็นเฟรมๆ พร้อมเหลื่อมสี RGB = สัญญาณขาด */
+@keyframes kr-glitch-jitter {
+  0%   { transform: translateX(-3px); filter: drop-shadow(3px 0 0 rgba(244,63,94,0.85)) drop-shadow(-3px 0 0 rgba(34,211,238,0.85)); }
+  100% { transform: translateX(3px);  filter: drop-shadow(-2px 0 0 rgba(244,63,94,0.7)) drop-shadow(2px 0 0 rgba(34,211,238,0.7)); }
 }
 
 /* ผู้ใช้ที่ตั้งค่า "ลดการเคลื่อนไหว" ในระบบ

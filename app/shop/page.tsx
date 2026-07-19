@@ -544,14 +544,17 @@ export default function ShopPage() {
           </div>
         ) : item.type === 'row' ? (
           /* ✨ พรีวิวเอฟเฟกต์แถว: จำลองแถว Leaderboard ย่อส่วน เอฟเฟกต์วิ่งจริงตามจังหวะที่จะได้ */
-          <div className="h-24 rounded-xl border-2 border-orange-100 dark:border-[#4B3965] hacker:border-green-900 mb-1 flex flex-col justify-center gap-1.5 p-2 bg-orange-50/60 dark:bg-black/20 hacker:bg-black/40">
+          <div className="h-32 rounded-xl border-2 border-orange-100 dark:border-[#4B3965] hacker:border-green-900 mb-1 flex flex-col justify-center gap-2 p-2.5 bg-orange-50/60 dark:bg-black/25 hacker:bg-black/50 overflow-hidden">
             {[0, 1, 2].map((r) => (
               <div
                 key={r}
-                className={`relative flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/70 dark:bg-white/5 hacker:bg-white/5 ${r === 1 ? rowEffectClass(item.rowId) : ''}`}
+                className={`relative flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg bg-white/70 dark:bg-white/5 hacker:bg-white/5 ${r === 1 ? rowEffectClass(item.rowId) : ''}`}
               >
-                <div className={`w-4 h-4 rounded-full shrink-0 ${r === 1 ? 'bg-orange-400 dark:bg-yellow-400 hacker:bg-green-500' : 'bg-orange-200 dark:bg-white/15 hacker:bg-green-900'}`} />
-                <div className={`h-1.5 rounded-full ${r === 1 ? 'w-2/3 bg-orange-300 dark:bg-yellow-500/60 hacker:bg-green-600' : 'w-1/2 bg-orange-200/70 dark:bg-white/10 hacker:bg-green-900'}`} />
+                <div className={`w-5 h-5 rounded-full shrink-0 ${r === 1 ? 'bg-orange-400 dark:bg-yellow-400 hacker:bg-green-500' : 'bg-orange-200 dark:bg-white/15 hacker:bg-green-900'}`} />
+                <div className="flex-1 flex flex-col gap-1">
+                  <div className={`h-1.5 rounded-full ${r === 1 ? 'w-3/4 bg-orange-300 dark:bg-yellow-500/60 hacker:bg-green-600' : 'w-1/2 bg-orange-200/70 dark:bg-white/10 hacker:bg-green-900'}`} />
+                  {r === 1 && <div className="h-1 w-2/5 rounded-full bg-orange-200 dark:bg-yellow-500/30 hacker:bg-green-800" />}
+                </div>
               </div>
             ))}
           </div>

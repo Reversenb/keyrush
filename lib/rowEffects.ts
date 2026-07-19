@@ -2,7 +2,7 @@
 // คลาสจริงอยู่ใน app/globals.css (.kr-row-<id>) และ rowId มาจาก src/shop/items.ts ฝั่ง backend
 
 // กันกรณี backend ส่ง id แปลกๆ มาแล้วได้คลาสมั่วๆ ติดไปกับ element
-const VALID_ROWS = ['ember', 'frost', 'thunder', 'gold', 'matrix', 'inferno', 'prism'] as const;
+const VALID_ROWS = ['ember', 'frost', 'thunder', 'gold', 'matrix', 'inferno', 'prism', 'sakura', 'ocean', 'void', 'galaxy', 'glitch'] as const;
 
 export type RowEffectId = (typeof VALID_ROWS)[number];
 
