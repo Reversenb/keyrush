@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gamepad2, Zap, Clock, Trophy, Loader2, Play, AlertCircle, XCircle, Keyboard, Monitor, TerminalSquare, Brain, Sparkles } from 'lucide-react';
+import { Gamepad2, Zap, Clock, Trophy, Play, AlertCircle, XCircle, Keyboard, Monitor, TerminalSquare, Brain, Sparkles } from 'lucide-react';
+import { PageSkeleton, sk, skCard } from '@/components/skeleton';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { apiFetch, clearUserState } from '@/lib/api';
@@ -393,25 +394,40 @@ export default function Page() {
         );
     };
 
-    // 🛡️ Loading Screen (Auth Check)
+    // 🛡️ Skeleton ตอนเช็คสิทธิ์ — ล้อโครงจริง (HUD ด้านบน + กล่องเกมใหญ่) จะได้ไม่กระโดดตอนโหลดเสร็จ
     if (isAuthChecking) {
         return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="h-screen flex flex-col items-center justify-center bg-background"
-            >
-                <Loader2 size={48} className="animate-spin text-orange-500 dark:text-yellow-400 hacker:text-green-500 mb-4" />
-                <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="font-bold text-slate-500 dark:text-slate-400 hacker:text-green-600"
-                >
-                    กำลังตรวจสอบสิทธิ์การเข้าถึง...
-                </motion.p>
-            </motion.div>
+            <PageSkeleton maxW="max-w-5xl">
+                <div className="flex flex-col gap-4" aria-hidden>
+                    {/* HUD: ปุ่มยกเลิก + เวลา + คะแนน + แถบเวลา */}
+                    <div className={`${skCard} rounded-[1.5rem] md:rounded-[2rem] p-3 md:p-5 flex flex-col gap-4`}>
+                        <div className="flex justify-between items-center gap-2 px-0 md:px-2">
+                            <div className="flex items-center gap-2 md:gap-5 min-w-0">
+                                <div className={`${sk} rounded-xl md:rounded-2xl w-10 h-10 md:w-14 md:h-14 shrink-0`} />
+                                <div className={`${sk} rounded-xl md:rounded-2xl w-10 h-10 md:w-14 md:h-14 shrink-0`} />
+                                <div className="flex flex-col gap-2 min-w-0">
+                                    <div className={`${sk} rounded-full h-3 w-24`} />
+                                    <div className={`${sk} rounded-lg h-7 md:h-9 w-20`} />
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                                <div className={`${sk} rounded-full h-3 w-16`} />
+                                <div className={`${sk} rounded-lg h-7 md:h-9 w-16 md:w-24`} />
+                            </div>
+                        </div>
+                        {/* แถบเวลา */}
+                        <div className={`${sk} h-3 w-full rounded-full`} />
+                    </div>
+
+                    {/* กล่องเล่นเกม */}
+                    <div className={`${skCard} rounded-[2.5rem] min-h-[420px] md:min-h-[520px] flex flex-col items-center justify-center gap-6 p-6`}>
+                        <div className={`${sk} rounded-[1.5rem] size-20 md:size-24`} />
+                        <div className={`${sk} rounded-2xl h-8 md:h-10 w-56 max-w-full`} />
+                        <div className={`${sk} rounded-full h-4 w-72 max-w-full`} />
+                        <div className={`${sk} rounded-[24px] h-14 w-48 mt-2`} />
+                    </div>
+                </div>
+            </PageSkeleton>
         );
     }
 
@@ -701,10 +717,22 @@ export default function Page() {
                         )}
 
                         {/* Screens อื่นๆ (Loading, Error, GameOver) */}
+                        {/* 💀 Skeleton ตอนโหลดคำสั่ง — ล้อโครงหน้าจอตอนเล่นจริง (ป้ายภารกิจ + โจทย์ + บรรทัดคำสั่ง)
+                            เพื่อให้พอโหลดเสร็จแล้วเนื้อหาไม่กระโดด */}
                         {gameState === 'loading' && (
-                            <div className="flex flex-col items-center justify-center w-full h-full p-6 md:p-10 opacity-60">
-                                <Loader2 size={56} className="animate-spin mb-4 text-orange-500 dark:text-yellow-400 hacker:text-green-500" />
-                                <p className="font-bold text-lg hacker:text-green-500">กำลังโหลดคำสั่ง...</p>
+                            <div className="flex-1 w-full flex flex-col items-center justify-start pt-5 md:pt-12 px-3 md:px-10 pb-4 md:pb-8 animate-in fade-in duration-300" aria-hidden>
+                                <div className="w-full max-w-4xl flex flex-col items-center md:items-start gap-3">
+                                    {/* ป้าย "ภารกิจ (OS)" */}
+                                    <div className={`${sk} rounded-full h-8 w-40`} />
+                                    {/* คำอธิบายโจทย์ */}
+                                    <div className={`${sk} rounded-full h-5 md:h-7 w-full max-w-2xl`} />
+                                    <div className={`${sk} rounded-full h-5 md:h-7 w-2/3 max-w-lg`} />
+                                </div>
+                                {/* บรรทัดคำสั่งตัวใหญ่ ($> ... ) */}
+                                <div className="w-full max-w-4xl flex items-center gap-3 md:gap-4 mt-8 md:mt-12">
+                                    <div className={`${sk} rounded-xl h-8 md:h-14 w-10 md:w-16 shrink-0`} />
+                                    <div className={`${sk} rounded-xl h-8 md:h-14 flex-1`} />
+                                </div>
                             </div>
                         )}
 

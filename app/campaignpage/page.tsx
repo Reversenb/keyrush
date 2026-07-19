@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Terminal, Monitor, Zap, Medal, Trophy, CheckCircle, Lock, Power } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import { SkelStatCards, SkelGridCards, sk } from '@/components/skeleton';
+import { sk, skCard } from '@/components/skeleton';
 import { apiFetch, clearUserState } from '@/lib/api';
 import { getRankByExp } from '@/lib/ranks';
 
@@ -208,14 +208,49 @@ export default function CampaignPage() {
       <div className="flex-1 relative z-10 p-4 md:p-6 lg:p-8 flex justify-center pb-20">
 
         {loading ? (
-          /* 💀 Skeleton เฉพาะหน้า Mission Control: หัวข้อ + สถิติ 3 ใบ + กริดภารกิจ 💀 */
+          /* 💀 Skeleton หน้า Mission Control: หัวข้อ + สถิติ 3 ใบ + การ์ดแผนที่สูง 600/700px 💀 */
           <div className="w-full max-w-[1200px] flex flex-col gap-4 md:gap-6 animate-in fade-in duration-300" aria-hidden>
-            <div className="flex flex-col items-center md:items-start gap-3">
-              <div className={`${sk} rounded-2xl h-10 md:h-12 w-64 md:w-96 max-w-full`} />
-              <div className={`${sk} rounded-full h-3.5 w-48 md:w-72 max-w-full`} />
+
+            {/* หัวข้อ Mission Control (มือถือกึ่งกลาง / จอกว้างชิดซ้าย เหมือนของจริง) */}
+            <div className="flex flex-col items-center md:items-start gap-2.5">
+              <div className={`${sk} rounded-2xl h-10 md:h-12 w-64 md:w-80 max-w-full`} />
+              <div className={`${sk} rounded-full h-3.5 w-52 md:w-64 max-w-full`} />
             </div>
-            <SkelStatCards n={3} cols="grid-cols-2 sm:grid-cols-3" />
-            <SkelGridCards n={8} cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
+
+            {/* สถิติ 3 ใบ — ใบแรกกินเต็มแถวบนมือถือ (col-span-2) เหมือนของจริง */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 shrink-0">
+              <div className={`${skCard} rounded-[28px] p-4 md:p-5 col-span-2 sm:col-span-1 flex flex-col gap-3`}>
+                <div className="flex items-center justify-between">
+                  <div className={`${sk} rounded-full h-3 w-24`} />
+                  <div className={`${sk} rounded-xl size-8`} />
+                </div>
+                <div className={`${sk} rounded-xl h-9 md:h-10 w-28`} />
+                <div className={`${sk} rounded-full h-2.5 w-full mt-1`} />
+              </div>
+              {[0, 1].map((i) => (
+                <div key={i} className={`${skCard} rounded-[28px] p-4 md:p-5 flex flex-col justify-center gap-3`}>
+                  <div className={`${sk} rounded-full h-3 w-20`} />
+                  <div className={`${sk} rounded-xl h-8 w-24`} />
+                </div>
+              ))}
+            </div>
+
+            {/* การ์ดแผนที่: สูงตายตัวเท่าของจริง + ป้ายสลับ OS มุมขวาบน + โหนด timeline กลางจอ */}
+            <div className={`${skCard} rounded-[40px] h-[600px] md:h-[700px] relative overflow-hidden`}>
+              <div className={`${skCard} absolute top-4 right-4 md:top-6 md:right-6 rounded-[24px] p-2.5 flex gap-4`}>
+                <div className={`${sk} rounded-[16px] h-10 w-24`} />
+                <div className={`${sk} rounded-[16px] h-10 w-24`} />
+              </div>
+              <div className="h-full flex flex-col items-center pt-28 gap-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex flex-col items-center gap-4" style={{ opacity: 1 - i * 0.18 }}>
+                    <div className={`${sk} rounded-full size-16 md:size-20`} />
+                    <div className={`${sk} rounded-full h-3 w-28`} />
+                    <div className={`${sk} w-1 h-8 rounded-full`} />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ) : (
         <motion.div

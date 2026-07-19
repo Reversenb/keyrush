@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import { PageSkeleton, SkelStatCards, SkelListRows, skCard, sk } from '@/components/skeleton';
+import { PageSkeleton, skCard, sk } from '@/components/skeleton';
 import {
   AlertTriangle, ArrowLeft, Star, Calendar,
   Terminal, Monitor, Trophy, Medal, MessageSquare
@@ -141,18 +141,67 @@ export default function PublicProfilePage() {
   };
 
   if (loading) return (
-    <PageSkeleton maxW="max-w-4xl">
-      {/* การ์ดโปรไฟล์สาธารณะ */}
-      <div className={`${skCard} rounded-[32px] p-6 md:p-8 mb-4 md:mb-6 flex items-center gap-4 md:gap-6`}>
-        <div className={`${sk} rounded-full w-20 h-20 md:w-24 md:h-24 shrink-0`} />
-        <div className="flex-1 flex flex-col gap-2.5">
-          <div className={`${sk} rounded-full h-5 w-44 max-w-full`} />
-          <div className={`${sk} rounded-full h-3.5 w-28`} />
-          <div className={`${sk} rounded-full h-3 w-56 max-w-full`} />
+    <PageSkeleton maxW="max-w-5xl">
+      {/* ── การ์ดโปรไฟล์: รูปสี่เหลี่ยมมนใหญ่ + ชื่อ/ป้าย/ไบโอ/ชิปข้อมูล ── */}
+      <div className="w-full glass-card p-8 md:p-10 mb-8 flex flex-col md:flex-row items-center gap-8">
+        <div className={`${sk} rounded-[32px] w-32 h-32 md:w-40 md:h-40 shrink-0`} />
+        <div className="flex-1 w-full min-w-0 flex flex-col items-center md:items-start gap-3">
+          <div className={`${sk} rounded-2xl h-9 md:h-11 w-56 max-w-full`} />
+          {/* ป้ายแรงค์ / ฉายา */}
+          <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+            <div className={`${sk} rounded-[12px] h-7 w-28`} />
+            <div className={`${sk} rounded-[12px] h-7 w-24`} />
+          </div>
+          {/* กล่องไบโอ */}
+          <div className={`${skCard} rounded-[24px] p-5 w-full max-w-xl mt-2 mb-2 flex flex-col gap-2.5`}>
+            <div className={`${sk} rounded-full h-3.5 w-full`} />
+            <div className={`${sk} rounded-full h-3.5 w-2/3`} />
+          </div>
+          {/* ชิปข้อมูล 2 อัน */}
+          <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+            <div className={`${sk} rounded-[20px] h-12 w-44`} />
+            <div className={`${sk} rounded-[20px] h-12 w-40`} />
+          </div>
         </div>
       </div>
-      <SkelStatCards n={4} />
-      <SkelListRows n={4} />
+
+      {/* ── การ์ดสถิติ Linux / Windows (2 ใบ) ── */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[0, 1].map((i) => (
+          <div key={i} className="glass-card p-8 flex flex-col gap-6">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className={`${sk} rounded-[20px] w-14 h-14 shrink-0`} />
+                <div className="flex flex-col gap-2 min-w-0">
+                  <div className={`${sk} rounded-full h-5 w-24`} />
+                  <div className={`${sk} rounded-full h-2.5 w-20`} />
+                </div>
+              </div>
+              {/* อันดับบนกระดาน */}
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <div className={`${sk} rounded-full h-2.5 w-16`} />
+                <div className={`${sk} rounded-xl h-9 w-14`} />
+                <div className={`${sk} rounded-[12px] h-7 w-24 mt-1`} />
+              </div>
+            </div>
+
+            {/* แถบ EXP + ชื่อแรงค์ */}
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-end">
+                <div className={`${sk} rounded-full h-2.5 w-20`} />
+                <div className={`${sk} rounded-full h-3 w-24`} />
+              </div>
+              <div className={`${sk} rounded-full h-3 w-full`} />
+            </div>
+
+            {/* กล่องสรุปด้านล่าง */}
+            <div className={`${skCard} rounded-[24px] p-5 flex justify-between items-center`}>
+              <div className={`${sk} rounded-full h-2.5 w-24`} />
+              <div className={`${sk} rounded-lg h-6 w-16`} />
+            </div>
+          </div>
+        ))}
+      </div>
     </PageSkeleton>
   );
 

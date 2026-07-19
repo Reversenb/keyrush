@@ -171,23 +171,27 @@ export default function ShopPage() {
   if (!mounted) return <div className="bg-background min-h-screen" />;
   if (loading) return (
     <PageSkeleton>
-      {/* แบนเนอร์ร้านค้า: ซ้ายไอคอน+ชื่อร้าน / ขวากล่องเหรียญ+ปุ่มคลัง (โครงเดียวกับหน้าจริง) */}
-      <div className={`${skCard} rounded-[32px] mb-4 md:mb-6 p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5`}>
-        <div className="flex items-center gap-4 min-w-0">
-          <div className={`${sk} rounded-[20px] md:rounded-[24px] size-16 md:size-20 shrink-0`} />
-          <div className="flex flex-col gap-2.5 min-w-0">
-            <div className={`${sk} rounded-full h-7 md:h-9 w-48 md:w-64 max-w-full`} />
-            <div className={`${sk} rounded-full h-3.5 w-56 md:w-80 max-w-full`} />
+      {/* แบนเนอร์ร้านค้า — ใช้ glass-card + ระยะเดียวกับของจริงเป๊ะ (มุมโค้ง 40px มาจาก glass-card) */}
+      <div className="glass-card p-5 md:p-8 mb-5 md:mb-7 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+        <div className="flex items-center gap-4 md:gap-5 min-w-0">
+          <div className={`${sk} rounded-[20px] md:rounded-[24px] size-16 md:size-20 shrink-0 -rotate-6`} />
+          <div className="min-w-0 flex flex-col gap-2.5">
+            {/* หัวข้อ "KeyRush Shop" (text-3xl/5xl) + คำโปรย */}
+            <div className={`${sk} rounded-full h-8 md:h-12 w-52 md:w-72 max-w-full`} />
+            <div className={`${sk} rounded-full h-3.5 md:h-4 w-56 md:w-80 max-w-full`} />
           </div>
         </div>
-        <div className="flex items-center gap-3 shrink-0 flex-wrap">
-          <div className={`${sk} rounded-2xl h-14 md:h-16 w-40`} />
-          <div className={`${sk} rounded-2xl h-12 md:h-13 w-32`} />
+        {/* ขวา: กล่องเหรียญ + ปุ่มคลัง — สูงเท่ากัน (items-stretch) + เงาทึบ 8px เหมือนของจริง */}
+        <div className="flex items-stretch gap-3 shrink-0 flex-wrap">
+          <div className={`${sk} rounded-2xl h-16 md:h-[72px] w-40 md:w-44 shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#14532d]`} />
+          <div className={`${sk} rounded-2xl h-16 md:h-[72px] w-36 md:w-40 shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#14532d]`} />
         </div>
       </div>
-      {/* แถบแท็บหมวด (ฉายา/ธีมเว็บ/เอฟเฟกต์) — กล่องเดียว 3 ปุ่ม ไม่มีปุ่มฝั่งขวา */}
-      <div className={`${skCard} rounded-[24px] md:rounded-[32px] p-2 md:p-3 flex gap-2 md:gap-3 w-full max-w-md mb-4 md:mb-6`}>
-        {Array.from({ length: 3 }).map((_, i) => <div key={i} className={`${sk} rounded-2xl h-10 md:h-11 flex-1`} />)}
+      {/* แถบแท็บหมวด (ฉายา/ธีมเว็บ/เอฟเฟกต์) — กล่องเดียว 3 ปุ่ม ชิดซ้าย ไม่มีปุ่มฝั่งขวา */}
+      <div className={`${skCard} rounded-[24px] md:rounded-[32px] p-2 md:p-3 flex gap-2 md:gap-3 w-full max-w-md mb-5 md:mb-7`}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className={`${sk} rounded-[16px] md:rounded-[20px] h-11 md:h-14 flex-1`} />
+        ))}
       </div>
       {/* การ์ดสินค้า */}
       <SkelGridCards n={6} />
@@ -247,24 +251,44 @@ export default function ShopPage() {
           <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-[70px] opacity-30 pointer-events-none bg-orange-300 dark:bg-yellow-500/40 hacker:bg-green-600/40 transition-colors" />
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 relative z-10">
-            {/* ซ้าย: ป้ายร้าน */}
+            {/* ซ้าย: ป้ายร้าน — โผล่ไล่ทีละชิ้น ไอคอนเด้งเข้ามาก่อน แล้วหัวข้อเลื่อนขึ้น */}
             <div className="flex items-center gap-4 md:gap-5 min-w-0">
-              <div className="size-16 md:size-20 shrink-0 rounded-[20px] md:rounded-[24px] border-4 border-white dark:border-[#4B3965] hacker:border-green-700 bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-900/20 text-orange-500 dark:text-yellow-400 hacker:text-green-500 flex items-center justify-center -rotate-6 shadow-sm transition-colors">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5, rotate: -30 }}
+                animate={{ opacity: 1, scale: 1, rotate: -6 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 16 }}
+                className="size-16 md:size-20 shrink-0 rounded-[20px] md:rounded-[24px] border-4 border-white dark:border-[#4B3965] hacker:border-green-700 bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-900/20 text-orange-500 dark:text-yellow-400 hacker:text-green-500 flex items-center justify-center shadow-sm transition-colors"
+              >
                 <ShoppingBag className="w-8 h-8 md:w-10 md:h-10" strokeWidth={3} />
-              </div>
+              </motion.div>
               <div className="min-w-0">
-                <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase text-orange-950 dark:text-white hacker:text-white cute-header leading-none">
+                <motion.h1
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12, duration: 0.45, ease: 'easeOut' }}
+                  className="text-3xl md:text-5xl font-black tracking-tighter uppercase text-orange-950 dark:text-white hacker:text-white cute-header leading-none"
+                >
                   KeyRush <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">Shop</span>
-                </h1>
-                <p className="mt-1.5 md:mt-2 text-[11px] md:text-sm font-bold text-orange-500 dark:text-yellow-500 hacker:text-green-600">
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.24, duration: 0.4, ease: 'easeOut' }}
+                  className="mt-1.5 md:mt-2 text-[11px] md:text-sm font-bold text-orange-500 dark:text-yellow-500 hacker:text-green-600"
+                >
                   ใช้เหรียญที่ได้จากการเล่น แลกของตกแต่งสุดเท่ ✨
-                </p>
+                </motion.p>
               </div>
             </div>
 
             {/* ขวา: เหรียญ + ปุ่มคลัง */}
             {/* items-stretch = ปุ่มคลังยืดสูงเท่ากล่องเหรียญเอง ไม่ต้องกำหนดความสูงตายตัว */}
-            <div className="flex items-stretch gap-3 shrink-0 flex-wrap">
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.45, ease: 'easeOut' }}
+              className="flex items-stretch gap-3 shrink-0 flex-wrap"
+            >
               {/* เงาทึบหนาเท่าปุ่ม → ฐานล่างของทั้งสองกล่องอยู่ระดับเดียวกันพอดี */}
               <div className="flex items-center gap-3 px-4 py-2.5 md:px-5 md:py-3 rounded-2xl border-4 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-800 shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#14532d] transition-colors">
                 <div className="size-9 md:size-10 rounded-xl flex items-center justify-center shadow-sm bg-amber-400 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]">
@@ -295,7 +319,7 @@ export default function ShopPage() {
                   </span>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
 

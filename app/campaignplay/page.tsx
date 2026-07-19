@@ -7,7 +7,7 @@ import type { TerminalHandle } from '@/components/TerminalBox';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { PageSkeleton, SkelTerminal, sk } from '@/components/skeleton';
+import { PageSkeleton, sk, skCard } from '@/components/skeleton';
 import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 // 🌟 Import Components 
@@ -394,13 +394,74 @@ export default function GamePage() {
   const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : currentTheme === 'sky' ? '#0ea5e9' : currentTheme === 'mint' ? '#10b981' : (isLinux ? '#f97316' : '#3b82f6');
 
   if (isInitializing) return (
-    <PageSkeleton maxW="max-w-5xl">
-      {/* แถบหัวภารกิจ */}
-      <div className="flex items-center justify-center gap-3 mb-5 md:mb-6">
-        <div className={`${sk} rounded-2xl h-8 w-24`} />
-        <div className={`${sk} rounded-full h-5 w-40 md:w-56`} />
+    <PageSkeleton maxW="max-w-[1800px]">
+      {/* ── Mission Banner: ซ้าย Level+ชื่อด่าน+กล่องโจทย์ / ขวา WPM+ACC ── */}
+      <div className="glass-card p-6 md:p-8 mb-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+        <div className="flex-1 w-full xl:w-auto xl:pr-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className={`${sk} rounded-[12px] h-8 w-24 shrink-0`} />
+            <div className={`${sk} rounded-2xl h-9 md:h-11 w-56 md:w-80 max-w-full`} />
+          </div>
+          {/* กล่องโจทย์ (border-4 rounded-[20px]) */}
+          <div className={`${skCard} rounded-[20px] px-5 py-4 flex items-start gap-3`}>
+            <div className={`${sk} rounded-full h-6 w-16 shrink-0`} />
+            <div className="flex-1 flex flex-col gap-2.5 min-w-0">
+              <div className={`${sk} rounded-full h-4 w-full`} />
+              <div className={`${sk} rounded-full h-4 w-3/5`} />
+            </div>
+          </div>
+        </div>
+        {/* กล่อง WPM / ACC */}
+        <div className="flex gap-4 w-full xl:w-auto shrink-0 mt-4 xl:mt-0">
+          <div className={`${skCard} rounded-[24px] px-8 py-4 w-full xl:w-auto flex items-center justify-around xl:justify-center gap-8`}>
+            {[0, 1].map((i) => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className={`${sk} rounded-full h-2.5 w-10`} />
+                <div className={`${sk} rounded-xl h-8 w-14`} />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <SkelTerminal />
+
+      {/* ── ตัวเกม: Terminal (7 ส่วน) + แผงไฟล์จำลอง (5 ส่วน) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px]">
+        <div className={`${skCard} lg:col-span-7 rounded-[32px] overflow-hidden flex flex-col`}>
+          {/* แถบควบคุมด้านบน: จุด 3 สี + ชื่อ + ปุ่มตั้งค่า */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b-4 border-orange-50 dark:border-[#382E54] hacker:border-[#166534] transition-colors">
+            <div className="flex gap-2">
+              {[0, 1, 2].map((i) => <div key={i} className={`${sk} size-4 rounded-full`} />)}
+            </div>
+            <div className={`${sk} rounded-full h-3.5 w-32 ml-2`} />
+            <div className="flex-1" />
+            {[0, 1, 2].map((i) => <div key={i} className={`${sk} rounded-xl size-8 shrink-0`} />)}
+          </div>
+          {/* จอ terminal */}
+          <div className="flex-1 p-5 md:p-6 flex flex-col gap-3.5">
+            {['92%', '64%', '78%', '45%', '85%', '38%'].map((w, i) => (
+              <div key={i} className={`${sk} rounded-full h-4`} style={{ width: w, opacity: 1 - i * 0.1 }} />
+            ))}
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 flex flex-col gap-6">
+          {/* กล่องระบบไฟล์ */}
+          <div className={`${skCard} rounded-[32px] p-5 flex-1 flex flex-col gap-4`}>
+            <div className={`${sk} rounded-full h-4 w-36`} />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3" style={{ opacity: 1 - i * 0.12 }}>
+                <div className={`${sk} rounded-lg size-7 shrink-0`} />
+                <div className={`${sk} rounded-full h-3.5`} style={{ width: `${65 - i * 7}%` }} />
+              </div>
+            ))}
+          </div>
+          {/* กล่องคำใบ้ */}
+          <div className={`${skCard} rounded-[32px] p-5 flex flex-col gap-3`}>
+            <div className={`${sk} rounded-full h-3.5 w-24`} />
+            <div className={`${sk} rounded-2xl h-11 w-full`} />
+          </div>
+        </div>
+      </div>
     </PageSkeleton>
   );
 
