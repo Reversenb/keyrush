@@ -134,6 +134,56 @@
   --color-pink-950: #082f49;
 }
 
+/* 🌿 Mint — ฐานธีมสว่าง (สูตรเดียวกับ Sky): เปลี่ยนพาเลตต์ส้ม+amber+pink ทั้งชุดเป็นเขียวมิ้นพาสเทล */
+:root.mint {
+  --background: #ecfdf5;
+  --foreground: #022c22;
+  --shimmer-base: rgba(16, 185, 129, 0.15);
+  --shimmer-highlight: rgba(16, 185, 129, 0.35);
+
+  --color-orange-50: #ecfdf5;
+  --color-orange-100: #d1fae5;
+  --color-orange-200: #a7f3d0;
+  --color-orange-300: #6ee7b7;
+  --color-orange-400: #34d399;
+  --color-orange-500: #10b981;
+  --color-orange-600: #059669;
+  --color-orange-700: #047857;
+  --color-orange-800: #065f46;
+  --color-orange-900: #064e3b;
+  --color-orange-950: #022c22;
+
+  --color-amber-50: #ecfdf5;
+  --color-amber-100: #d1fae5;
+  --color-amber-200: #a7f3d0;
+  --color-amber-300: #6ee7b7;
+  --color-amber-400: #34d399;
+  --color-amber-500: #10b981;
+  --color-amber-600: #059669;
+  --color-amber-700: #047857;
+  --color-amber-800: #065f46;
+  --color-amber-900: #064e3b;
+  --color-amber-950: #022c22;
+
+  --color-primary: #10b981;
+  --color-primary-light: #6ee7b7;
+  --color-accent: #34d399;
+  --color-peach: #d1fae5;
+  --color-surface-darker: #ecfdf5;
+
+  --color-pink-50: #ecfdf5;
+  --color-pink-100: #d1fae5;
+  --color-pink-200: #a7f3d0;
+  --color-pink-300: #6ee7b7;
+  --color-pink-400: #34d399;
+  --color-pink-500: #10b981;
+  --color-pink-600: #059669;
+  --color-pink-700: #047857;
+  --color-pink-800: #065f46;
+  --color-pink-900: #064e3b;
+  --color-pink-950: #022c22;
+}
+
 /* 🐉 Red Dragon — ฐานธีม Hacker: เปลี่ยนพาเลตต์เขียวทั้งชุดเป็นแดงเพลิง
    ⚠️ ใช้ :root.dragon ด้วยเหตุผลเดียวกับ Sakura (ต้องชนะ :root ของ Tailwind) */
 :root.dragon {
@@ -292,6 +342,34 @@
 :root.sky ::-webkit-scrollbar-track { background: #f0f9ff !important; }
 :root.sky ::-webkit-scrollbar-thumb { background: #bae6fd !important; }
 :root.sky ::-webkit-scrollbar-thumb:hover { background: #0ea5e9 !important; }
+
+/* 🌿 Mint — ชุดเดียวกับ Sky แต่โทนเขียวมิ้น */
+:root.mint .glass-card { box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12); }
+:root.mint .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); }
+:root.mint .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.6); }
+
+.mint [class*="shadow-[0_0_20px_rgba(249,115,22,0.2)]" i] { box-shadow: 0 0 20px rgba(16,185,129,0.2) !important; }
+.mint [class*="shadow-[0_0_30px_rgba(249,115,22,0.4)]" i] { box-shadow: 0 0 30px rgba(16,185,129,0.4) !important; }
+.mint [class*="shadow-[0_10px_0_#c2410c]" i] { box-shadow: 0 10px 0 #047857 !important; }
+.mint [class*="shadow-[0_10px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 10px 0 rgba(16,185,129,0.2) !important; }
+.mint [class*="shadow-[0_10px_40px_rgba(249,115,22,0.12)]" i] { box-shadow: 0 10px 40px rgba(16,185,129,0.12) !important; }
+.mint [class*="shadow-[0_15px_30px_rgba(249,115,22,0.15)]" i] { box-shadow: 0 15px 30px rgba(16,185,129,0.15) !important; }
+.mint [class*="shadow-[0_20px_50px_rgba(249,115,22,0.15)]" i] { box-shadow: 0 20px 50px rgba(16,185,129,0.15) !important; }
+.mint [class*="shadow-[0_4px_0_#c2410c]" i] { box-shadow: 0 4px 0 #047857 !important; }
+.mint [class*="shadow-[0_4px_0_#ea580c]" i] { box-shadow: 0 4px 0 #059669 !important; }
+.mint [class*="shadow-[0_4px_0_#fdba74]" i] { box-shadow: 0 4px 0 #6ee7b7 !important; }
+.mint [class*="shadow-[0_4px_0_#fed7aa]" i] { box-shadow: 0 4px 0 #a7f3d0 !important; }
+.mint [class*="shadow-[0_6px_0_#c2410c]" i] { box-shadow: 0 6px 0 #047857 !important; }
+.mint [class*="shadow-[0_6px_0_#fed7aa]" i] { box-shadow: 0 6px 0 #a7f3d0 !important; }
+.mint [class*="shadow-[0_6px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 6px 0 rgba(16,185,129,0.2) !important; }
+.mint [class*="shadow-[0_8px_0_#c2410c]" i] { box-shadow: 0 8px 0 #047857 !important; }
+.mint [class*="shadow-[0_8px_0_#fed7aa]" i] { box-shadow: 0 8px 0 #a7f3d0 !important; }
+.mint [class*="shadow-[0_8px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 8px 0 rgba(16,185,129,0.2) !important; }
+.mint [class*="shadow-[0_4px_0_#be185d]" i] { box-shadow: 0 4px 0 #047857 !important; }
+
+:root.mint ::-webkit-scrollbar-track { background: #ecfdf5 !important; }
+:root.mint ::-webkit-scrollbar-thumb { background: #a7f3d0 !important; }
+:root.mint ::-webkit-scrollbar-thumb:hover { background: #10b981 !important; }
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -20,11 +20,11 @@ const dateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padS
 // 📅 ปฏิทินประวัติ — วันไหนมีภารกิจจะมีพื้นสี accent (เข้มตามจำนวน) + จุด
 // จิ้มวันเพื่อกรองตาราง จิ้มซ้ำเพื่อล้าง เลื่อนดูเดือนก่อนหน้าได้
 // =========================================================================
-function HistoryCalendar({ activityByDay, selectedDate, onSelect, isDark, isHacker, isDragon, isSakura, isSky }: {
+function HistoryCalendar({ activityByDay, selectedDate, onSelect, isDark, isHacker, isDragon, isSakura, isSky, isMint }: {
   activityByDay: Record<string, number>;
   selectedDate: string | null;
   onSelect: (key: string | null) => void;
-  isDark: boolean; isHacker: boolean; isDragon: boolean; isSakura: boolean; isSky: boolean;
+  isDark: boolean; isHacker: boolean; isDragon: boolean; isSakura: boolean; isSky: boolean; isMint: boolean;
 }) {
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -36,7 +36,7 @@ function HistoryCalendar({ activityByDay, selectedDate, onSelect, isDark, isHack
   const todayKey = dateKey(today);
   const maxCount = Math.max(1, ...Object.values(activityByDay));
 
-  const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#facc15' : isSakura ? '#ec4899' : isSky ? '#0ea5e9' : '#f97316';
+  const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#facc15' : isSakura ? '#ec4899' : isSky ? '#0ea5e9' : isMint ? '#10b981' : '#f97316';
   const navBtn = `btn-squishy size-9 rounded-xl border-2 flex items-center justify-center transition-colors ${isHacker ? 'bg-[#111] border-green-800 text-green-500 hover:border-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-yellow-400 hover:border-yellow-400' : 'bg-white border-orange-100 text-orange-500 hover:border-orange-300'}`;
   const selectedCls = isHacker ? 'bg-green-500 text-[#0a0a0a] border-green-300 shadow-md scale-105' : isDark ? 'bg-yellow-400 text-[#1E1B2E] border-yellow-200 shadow-md scale-105' : 'bg-orange-500 text-white border-white shadow-md scale-105';
   const inkCls = isHacker ? 'text-green-400' : isDark ? 'text-white/90' : 'text-orange-950';
@@ -359,6 +359,7 @@ export default function HistoryPage() {
               isDragon={isDragon}
               isSakura={currentTheme === 'sakura'}
               isSky={currentTheme === 'sky'}
+              isMint={currentTheme === 'mint'}
             />
           </motion.div>
 
