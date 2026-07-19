@@ -22,8 +22,24 @@ const baloo = Baloo_2({
 });
 
 export const metadata: Metadata = {
-  title: "Keyrush",
-  description: "Learn terminal commands by playing - ฝึกพิมพ์คำสั่งอย่างสนุกสนาน",
+  // ⚓ ฐาน URL ของเว็บจริง — ทำให้ลิงก์รูป og:image เป็น absolute (โซเชียล/แชทต้องการ URL เต็ม)
+  metadataBase: new URL("https://keyrush-swart.vercel.app"),
+  title: "KeyRush — เกมฝึกพิมพ์คำสั่ง Terminal",
+  description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard — Learn terminal commands by playing.",
+  // 🖼️ เวลาแชร์ลิงก์ให้ขึ้น banner + ชื่อ + คำโปรย (Next auto-ใส่ og:image จาก opengraph-image.tsx)
+  openGraph: {
+    title: "KeyRush — เกมฝึกพิมพ์คำสั่ง Terminal",
+    description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard",
+    url: "https://keyrush-swart.vercel.app",
+    siteName: "KeyRush",
+    locale: "th_TH",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image", // การ์ดรูปใหญ่เต็มความกว้าง
+    title: "KeyRush — เกมฝึกพิมพ์คำสั่ง Terminal",
+    description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
