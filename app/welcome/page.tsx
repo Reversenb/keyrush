@@ -21,6 +21,8 @@ export default function WelcomePage() {
   // State สำหรับฟอร์มแก้ชื่อ
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  // เหตุผลที่เซิร์ฟเวอร์ปฏิเสธชื่อ (เช่น มีคำไม่สุภาพ) — ถ้าไม่โชว์ ผู้ใช้จะงงว่ากดแล้วเงียบ
+  const [nameError, setNameError] = useState<string | null>(null);
   const [showForm, setShowNameForm] = useState(false);
 
   // State สำหรับแอนิเมชัน Terminal
@@ -73,6 +75,7 @@ export default function WelcomePage() {
     if (!newDisplayName.trim()) return;
 
     setIsUpdating(true);
+    setNameError(null);
 
     try {
       const res = await apiFetch('/api/user/profile', {
@@ -80,16 +83,18 @@ export default function WelcomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName: newDisplayName })
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-      if (data.success) {
+      if (res.ok && data?.success) {
         setUser({ ...user, displayName: newDisplayName });
         setShowNameForm(false);
         const savedUser = JSON.parse(localStorage.getItem('keyrush_user') || '{}');
         localStorage.setItem('keyrush_user', JSON.stringify({ ...savedUser, displayName: newDisplayName }));
+      } else {
+        setNameError(data?.message || 'ตั้งชื่อไม่สำเร็จ กรุณาลองใหม่');
       }
     } catch (err) {
-      console.error("Update name error", err);
+      setNameError('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่');
     } finally {
       setIsUpdating(false);
     }
@@ -234,7 +239,7 @@ export default function WelcomePage() {
                         type="text"
                         maxLength={20}
                         value={newDisplayName}
-                        onChange={(e) => setNewDisplayName(e.target.value)}
+                        onChange={(e) => { setNewDisplayName(e.target.value); if (nameError) setNameError(null); }}
                         placeholder="ตั้งชื่อเล่นสายลับของคุณ..."
                         className={`bg-transparent border-none outline-none font-black text-base w-full transition-colors duration-500 ${isHacker ? 'text-green-400 placeholder:text-green-800' : isDark ? 'text-white placeholder:text-white/30' : 'text-orange-950 placeholder:text-[#5D4037]/50'}`}
                         autoFocus
@@ -262,6 +267,13 @@ export default function WelcomePage() {
                         )}
                       </div>
                     </div>
+
+                    {/* ⚠️ เหตุผลที่ตั้งชื่อไม่ผ่าน */}
+                    {nameError && (
+                      <p className={`text-xs font-black text-center px-4 py-2 rounded-2xl border-2 transition-colors ${isHacker ? 'bg-rose-900/20 border-rose-800 text-rose-400' : isDark ? 'bg-rose-500/10 border-rose-500/40 text-rose-300' : 'bg-rose-50 border-rose-200 text-rose-600'}`}>
+                        {nameError}
+                      </p>
+                    )}
                   </div>
                 </motion.form>
               ) : (

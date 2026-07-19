@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
-  Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw, Bot
+  Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw, Bot, AlertTriangle, X
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
@@ -58,6 +58,8 @@ export default function ProfilePage() {
 
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  // เหตุผลที่เซิร์ฟเวอร์ปฏิเสธ (เช่น ชื่อเล่นมีคำไม่สุภาพ) — ต้องโชว์ให้ผู้ใช้รู้ว่าต้องแก้อะไร
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -140,32 +142,44 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setSaving(true);
     setSaveSuccess(false);
+    setSaveError(null);
 
     const finalAvatar = image ? (await createCroppedImage() || editAvatar) : editAvatar;
 
-    const savedUser = JSON.parse(localStorage.getItem('keyrush_user') || '{}');
-    const updatedUser = { ...savedUser, displayName, avatar: finalAvatar, bio };
-    localStorage.setItem('keyrush_user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
-
-    if (image) {
-      setEditAvatar(finalAvatar as string);
-      setImage(null);
-    }
-
     try {
-      await apiFetch('/api/user/profile', {
+      // ⚠️ ต้องรอผลจากเซิร์ฟเวอร์ก่อน แล้วค่อยเซฟลงเครื่อง
+      // (ของเดิมเซฟลง localStorage ทันทีแล้วไม่สนคำตอบ — ถ้าโดนปฏิเสธเพราะคำไม่สุภาพ
+      //  ผู้ใช้จะยังเห็นชื่อใหม่ค้างอยู่ในเครื่องและขึ้นว่า Saved ทั้งที่ไม่ได้บันทึกจริง)
+      const res = await apiFetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName, avatar: finalAvatar, bio })
       });
-    } catch (err) {
-      console.warn("Save to backend failed (Offline mode). Data saved locally.");
-    } finally {
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success) {
+        setSaveError(data?.message || 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+        setSaving(false);
+        return;
+      }
+
+      // ผ่านแล้วค่อยอัปเดตฝั่งเครื่อง
+      const savedUser = JSON.parse(localStorage.getItem('keyrush_user') || '{}');
+      const updatedUser = { ...savedUser, displayName, avatar: finalAvatar, bio };
+      localStorage.setItem('keyrush_user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      window.dispatchEvent(new Event('keyrush-user-updated'));
+
+      if (image) {
+        setEditAvatar(finalAvatar as string);
+        setImage(null);
+      }
+
       setSaveSuccess(true);
-      setTimeout(() => {
-        setSaveSuccess(false);
-      }, 3000);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err) {
+      setSaveError('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาลองใหม่อีกครั้ง');
+    } finally {
       setSaving(false);
     }
   };
@@ -303,6 +317,40 @@ export default function ProfilePage() {
               <h4 className={`font-black uppercase tracking-widest text-sm cute-header ${isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-green-600'}`}>Update Successful</h4>
               <p className="text-xs font-bold opacity-80 mt-0.5">ระบบได้บันทึกข้อมูลโปรไฟล์ของคุณแล้ว ✨</p>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ⚠️ แจ้งเตือนเมื่อเซิร์ฟเวอร์ปฏิเสธ (เช่น ชื่อเล่นมีคำไม่สุภาพ / ชื่อสงวน) */}
+      <AnimatePresence>
+        {saveError && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: -30, scale: 0.9, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className={`fixed top-24 left-1/2 z-[200] flex items-center gap-4 px-6 py-4 rounded-[24px] border-4 shadow-xl max-w-[92vw] transition-colors duration-500
+              ${isHacker
+                ? 'bg-[#0a0a0a] border-rose-600 text-rose-400 shadow-[0_8px_0_#7f1d1d]'
+                : isDark
+                  ? 'bg-[#1E1B2E] border-rose-500 text-rose-300 shadow-[0_8px_0_#881337]'
+                  : 'bg-white border-rose-400 text-rose-600 shadow-[0_8px_0_#fda4af]'
+              }`}
+          >
+            <div className={`p-2 rounded-xl shrink-0 ${isHacker ? 'bg-rose-900/40' : isDark ? 'bg-rose-500/10' : 'bg-rose-100'}`}>
+              <AlertTriangle size={28} strokeWidth={3} className="text-rose-500" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="font-black uppercase tracking-widest text-sm cute-header">บันทึกไม่สำเร็จ</h4>
+              <p className="text-xs font-bold opacity-90 mt-0.5">{saveError}</p>
+            </div>
+            <button
+              onClick={() => setSaveError(null)}
+              className="ml-2 shrink-0 p-1.5 rounded-xl opacity-60 hover:opacity-100 transition-opacity"
+              aria-label="ปิด"
+            >
+              <X size={18} strokeWidth={3} />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
