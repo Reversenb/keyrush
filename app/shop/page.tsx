@@ -14,15 +14,16 @@ import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import { PageSkeleton, SkelGridCards, skCard, sk } from '@/components/skeleton';
 import {
-  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart, CircleUserRound
+  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart, CircleUserRound, Flame
 } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import { apiFetch, clearUserState } from '@/lib/api';
 import { frameClass } from '@/lib/frames';
+import { rowEffectClass } from '@/lib/rowEffects';
 
 interface ShopItem {
   id: string;
-  type: 'title' | 'theme' | 'cursor' | 'frame';
+  type: 'title' | 'theme' | 'cursor' | 'frame' | 'row';
   name: string;
   desc: string;
   price: number;
@@ -32,6 +33,7 @@ interface ShopItem {
   cursorId?: string;
   emoji?: string;
   frameId?: string;
+  rowId?: string;
 }
 
 export default function ShopPage() {
@@ -51,7 +53,8 @@ export default function ShopPage() {
   const [equippedTheme, setEquippedTheme] = useState<string | null>(null);
   const [equippedCursor, setEquippedCursor] = useState<string | null>(null);
   const [equippedFrame, setEquippedFrame] = useState<string | null>(null);
-  const [tab, setTab] = useState<'title' | 'theme' | 'cursor' | 'frame'>('title');
+  const [equippedRow, setEquippedRow] = useState<string | null>(null);
+  const [tab, setTab] = useState<'title' | 'theme' | 'cursor' | 'frame' | 'row'>('title');
   // 🏪 มุมมอง: ร้านค้า หรือ คลังของที่ซื้อแล้ว
   const [view, setView] = useState<'shop' | 'inventory'>('shop');
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -83,6 +86,7 @@ export default function ShopPage() {
         setEquippedTheme(data.data.equippedTheme ?? null);
         setEquippedCursor(data.data.equippedCursor ?? null);
         setEquippedFrame(data.data.equippedFrame ?? null);
+        setEquippedRow(data.data.equippedRow ?? null);
       }
     } catch (e) {
       console.error('Load shop failed', e);
@@ -148,6 +152,8 @@ export default function ShopPage() {
             }
           } catch { }
           window.dispatchEvent(new Event('keyrush-user-updated'));
+        } else if (item.type === 'row') {
+          setEquippedRow(next);
         } else if (item.type === 'frame') {
           setEquippedFrame(next);
           // 🖼️ อัปเดต cache + แจ้ง Navbar ให้เปลี่ยนกรอบรูปทันที ไม่ต้องรีเฟรช
@@ -219,7 +225,7 @@ export default function ShopPage() {
   const invVisible = visible.filter((i) => ownedIds.includes(i.id));
   const ownedCountOf = (t: ShopItem['type']) => items.filter((i) => i.type === t && ownedIds.includes(i.id)).length;
   const equippedFor = (i: ShopItem) =>
-    (i.type === 'title' ? equippedTitle : i.type === 'theme' ? equippedTheme : i.type === 'frame' ? equippedFrame : equippedCursor) === i.id;
+    (i.type === 'title' ? equippedTitle : i.type === 'theme' ? equippedTheme : i.type === 'frame' ? equippedFrame : i.type === 'row' ? equippedRow : equippedCursor) === i.id;
 
   const tabBtn = (active: boolean) =>
     `flex-1 min-w-0 px-1 py-3 md:py-4 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wide whitespace-nowrap flex items-center justify-center gap-1 md:gap-2 border-4 btn-squishy transition-colors ${active
@@ -365,6 +371,10 @@ export default function ShopPage() {
           <button onClick={() => setTab('frame')} className={tabBtn(tab === 'frame')}>
             <CircleUserRound size={16} strokeWidth={3} /> กรอบรูป
             {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('frame')})</span>}
+          </button>
+          <button onClick={() => setTab('row')} className={tabBtn(tab === 'row')}>
+            <Flame size={16} strokeWidth={3} /> เอฟเฟกต์แถว
+            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('row')})</span>}
           </button>
           <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>
             <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
@@ -531,6 +541,19 @@ export default function ShopPage() {
             <span className="px-3 py-1.5 rounded-xl text-xs font-black border-2 shadow-sm bg-orange-100 border-white text-orange-600 dark:bg-yellow-400/15 dark:border-[#4B3965] dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
               {item.label}
             </span>
+          </div>
+        ) : item.type === 'row' ? (
+          /* ✨ พรีวิวเอฟเฟกต์แถว: จำลองแถว Leaderboard ย่อส่วน เอฟเฟกต์วิ่งจริงตามจังหวะที่จะได้ */
+          <div className="h-24 rounded-xl border-2 border-orange-100 dark:border-[#4B3965] hacker:border-green-900 mb-1 flex flex-col justify-center gap-1.5 p-2 bg-orange-50/60 dark:bg-black/20 hacker:bg-black/40">
+            {[0, 1, 2].map((r) => (
+              <div
+                key={r}
+                className={`relative flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/70 dark:bg-white/5 hacker:bg-white/5 ${r === 1 ? rowEffectClass(item.rowId) : ''}`}
+              >
+                <div className={`w-4 h-4 rounded-full shrink-0 ${r === 1 ? 'bg-orange-400 dark:bg-yellow-400 hacker:bg-green-500' : 'bg-orange-200 dark:bg-white/15 hacker:bg-green-900'}`} />
+                <div className={`h-1.5 rounded-full ${r === 1 ? 'w-2/3 bg-orange-300 dark:bg-yellow-500/60 hacker:bg-green-600' : 'w-1/2 bg-orange-200/70 dark:bg-white/10 hacker:bg-green-900'}`} />
+              </div>
+            ))}
           </div>
         ) : item.type === 'frame' ? (
           /* 🖼️ พรีวิวกรอบ: วงกลมรูปโปรไฟล์จำลองพร้อมกรอบจริงที่จะได้ */

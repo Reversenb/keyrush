@@ -376,6 +376,333 @@
 .mint [class*="shadow-[0_6px_0_#be185d]" i] { box-shadow: 0 6px 0 #047857 !important; }
 
 /* =========================================================================
+   ✨ เอฟเฟกต์แถว Leaderboard (.kr-row-<id>)
+   วนลูปเองด้วย CSS animation ล้วน — ไม่ต้องใช้ timer ใน JS (ไม่กิน re-render)
+   จังหวะ: รอบละ 12 วิ โชว์จริงช่วงแรก ~3.5 วิ (0-30%) แล้วซ่อนยาวจนครบรอบ
+   id ต้องตรงกับ rowId ในแคตตาล็อกฝั่ง backend (src/shop/items.ts)
+   ========================================================================= */
+/* isolation: isolate = สร้าง stacking context ปิดตายที่ตัวแถว
+   พอคู่กับ z-index: -1 ที่ ::before/::after ด้านล่าง เอฟเฟกต์จะถูกวาด
+   "เหนือพื้นหลังแถว แต่ใต้เนื้อหาทุกชิ้น" เสมอ
+   ⚠️ วิธีนี้ทนกว่าการไล่ตั้ง z-index ให้ลูก เพราะไม่ต้องพึ่งว่าลูกจะรับ z-index ได้ไหม
+      (ลูกที่เป็น static หรือสร้าง stacking context ของตัวเอง จะทำให้วิธีเดิมพัง) */
+[class*="kr-row-"] { position: relative; isolation: isolate; }
+
+/* ชั้นที่ 1: ย้อมสีทั้งแถว + เรืองขอบ (จางเข้า-ออก) */
+[class*="kr-row-"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  animation: kr-row-tint 12s ease-in-out infinite;
+  /* หน่วงต่างกันตามลำดับแถว — ตัวแปรถ่ายทอดจาก element แม่ได้ (ต่างจาก animation-delay ที่ไม่ถ่ายทอด) */
+  animation-delay: var(--kr-row-delay, 0s);
+}
+/* ชั้นที่ 2: แถบแสงกวาดซ้าย→ขวา (ตัวที่ทำให้สะดุดตา) */
+[class*="kr-row-"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transform: skewX(-18deg);
+  animation: kr-row-sweep 12s ease-out infinite;
+  animation-delay: var(--kr-row-delay, 0s);
+}
+
+@keyframes kr-row-tint {
+  0%          { opacity: 0; }
+  6%, 22%     { opacity: 1; }
+  30%, 100%   { opacity: 0; }
+}
+@keyframes kr-row-sweep {
+  0%          { opacity: 0; left: -50%; }
+  4%          { opacity: 1; }
+  26%         { opacity: 1; }
+  30%, 100%   { opacity: 0; left: 105%; }
+}
+
+/* ── สีประจำแต่ละเอฟเฟกต์ ── */
+
+
+
+
+
+
+
+/* =========================================================================
+   🔥 ไฟแบบสมจริง (ใช้กับ ember / inferno)
+   หลักการ: แทนที่จะเป็นแถบแสงกวาด → ทำ "ลิ้นไฟ" ลุกจากขอบล่างของแถว
+   1) ซ้อนก้อนไฟหลายก้อนด้วย radial-gradient หลายชั้นในพร็อพเพอร์ตี้เดียว
+   2) blur() แล้ว contrast() แรงๆ → ขอบก้อนไฟกลืนรวมกันเป็นรูปทรงอินทรีย์แบบไฟจริง
+      (ถ้าไม่ทำขั้นนี้จะเห็นเป็นวงกลมเบลอๆ ไม่เหมือนไฟ)
+   3) กระพริบด้วย animation คนละชุด ความยาวเป็นเลขที่หารกันไม่ลงตัว
+      → จังหวะไม่ซ้ำรอบเดิม ดูสุ่มเหมือนไฟจริง (ถ้าใช้จังหวะเดียวจะเห็นว่าวนลูป)
+   ========================================================================= */
+.kr-row-ember::after,
+.kr-row-inferno::after {
+  /* เกาะขอบล่างเต็มความกว้าง แทนที่จะเป็นแถบเอียงกวาดข้าง */
+  top: auto;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 85%;
+  transform: none;
+  /* ลิ้นไฟ 7 ก้อน สูง-ต่ำ-กว้างไม่เท่ากัน (ไฟจริงไม่สมมาตร) */
+  background:
+    radial-gradient(ellipse 7% 62% at 6% 104%,  rgba(255,247,190,0.95), rgba(255,140,25,0.72) 42%, transparent 70%),
+    radial-gradient(ellipse 6% 82% at 20% 104%, rgba(255,238,150,0.95), rgba(255,105,15,0.70) 42%, transparent 70%),
+    radial-gradient(ellipse 8% 54% at 34% 104%, rgba(255,225,130,0.90), rgba(255,125,20,0.68) 42%, transparent 70%),
+    radial-gradient(ellipse 6% 90% at 49% 104%, rgba(255,250,205,0.98), rgba(255,95,10,0.75) 42%, transparent 70%),
+    radial-gradient(ellipse 7% 60% at 63% 104%, rgba(255,232,140,0.92), rgba(255,120,20,0.68) 42%, transparent 70%),
+    radial-gradient(ellipse 6% 76% at 78% 104%, rgba(255,242,165,0.95), rgba(255,100,15,0.72) 42%, transparent 70%),
+    radial-gradient(ellipse 7% 50% at 92% 104%, rgba(255,228,135,0.90), rgba(255,130,25,0.66) 42%, transparent 70%);
+  /* คุมจังหวะโผล่-หายด้วย opacity (รอบ 12 วิ) ส่วนการสั่นไหวคุมด้วย transform/filter คนละ animation
+     แยกพร็อพเพอร์ตี้กันชัดเจน จะได้ไม่ทับกันเอง */
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-fire-flicker var(--kr-flick, 0.43s) ease-in-out infinite alternate,
+    kr-fire-sway var(--kr-sway, 2.9s) ease-in-out infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s, 0s;
+}
+
+/* ไฟ inferno แรงกว่า: สูงกว่า สว่างกว่า */
+.kr-row-inferno::after { height: 105%; filter: blur(7px) contrast(2.1) saturate(1.35); }
+.kr-row-ember::after   { height: 70%;  filter: blur(6px) contrast(1.8) saturate(1.2); }
+
+/* แสงอุ่นอาบทั้งแถว + เต้นตามไฟ */
+.kr-row-ember::before,
+.kr-row-inferno::before {
+  background: linear-gradient(0deg, rgba(255,120,20,0.30), rgba(255,180,60,0.10) 55%, transparent);
+  animation: kr-row-tint 12s ease-in-out infinite, kr-fire-glow 1.7s ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-ember::before   { box-shadow: inset 0 -12px 26px rgba(249,115,22,0.45); }
+.kr-row-inferno::before { box-shadow: inset 0 -16px 34px rgba(239,68,68,0.60); }
+
+/* ธีมมืดใช้ screen blend → ไฟสว่างทับพื้นแบบแสงจริง (ธีมสว่างใช้ไม่ได้ เพราะพื้นขาวจะกลืนหมด) */
+.dark [class*="kr-row-ember"]::after,
+.dark [class*="kr-row-inferno"]::after,
+.hacker [class*="kr-row-ember"]::after,
+.hacker [class*="kr-row-inferno"]::after { mix-blend-mode: screen; }
+
+@keyframes kr-row-fireshow {
+  0%        { opacity: 0; }
+  5%, 24%   { opacity: 1; }
+  30%, 100% { opacity: 0; }
+}
+/* สั่นไหวขึ้น-ลง + สว่างวูบวาบ (ต้องใส่ blur/contrast ซ้ำในนี้ ไม่งั้น filter หลักจะถูกทับหาย) */
+@keyframes kr-fire-flicker {
+  0%   { transform: scaleY(1)    translateY(0);    filter: blur(7px) contrast(1.95) saturate(1.3) brightness(1); }
+  100% { transform: scaleY(1.14) translateY(-3px); filter: blur(6px) contrast(2.2)  saturate(1.4) brightness(1.28); }
+}
+/* เอนซ้าย-ขวาช้าๆ เหมือนโดนลม */
+@keyframes kr-fire-sway {
+  0%, 100% { background-position: 0 0; }
+  50%      { background-position: 6px 0; }
+}
+@keyframes kr-fire-glow {
+  0%   { box-shadow: inset 0 -12px 26px rgba(249,115,22,0.40); }
+  100% { box-shadow: inset 0 -18px 38px rgba(255,140,30,0.70); }
+}
+
+/* =========================================================================
+   ❄️ FROST — น้ำแข็งเกาะลามจากขอบเข้ามากลาง แล้วมีประกายวิ่ง
+   ========================================================================= */
+.kr-row-frost::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  /* ผลึกน้ำแข็งเป็นเสี้ยวแหลมคม (hard stop = ขอบคม ไม่ไล่เฉด) ซ้อนสองทิศจากซ้าย-ขวา */
+  background:
+    repeating-linear-gradient(108deg, rgba(224,247,255,0.85) 0 2px, rgba(125,211,252,0.35) 2px 5px, transparent 5px 26px),
+    repeating-linear-gradient(72deg,  rgba(224,247,255,0.65) 0 2px, rgba(56,189,248,0.28) 2px 4px,  transparent 4px 30px),
+    linear-gradient(90deg, rgba(56,189,248,0.30), transparent 32%, transparent 68%, rgba(56,189,248,0.30));
+  /* บีบให้เกาะเฉพาะริมซ้าย-ขวา แล้วค่อยลามเข้ากลาง */
+  -webkit-mask: linear-gradient(90deg, #000 0%, transparent 42%, transparent 58%, #000 100%);
+  mask: linear-gradient(90deg, #000 0%, transparent 42%, transparent 58%, #000 100%);
+  filter: blur(0.4px) brightness(1.15);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-frost-creep 12s ease-out infinite,
+    kr-frost-shimmer var(--kr-sway, 2.3s) ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-frost::before {
+  background: linear-gradient(90deg, rgba(56,189,248,0.28), rgba(165,243,252,0.10) 50%, rgba(56,189,248,0.28));
+  box-shadow: inset 0 0 26px rgba(56,189,248,0.45);
+}
+@keyframes kr-frost-creep {
+  0%       { background-size: 12% 100%, 12% 100%, 100% 100%; background-position: left, right, center; }
+  25%,30%  { background-size: 62% 100%, 58% 100%, 100% 100%; background-position: left, right, center; }
+  100%     { background-size: 62% 100%, 58% 100%, 100% 100%; background-position: left, right, center; }
+}
+@keyframes kr-frost-shimmer {
+  0%   { filter: blur(0.4px) brightness(1.05); }
+  100% { filter: blur(0.2px) brightness(1.45); }
+}
+
+/* =========================================================================
+   ⚡ THUNDER — ฟ้าผ่าวาบ: กระพริบแบบกระตุกไม่เป็นจังหวะ (steps) + สายฟ้าเป็นเส้นหักศอก
+   ========================================================================= */
+.kr-row-thunder::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    linear-gradient(100deg, transparent 44%, rgba(255,255,255,0.98) 49%, rgba(254,240,138,0.9) 51%, transparent 56%),
+    linear-gradient(80deg,  transparent 28%, rgba(255,255,255,0.85) 32%, transparent 36%),
+    linear-gradient(0deg, rgba(250,204,21,0.22), transparent 60%);
+  /* หักเป็นเส้นซิกแซ็กแบบสายฟ้าจริง */
+  clip-path: polygon(0 42%, 18% 0, 34% 55%, 52% 8%, 66% 62%, 82% 14%, 100% 58%, 100% 100%, 0 100%);
+  filter: drop-shadow(0 0 8px rgba(250,204,21,0.9));
+  /* steps = กระตุกเป็นเฟรมๆ ไม่ไหลลื่น → ให้ความรู้สึกไฟฟ้าจริง */
+  animation: kr-thunder-strike 12s steps(1, end) infinite;
+  animation-delay: var(--kr-row-delay, 0s);
+}
+.kr-row-thunder::before {
+  background: linear-gradient(90deg, rgba(250,204,21,0.30), rgba(254,240,138,0.12) 60%, transparent);
+  box-shadow: inset 0 0 28px rgba(250,204,21,0.5);
+  animation: kr-thunder-flash 12s steps(1, end) infinite;
+  animation-delay: var(--kr-row-delay, 0s);
+}
+/* จังหวะวาบถี่ๆ แบบไม่สม่ำเสมอ เลียนแบบฟ้าแลบจริง */
+@keyframes kr-thunder-strike {
+  0%, 1.6%   { opacity: 0; }
+  2%, 3.2%   { opacity: 1; }
+  3.6%, 5%   { opacity: 0; }
+  5.4%, 6%   { opacity: 1; }
+  6.4%, 9%   { opacity: 0; }
+  9.4%, 11%  { opacity: 1; }
+  11.4%,100% { opacity: 0; }
+}
+@keyframes kr-thunder-flash {
+  0%, 1.6%   { opacity: 0; }
+  2%, 3.2%   { opacity: 1; }
+  3.6%, 5%   { opacity: 0.15; }
+  5.4%, 6%   { opacity: 0.9; }
+  6.4%, 9%   { opacity: 0.1; }
+  9.4%, 11%  { opacity: 0.75; }
+  12%, 100%  { opacity: 0; }
+}
+
+/* =========================================================================
+   👑 GOLD — ทองเหลว: แถบสะท้อนแสงหลายชั้นไหลผ่าน + ประกายวิบวับ
+   ========================================================================= */
+.kr-row-gold::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    /* แถบสะท้อนแสงคมๆ หลายเส้น (แบบโลหะขัดเงา) */
+    repeating-linear-gradient(100deg,
+      transparent 0 40px,
+      rgba(255,255,255,0.55) 40px 46px,
+      rgba(254,243,199,0.35) 46px 54px,
+      transparent 54px 96px),
+    linear-gradient(100deg, transparent 30%, rgba(245,158,11,0.45) 50%, transparent 70%);
+  background-size: 220% 100%, 220% 100%;
+  filter: saturate(1.4) brightness(1.1);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-gold-flow 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: var(--kr-row-delay, 0s), var(--kr-row-delay, 0s);
+}
+.kr-row-gold::before {
+  background: linear-gradient(90deg, rgba(245,158,11,0.28), rgba(254,243,199,0.14) 60%, transparent);
+  box-shadow: inset 0 0 26px rgba(245,158,11,0.45);
+}
+@keyframes kr-gold-flow {
+  0%        { background-position: -120% 0, -120% 0; }
+  30%, 100% { background-position: 120% 0, 120% 0; }
+}
+
+/* =========================================================================
+   💻 MATRIX — ฝนดิจิทัลไหลลง + เส้นสแกนกวาดตาม
+   ========================================================================= */
+.kr-row-matrix::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    /* คอลัมน์ฝนโค้ดไหลลง (ขีดสั้น-ยาวสลับ ให้ดูเป็นตัวอักษร) */
+    repeating-linear-gradient(180deg,
+      rgba(134,239,172,0.85) 0 3px,
+      transparent 3px 7px,
+      rgba(34,197,94,0.55) 7px 9px,
+      transparent 9px 18px),
+    /* เส้นสแกนแนวนอน */
+    linear-gradient(180deg, transparent 40%, rgba(134,239,172,0.75) 50%, transparent 60%);
+  background-size: 14px 60px, 100% 100%;
+  filter: drop-shadow(0 0 4px rgba(34,197,94,0.8));
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-matrix-rain var(--kr-flick, 0.85s) linear infinite,
+    kr-matrix-scan 12s ease-in-out infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s, var(--kr-row-delay, 0s);
+}
+.kr-row-matrix::before {
+  background: linear-gradient(90deg, rgba(34,197,94,0.26), rgba(134,239,172,0.10) 60%, transparent);
+  box-shadow: inset 0 0 26px rgba(34,197,94,0.45);
+}
+@keyframes kr-matrix-rain {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 0 60px, 0 0; }
+}
+@keyframes kr-matrix-scan {
+  0%        { background-position-y: 0, -120%; }
+  30%, 100% { background-position-y: 0, 120%; }
+}
+
+/* =========================================================================
+   🌈 PRISM — โฮโลแกรม: สีรุ้งเลื่อนไหลพร้อมเปลี่ยนเฉดไปเรื่อยๆ
+   ========================================================================= */
+.kr-row-prism::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    repeating-linear-gradient(100deg,
+      rgba(244,114,182,0.55) 0 22px,
+      rgba(167,139,250,0.55) 22px 44px,
+      rgba(56,189,248,0.55) 44px 66px,
+      rgba(134,239,172,0.5) 66px 88px,
+      rgba(253,224,71,0.5) 88px 110px),
+    linear-gradient(100deg, transparent 35%, rgba(255,255,255,0.75) 50%, transparent 65%);
+  background-size: 200% 100%, 200% 100%;
+  filter: saturate(1.5);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-prism-flow 12s cubic-bezier(0.4, 0, 0.2, 1) infinite,
+    kr-prism-hue var(--kr-sway, 3.7s) linear infinite;
+  animation-delay: var(--kr-row-delay, 0s), var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-prism::before {
+  background: linear-gradient(90deg, rgba(167,139,250,0.24), rgba(244,114,182,0.16) 45%, rgba(56,189,248,0.14) 75%, transparent);
+  box-shadow: inset 0 0 26px rgba(167,139,250,0.42);
+}
+@keyframes kr-prism-flow {
+  0%        { background-position: -110% 0, -110% 0; }
+  30%, 100% { background-position: 110% 0, 110% 0; }
+}
+@keyframes kr-prism-hue {
+  0%   { filter: saturate(1.5) hue-rotate(0deg); }
+  100% { filter: saturate(1.5) hue-rotate(360deg); }
+}
+
+/* ผู้ใช้ที่ตั้งค่า "ลดการเคลื่อนไหว" ในระบบ
+   ⚠️ ห้ามซ่อนเอฟเฟกต์ทิ้ง — ผู้ใช้จ่ายเหรียญซื้อมา ต้องได้เห็นของที่ซื้อ
+      (เคยใช้ display:none ตรงนี้ แล้วเครื่องที่ปิดอนิเมชันของ Windows เห็นแค่สีจางๆ)
+   วิธีที่ใช้แทน: คงเอฟเฟกต์ไว้ครบ แต่ยืดจังหวะกระพริบถี่ๆ ให้ช้าลงมาก
+   (ไฟสั่น 0.43s / ฝนโค้ด 0.85s → 6s = แทบไม่ขยับ) ส่วนรอบโชว์ 12 วิ ยังเท่าเดิม */
+@media (prefers-reduced-motion: reduce) {
+  /* ยืดเฉพาะตัวที่กระพริบถี่ (ไฟสั่น / ฝนโค้ด / เปลี่ยนเฉดสี) ให้แทบไม่ขยับ
+     ส่วนรอบโชว์ 12 วิ และจังหวะลาม-ไหล ยังเท่าเดิม จังหวะเลยไม่เพี้ยน */
+  [class*="kr-row-"] { --kr-flick: 9s; --kr-sway: 14s; }
+}
+
+/* =========================================================================
    🖼️ กรอบรูปโปรไฟล์ (.kr-frame-<id>) — ครอบวงแหวนรอบรูปด้วย ::after
    ใส่คลาสนี้ที่ "กล่องที่ห่อรูป" ได้เลย ไม่ต้องแก้โครงสร้าง HTML เดิม
    id ต้องตรงกับ frameId ในแคตตาล็อกฝั่ง backend (src/shop/items.ts)
