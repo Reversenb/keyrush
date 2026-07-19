@@ -26,7 +26,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://keyrush-swart.vercel.app"),
   title: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
   description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard — Learn terminal commands by playing.",
-  // 🖼️ เวลาแชร์ลิงก์ให้ขึ้น banner + ชื่อ + คำโปรย (รูปจาก public/images/keyrushbanner.jpg)
+  // 🖼️ เวลาแชร์ลิงก์ให้ขึ้น banner + ชื่อ + คำโปรย
+  // (og:image มาจาก app/opengraph-image.tsx ที่เรนเดอร์สดเป็น PNG — Next ใส่ให้อัตโนมัติ)
   openGraph: {
     title: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
     description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard",
@@ -34,20 +35,11 @@ export const metadata: Metadata = {
     siteName: "KeyRush",
     locale: "th_TH",
     type: "website",
-    images: [
-      {
-        url: "/images/keyrushbanner.jpg", // metadataBase ทำให้กลายเป็น URL absolute อัตโนมัติ
-        width: 1200,
-        height: 630,
-        alt: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image", // การ์ดรูปใหญ่เต็มความกว้าง
     title: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
     description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard",
-    images: ["/images/keyrushbanner.jpg"],
   },
 };
 
