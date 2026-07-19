@@ -270,7 +270,41 @@ export default function KeyRushOrangeLandingPage() {
         }
         
         .btn-squishy {
-          transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s, color 0.2s;
+          transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s, color 0.2s, filter 0.35s ease;
+        }
+
+        /* ✨ ปุ่ม CTA: แถบแสงกวาดซ้าย→ขวา + เรืองแสงรอบปุ่ม ตอนเอาเมาส์ชี้ */
+        .btn-shine { position: relative; overflow: hidden; }
+        .btn-shine::after {
+          content: '';
+          position: absolute;
+          top: -25%;
+          bottom: -25%;
+          left: -60%;
+          width: 45%;
+          background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+          transform: skewX(-18deg);
+          pointer-events: none;
+          /* สถานะปกติไม่ใส่ transition → พอเอาเมาส์ออกจะรีเซ็ตทันที ไม่กวาดย้อนกลับให้เกะกะ */
+        }
+        .btn-shine:hover::after {
+          left: 130%;
+          transition: left 0.75s cubic-bezier(0.25, 0.6, 0.3, 1);
+        }
+
+        /* เรืองแสงด้วย filter (ไม่ใช้ box-shadow) เพื่อไม่ไปชนเงา 3D เดิมของปุ่ม
+           แยกตามธีมเพราะสีปุ่มต่างกัน — ธีมพรีเมียมต้องเขียนเองเพราะคลาส .hacker ไม่ครอบ .dragon */
+        .btn-shine:hover  { filter: drop-shadow(0 0 18px rgba(249,115,22,0.85)); }
+        .dark   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(250,204,21,0.80)); }
+        .hacker .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(34,197,94,0.85)); }
+        .dragon .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(239,68,68,0.85)); }
+        .sakura .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(236,72,153,0.80)); }
+        .sky    .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(14,165,233,0.80)); }
+        .mint   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(16,185,129,0.80)); }
+
+        /* เคารพผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหวในระบบ */
+        @media (prefers-reduced-motion: reduce) {
+          .btn-shine::after { display: none; }
         }
         .btn-squishy:hover { transform: translateY(-2px); }
         .btn-squishy:active { transform: translateY(6px); box-shadow: 0 0 0 transparent !important; }
@@ -484,33 +518,34 @@ export default function KeyRushOrangeLandingPage() {
         </AnimatePresence>
       </header>
 
-      <main className="relative z-10 container mx-auto px-6 pt-16 md:pt-28 pb-20 flex flex-col lg:flex-row items-center justify-between gap-16 lg:gap-8">
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1">
+      <main className="relative z-10 container mx-auto px-6 pt-16 md:pt-28 pb-20 flex flex-col items-center gap-14 md:gap-16">
+        <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col items-center text-center w-full">
           <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#4B3965] hacker:border-green-600 text-orange-500 dark:text-yellow-400 hacker:text-green-500 text-sm font-black mb-8 shadow-sm transition-colors">
             <Sparkles size={16} strokeWidth={3} className="animate-pulse" />
             ระบบฝึกพิมพ์คำสั่ง
           </motion.div>
 
-          <motion.h2 variants={fadeInUp} className="cute-header text-6xl md:text-7xl font-black text-orange-950 dark:text-white hacker:text-white leading-[1.1] mb-6 drop-shadow-sm transition-colors">
+          {/* ขนาดไหลตามความกว้างจอ: เล็กสุด 2.75rem (จอมือถือไม่ล้น) ใหญ่สุด 7rem (จอใหญ่เต็มตา) */}
+          <motion.h2 variants={fadeInUp} className="cute-header text-[clamp(2.75rem,8.5vw,7rem)] font-black text-orange-950 dark:text-white hacker:text-white leading-[1.08] mb-6 drop-shadow-sm transition-colors">
             Master the <br />
             <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">Command Line</span>
           </motion.h2>
 
-          <motion.p variants={fadeInUp} className="text-lg md:text-xl text-orange-800 dark:text-white/70 hacker:text-white/70 mb-10 max-w-xl leading-relaxed font-black transition-colors">
+          <motion.p variants={fadeInUp} className="text-[clamp(1.05rem,1.9vw,1.5rem)] text-orange-800 dark:text-white/70 hacker:text-white/70 mb-10 max-w-3xl mx-auto leading-relaxed font-black transition-colors">
             อยากใช้ Terminal คล่องๆ แต่กลัวเผลอลบไฟล์พังใช่ไหม? หมดห่วงได้เลย!
-            ฝึกพิมพ์ในระบบจำลองสุดน่ารัก ลุยด่านต่างๆ สนุก ปลอดภัย และเก่งขึ้นชัวร์
+            ฝึกพิมพ์ในระบบจำลอง ลุยด่านต่างๆ สนุก ปลอดภัย และเก่งขึ้นชัวร์
           </motion.p>
 
-          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
             {user ? (
-              <Link href="/dashboard" className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors">
+              <Link href="/dashboard" className="btn-shine btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors">
                 <Play size={20} fill="currentColor" /> เริ่มฝึกพิมพ์เลย!
               </Link>
             ) : (
               <button
                 onClick={() => loginWithGoogle()}
                 disabled={isLoggingIn}
-                className="btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors"
+                className="btn-shine btn-squishy flex items-center justify-center gap-3 px-8 py-5 text-lg font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[30px] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400 transition-colors"
               >
                 {isLoggingIn ? <RefreshCw className="animate-spin" size={20} /> : <Play size={20} fill="currentColor" />}
                 {isLoggingIn ? 'กำลังเชื่อมต่อ...' : 'เข้าสู่ระบบเพื่อเริ่มฝึก!'}
@@ -523,7 +558,7 @@ export default function KeyRushOrangeLandingPage() {
           </motion.div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, type: "spring" }} className="flex-1 w-full max-w-2xl">
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, type: "spring" }} className="w-full max-w-3xl mx-auto">
           <div className="glass-card overflow-hidden group text-left transform-gpu hover:scale-[1.02] transition-all duration-500 relative">
             <div className="flex items-center px-6 py-4 bg-white/90 dark:bg-[#2D223B]/90 hacker:bg-[#0a0a0a]/90 border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 relative z-30 transition-colors">
               <div className="flex gap-2.5">
@@ -662,14 +697,14 @@ export default function KeyRushOrangeLandingPage() {
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} transition={{ delay: 0.2 }}>
           {user ? (
-            <Link href="/dashboard" className="btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400">
+            <Link href="/dashboard" className="btn-shine btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400">
               เริ่มฝึกกันเลย! <ChevronRight size={28} strokeWidth={4} />
             </Link>
           ) : (
             <button
               onClick={() => loginWithGoogle()}
               disabled={isLoggingIn}
-              className="btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400"
+              className="btn-shine btn-squishy inline-flex items-center justify-center gap-3 px-10 py-6 text-2xl font-black text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-4 border-white dark:border-yellow-600 hacker:border-green-600 rounded-[32px] shadow-[0_10px_0_#c2410c] dark:shadow-[0_10px_0_#ca8a04] hacker:shadow-[0_10px_0_#15803d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-400"
             >
               {isLoggingIn ? <RefreshCw className="animate-spin" size={28} /> : <Play size={28} fill="currentColor" />}
               {isLoggingIn ? 'กำลังเชื่อมต่อ...' : 'เข้าสู่ระบบเพื่อเริ่มฝึก!'}

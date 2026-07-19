@@ -24,12 +24,12 @@ const baloo = Baloo_2({
 export const metadata: Metadata = {
   // ⚓ ฐาน URL ของเว็บจริง — ทำให้ลิงก์รูป og:image เป็น absolute (โซเชียล/แชทต้องการ URL เต็ม)
   metadataBase: new URL("https://keyrush-swart.vercel.app"),
-  title: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
+  title: "KeyRush",
   description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard — Learn terminal commands by playing.",
   // 🖼️ เวลาแชร์ลิงก์ให้ขึ้น banner + ชื่อ + คำโปรย
   // (og:image มาจาก app/opengraph-image.tsx ที่เรนเดอร์สดเป็น PNG — Next ใส่ให้อัตโนมัติ)
   openGraph: {
-    title: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
+    title: "KeyRush",
     description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard",
     url: "https://keyrush-swart.vercel.app",
     siteName: "KeyRush",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image", // การ์ดรูปใหญ่เต็มความกว้าง
-    title: "KeyRush — ฝึกพิมพ์คำสั่ง Terminal",
+    title: "KeyRush",
     description: "ฝึกพิมพ์คำสั่ง Linux/Windows อย่างสนุก เก็บ EXP ไต่แรงค์ แข่ง Leaderboard",
   },
 };
