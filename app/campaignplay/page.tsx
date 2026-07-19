@@ -119,6 +119,7 @@ export default function GamePage() {
     if (!currentTheme) return;
     if (currentTheme === 'dragon') { setTerminalColor('red'); setTerminalBg('#140303'); }
     else if (currentTheme === 'sakura') { setTerminalColor('pink'); setTerminalBg('#1a0f16'); }
+    else if (currentTheme === 'sky') { setTerminalColor('cyan'); setTerminalBg('#081620'); }
     else if (isHacker) { setTerminalColor('retro'); setTerminalBg('#050505'); }
     else if (isDark) { setTerminalColor('yellow'); setTerminalBg('#1E1B2E'); }
     else { setTerminalColor('orange'); setTerminalBg('#050505'); }
@@ -389,7 +390,7 @@ export default function GamePage() {
   const themeBorder = isHacker ? 'border-green-600' : isDark ? (isLinux ? 'border-yellow-400' : 'border-blue-400') : (isLinux ? 'border-orange-500' : 'border-blue-500');
 
   const wpmTextHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#ffffff' : '#431407';
-  const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
+  const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : currentTheme === 'sky' ? '#0ea5e9' : (isLinux ? '#f97316' : '#3b82f6');
 
   if (isInitializing) return (
     <PageSkeleton maxW="max-w-5xl">

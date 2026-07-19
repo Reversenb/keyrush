@@ -474,7 +474,7 @@ export default function Page() {
                             <div className="flex items-center gap-3 md:gap-10 shrink-0">
                                 <div className="text-right">
                                     <p className="text-[10px] md:text-sm font-bold opacity-50 hacker:text-green-600">EXP</p>
-                                    <motion.p key={score} initial={{ scale: 1.1, color: '#f97316' }} animate={{ scale: 1, color: 'inherit' }} className="text-xl md:text-3xl font-black tracking-tight hacker:text-green-400">
+                                    <motion.p key={score} initial={{ scale: 1.1, color: 'var(--color-primary)' }} animate={{ scale: 1, color: 'inherit' }} className="text-xl md:text-3xl font-black tracking-tight hacker:text-green-400">
                                         {score}
                                     </motion.p>
                                 </div>

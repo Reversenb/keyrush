@@ -11,7 +11,7 @@ import { apiFetch, clearUserState, logout } from '@/lib/api';
 import {
   Map as MapIcon, Lock, Play, Zap, Trophy,
   Terminal, ShieldCheck, Flag, Sparkles, Code, ChevronRight,
-  MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon, ShoppingBag, Heart, Flame,
+  MonitorPlay, Network, Bell, LayoutDashboard, User as UserIcon, LogOut, Menu, X, Sun, Moon, ShoppingBag, Heart, Flame, Cloud,
   CheckCircle, AlertTriangle, RefreshCw
 } from 'lucide-react';
 
@@ -213,6 +213,7 @@ export default function KeyRushOrangeLandingPage() {
     hacker: { label: 'Hacker', icon: <Code size={18} strokeWidth={3} /> },
     sakura: { label: 'Sakura', icon: <Heart size={18} strokeWidth={3} fill="currentColor" /> },
     dragon: { label: 'Red Dragon', icon: <Flame size={18} strokeWidth={3} /> },
+    sky: { label: 'Sky Blue', icon: <Cloud size={18} strokeWidth={3} fill="currentColor" /> },
   };
   const themeMeta = THEME_META[currentTheme || 'light'] || THEME_META.light;
   const nextThemeMeta = THEME_META[themeRing[(themeRing.indexOf(currentTheme || 'light') + 1) % themeRing.length]] || THEME_META.light;

@@ -18,8 +18,8 @@ import { RANKS as BASE_RANKS } from '@/lib/ranks';
 // จุดข้อมูลมีวงแหวนสี surface, เส้นอ้างอิงค่าเฉลี่ย, crosshair + tooltip ตอน hover
 // (วาดใน viewBox สัดส่วนจริง ไม่ใช้ preserveAspectRatio=none ที่ทำให้เส้น/ตัวเลขเบี้ยว)
 // =========================================================================
-function WpmChart({ points, avg, accentHex, isDark, isHacker, isDragon, isSakura }: {
-  points: number[]; avg: number; accentHex: string; isDark: boolean; isHacker: boolean; isDragon: boolean; isSakura: boolean;
+function WpmChart({ points, avg, accentHex, isDark, isHacker, isDragon, isSakura, isSky }: {
+  points: number[]; avg: number; accentHex: string; isDark: boolean; isHacker: boolean; isDragon: boolean; isSakura: boolean; isSky: boolean;
 }) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
@@ -43,9 +43,9 @@ function WpmChart({ points, avg, accentHex, isDark, isHacker, isDragon, isSakura
     : '';
 
   // สีตามธีม: กริด/ตัวหนังสือใช้ ink ของธีม (ไม่ใช้สี series กับข้อความ)
-  const gridColor = isHacker ? (isDragon ? 'rgba(239,68,68,0.14)' : 'rgba(34,197,94,0.14)') : isDark ? 'rgba(255,255,255,0.10)' : isSakura ? 'rgba(190,24,93,0.14)' : 'rgba(154,52,18,0.14)';
-  const inkMuted = isHacker ? (isDragon ? 'rgba(248,113,113,0.55)' : 'rgba(74,222,128,0.55)') : isDark ? 'rgba(255,255,255,0.5)' : isSakura ? 'rgba(157,23,77,0.6)' : 'rgba(124,45,18,0.6)';
-  const ink = isHacker ? (isDragon ? '#fca5a5' : '#86efac') : isDark ? '#ffffff' : isSakura ? '#500724' : '#431407';
+  const gridColor = isHacker ? (isDragon ? 'rgba(239,68,68,0.14)' : 'rgba(34,197,94,0.14)') : isDark ? 'rgba(255,255,255,0.10)' : isSakura ? 'rgba(190,24,93,0.14)' : isSky ? 'rgba(3,105,161,0.14)' : 'rgba(154,52,18,0.14)';
+  const inkMuted = isHacker ? (isDragon ? 'rgba(248,113,113,0.55)' : 'rgba(74,222,128,0.55)') : isDark ? 'rgba(255,255,255,0.5)' : isSakura ? 'rgba(157,23,77,0.6)' : isSky ? 'rgba(7,89,133,0.6)' : 'rgba(124,45,18,0.6)';
+  const ink = isHacker ? (isDragon ? '#fca5a5' : '#86efac') : isDark ? '#ffffff' : isSakura ? '#500724' : isSky ? '#082f49' : '#431407';
   const surface = isHacker ? '#0a0a0a' : isDark ? '#1E1B2E' : '#ffffff';
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -174,7 +174,8 @@ export default function DashboardPage() {
 
   // สีหลักของแต่ละธีม (ส้ม -> เหลือง -> เขียว/แดง -> ชมพู)
   const isSakura = currentTheme === 'sakura';
-  const primaryHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : (isDark ? '#facc15' : isSakura ? '#ec4899' : '#f97316');
+  const isSky = currentTheme === 'sky';
+  const primaryHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : (isDark ? '#facc15' : isSakura ? '#ec4899' : isSky ? '#0ea5e9' : '#f97316');
 
   useEffect(() => {
     setIsMounted(true); // ✅ เซ็ตค่า Mounted เมื่อรันฝั่ง Client สำเร็จ
@@ -514,7 +515,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="relative w-full z-10">
-                  <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} isDragon={isDragon} isSakura={isSakura} />
+                  <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} isDragon={isDragon} isSakura={isSakura} isSky={isSky} />
                 </div>
               </div>
 

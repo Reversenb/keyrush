@@ -18,6 +18,7 @@ const PALETTES: Record<string, string[]> = {
   hacker: ['#22c55e', '#4ade80', '#86efac', '#bbf7d0'], // เขียวนีออน
   sakura: ['#f472b6', '#fb7185', '#fda4af', '#fbcfe8'], // ชมพูหวาน
   dragon: ['#ef4444', '#f87171', '#fca5a5', '#fecaca'], // แดงเพลิง
+  sky: ['#38bdf8', '#0ea5e9', '#7dd3fc', '#bae6fd'],    // ฟ้าพาสเทล
 };
 
 // 🛍️ เอฟเฟกต์จากร้านค้า — id ต้องตรงกับ cursorId ในแคตตาล็อก backend
@@ -195,8 +196,9 @@ export default function CursorGlow() {
   const isDragon = currentTheme === 'dragon';
   const isDark = currentTheme === 'dark';
   const isSakura = currentTheme === 'sakura';
-  const dotColor = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? '#facc15' : isSakura ? '#f472b6' : '#fb923c';
-  const dotShadow = isHacker ? (isDragon ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)') : isDark ? 'rgba(250,204,21,0.6)' : isSakura ? 'rgba(244,114,182,0.6)' : 'rgba(251,146,60,0.55)';
+  const isSky = currentTheme === 'sky';
+  const dotColor = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? '#facc15' : isSakura ? '#f472b6' : isSky ? '#38bdf8' : '#fb923c';
+  const dotShadow = isHacker ? (isDragon ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)') : isDark ? 'rgba(250,204,21,0.6)' : isSakura ? 'rgba(244,114,182,0.6)' : isSky ? 'rgba(56,189,248,0.6)' : 'rgba(251,146,60,0.55)';
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[9998] overflow-hidden" aria-hidden>

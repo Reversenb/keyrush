@@ -81,6 +81,59 @@
   --color-surface-darker: #fff1f5;
 }
 
+/* ☁️ Sky Blue — ฐานธีมสว่าง (แบบเดียวกับ Sakura): เปลี่ยนพาเลตต์ส้มทั้งชุดเป็นฟ้าพาสเทล */
+:root.sky {
+  --background: #f0f9ff;
+  --foreground: #082f49;
+  --shimmer-base: rgba(14, 165, 233, 0.15);
+  --shimmer-highlight: rgba(14, 165, 233, 0.35);
+
+  --color-orange-50: #f0f9ff;
+  --color-orange-100: #e0f2fe;
+  --color-orange-200: #bae6fd;
+  --color-orange-300: #7dd3fc;
+  --color-orange-400: #38bdf8;
+  --color-orange-500: #0ea5e9;
+  --color-orange-600: #0284c7;
+  --color-orange-700: #0369a1;
+  --color-orange-800: #075985;
+  --color-orange-900: #0c4a6e;
+  --color-orange-950: #082f49;
+
+  /* amber ครบทุกเฉดเหมือน Sakura — กันเฉดตกหล่นโผล่เป็นส้ม */
+  --color-amber-50: #f0f9ff;
+  --color-amber-100: #e0f2fe;
+  --color-amber-200: #bae6fd;
+  --color-amber-300: #7dd3fc;
+  --color-amber-400: #38bdf8;
+  --color-amber-500: #0ea5e9;
+  --color-amber-600: #0284c7;
+  --color-amber-700: #0369a1;
+  --color-amber-800: #075985;
+  --color-amber-900: #0c4a6e;
+  --color-amber-950: #082f49;
+
+  --color-primary: #0ea5e9;
+  --color-primary-light: #7dd3fc;
+  --color-accent: #38bdf8;
+  --color-peach: #e0f2fe;
+  --color-surface-darker: #f0f9ff;
+
+  /* pink ทั้งชุดด้วย — ธีมสว่างใช้ชมพูประดับหลายจุด (เช่น Total ใน leaderboard, blob พื้นหลัง)
+     ไม่ map จะเหลือชมพูโดดๆ (rose ไม่แตะ เพราะเป็นสีสถานะพลาด/อันตราย ต้องแดงไว้) */
+  --color-pink-50: #f0f9ff;
+  --color-pink-100: #e0f2fe;
+  --color-pink-200: #bae6fd;
+  --color-pink-300: #7dd3fc;
+  --color-pink-400: #38bdf8;
+  --color-pink-500: #0ea5e9;
+  --color-pink-600: #0284c7;
+  --color-pink-700: #0369a1;
+  --color-pink-800: #075985;
+  --color-pink-900: #0c4a6e;
+  --color-pink-950: #082f49;
+}
+
 /* 🐉 Red Dragon — ฐานธีม Hacker: เปลี่ยนพาเลตต์เขียวทั้งชุดเป็นแดงเพลิง
    ⚠️ ใช้ :root.dragon ด้วยเหตุผลเดียวกับ Sakura (ต้องชนะ :root ของ Tailwind) */
 :root.dragon {
@@ -208,6 +261,37 @@
 .sakura [class*="shadow-[0_8px_0_#c2410c]" i] { box-shadow: 0 8px 0 #be185d !important; }
 .sakura [class*="shadow-[0_8px_0_#fed7aa]" i] { box-shadow: 0 8px 0 #fecdd3 !important; }
 .sakura [class*="shadow-[0_8px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 8px 0 rgba(236,72,153,0.2) !important; }
+
+/* ☁️ Sky Blue ใช้ฐานสว่างเหมือน Sakura: ปรับเงา/แถบเลื่อนเป็นโทนฟ้า */
+:root.sky .glass-card { box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12); }
+:root.sky .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(14, 165, 233, 0.3); }
+:root.sky .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(14, 165, 233, 0.6); }
+
+/* เงาสีส้มทุกแบบที่ธีมสว่างใช้ → ฟ้า (ชุดเดียวกับ Sakura) */
+.sky [class*="shadow-[0_0_20px_rgba(249,115,22,0.2)]" i] { box-shadow: 0 0 20px rgba(14,165,233,0.2) !important; }
+.sky [class*="shadow-[0_0_30px_rgba(249,115,22,0.4)]" i] { box-shadow: 0 0 30px rgba(14,165,233,0.4) !important; }
+.sky [class*="shadow-[0_10px_0_#c2410c]" i] { box-shadow: 0 10px 0 #0369a1 !important; }
+.sky [class*="shadow-[0_10px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 10px 0 rgba(14,165,233,0.2) !important; }
+.sky [class*="shadow-[0_10px_40px_rgba(249,115,22,0.12)]" i] { box-shadow: 0 10px 40px rgba(14,165,233,0.12) !important; }
+.sky [class*="shadow-[0_15px_30px_rgba(249,115,22,0.15)]" i] { box-shadow: 0 15px 30px rgba(14,165,233,0.15) !important; }
+.sky [class*="shadow-[0_20px_50px_rgba(249,115,22,0.15)]" i] { box-shadow: 0 20px 50px rgba(14,165,233,0.15) !important; }
+.sky [class*="shadow-[0_4px_0_#c2410c]" i] { box-shadow: 0 4px 0 #0369a1 !important; }
+.sky [class*="shadow-[0_4px_0_#ea580c]" i] { box-shadow: 0 4px 0 #0284c7 !important; }
+.sky [class*="shadow-[0_4px_0_#fdba74]" i] { box-shadow: 0 4px 0 #7dd3fc !important; }
+.sky [class*="shadow-[0_4px_0_#fed7aa]" i] { box-shadow: 0 4px 0 #bae6fd !important; }
+.sky [class*="shadow-[0_6px_0_#c2410c]" i] { box-shadow: 0 6px 0 #0369a1 !important; }
+.sky [class*="shadow-[0_6px_0_#fed7aa]" i] { box-shadow: 0 6px 0 #bae6fd !important; }
+.sky [class*="shadow-[0_6px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 6px 0 rgba(14,165,233,0.2) !important; }
+.sky [class*="shadow-[0_8px_0_#c2410c]" i] { box-shadow: 0 8px 0 #0369a1 !important; }
+.sky [class*="shadow-[0_8px_0_#fed7aa]" i] { box-shadow: 0 8px 0 #bae6fd !important; }
+.sky [class*="shadow-[0_8px_0_rgba(249,115,22,0.2)]" i] { box-shadow: 0 8px 0 rgba(14,165,233,0.2) !important; }
+/* เงาชมพูของแท็บ Total (leaderboard) → ฟ้า */
+.sky [class*="shadow-[0_4px_0_#be185d]" i] { box-shadow: 0 4px 0 #0369a1 !important; }
+
+/* แถบเลื่อนที่แต่ละหน้าประกาศ hex ส้มตรงๆ ใน <style> ของตัวเอง → ฟ้า */
+:root.sky ::-webkit-scrollbar-track { background: #f0f9ff !important; }
+:root.sky ::-webkit-scrollbar-thumb { background: #bae6fd !important; }
+:root.sky ::-webkit-scrollbar-thumb:hover { background: #0ea5e9 !important; }
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

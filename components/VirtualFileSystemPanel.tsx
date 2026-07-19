@@ -61,7 +61,7 @@ export default function VirtualFileSystemPanel({
 
     const fxKind = fx?.effect.kind;
     const fxTargets: string[] = (fx?.effect.kind === 'permission' || fx?.effect.kind === 'scan') ? fx.effect.targets : [];
-    const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#facc15' : (targetOs === 'linux' ? '#f97316' : '#3b82f6');
+    const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#facc15' : currentTheme === 'sky' ? '#0ea5e9' : (targetOs === 'linux' ? '#f97316' : '#3b82f6');
     const FxIcon = fxKind ? EFFECT_ICONS[fxKind] : Activity;
 
     const getFileStyle = (fileName: string) => {
@@ -125,7 +125,7 @@ export default function VirtualFileSystemPanel({
                                 ? { icon: <Folder size={48} strokeWidth={2} className={isHacker ? 'text-green-500 fill-green-900/50' : isDark ? 'text-yellow-400 fill-yellow-600/30' : 'text-amber-400 fill-amber-100'} />, color: isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-amber-400' }
                                 : getFileStyle(file.name);
 
-                            const boxShadowColor = isHacker ? "rgba(34,197,94,0.3)" : targetOs === 'linux' ? "rgba(249,115,22,0.3)" : "rgba(59,130,246,0.3)";
+                            const boxShadowColor = isHacker ? "rgba(34,197,94,0.3)" : currentTheme === 'sky' ? "rgba(14,165,233,0.3)" : targetOs === 'linux' ? "rgba(249,115,22,0.3)" : "rgba(59,130,246,0.3)";
 
                             return (
                                 <motion.div
