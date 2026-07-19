@@ -14,14 +14,15 @@ import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import { PageSkeleton, SkelGridCards, skCard, sk } from '@/components/skeleton';
 import {
-  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart
+  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart, CircleUserRound
 } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import { apiFetch, clearUserState } from '@/lib/api';
+import { frameClass } from '@/lib/frames';
 
 interface ShopItem {
   id: string;
-  type: 'title' | 'theme' | 'cursor';
+  type: 'title' | 'theme' | 'cursor' | 'frame';
   name: string;
   desc: string;
   price: number;
@@ -30,6 +31,7 @@ interface ShopItem {
   preview?: [string, string, string]; // [พื้นหลัง, สีหลัก, สีรอง]
   cursorId?: string;
   emoji?: string;
+  frameId?: string;
 }
 
 export default function ShopPage() {
@@ -48,7 +50,8 @@ export default function ShopPage() {
   const [equippedTitle, setEquippedTitle] = useState<string | null>(null);
   const [equippedTheme, setEquippedTheme] = useState<string | null>(null);
   const [equippedCursor, setEquippedCursor] = useState<string | null>(null);
-  const [tab, setTab] = useState<'title' | 'theme' | 'cursor'>('title');
+  const [equippedFrame, setEquippedFrame] = useState<string | null>(null);
+  const [tab, setTab] = useState<'title' | 'theme' | 'cursor' | 'frame'>('title');
   // 🏪 มุมมอง: ร้านค้า หรือ คลังของที่ซื้อแล้ว
   const [view, setView] = useState<'shop' | 'inventory'>('shop');
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -79,6 +82,7 @@ export default function ShopPage() {
         setEquippedTitle(data.data.equippedTitle ?? null);
         setEquippedTheme(data.data.equippedTheme ?? null);
         setEquippedCursor(data.data.equippedCursor ?? null);
+        setEquippedFrame(data.data.equippedFrame ?? null);
       }
     } catch (e) {
       console.error('Load shop failed', e);
@@ -144,6 +148,18 @@ export default function ShopPage() {
             }
           } catch { }
           window.dispatchEvent(new Event('keyrush-user-updated'));
+        } else if (item.type === 'frame') {
+          setEquippedFrame(next);
+          // 🖼️ อัปเดต cache + แจ้ง Navbar ให้เปลี่ยนกรอบรูปทันที ไม่ต้องรีเฟรช
+          try {
+            const saved = localStorage.getItem('keyrush_user');
+            if (saved) {
+              const u = JSON.parse(saved);
+              u.activeFrame = unequip ? null : (item.frameId ?? null);
+              localStorage.setItem('keyrush_user', JSON.stringify(u));
+            }
+          } catch { }
+          window.dispatchEvent(new Event('keyrush-user-updated'));
         } else {
           setEquippedCursor(next);
           // 🖱️ อัปเดต cache + แจ้ง CursorGlow ให้เปลี่ยนเทรลทันที (ไม่ต้องรีเฟรช)
@@ -188,7 +204,7 @@ export default function ShopPage() {
         </div>
       </div>
       {/* แถบแท็บหมวด (ฉายา/ธีมเว็บ/เอฟเฟกต์) — กล่องเดียว 3 ปุ่ม ชิดซ้าย ไม่มีปุ่มฝั่งขวา */}
-      <div className={`${skCard} rounded-[24px] md:rounded-[32px] p-2 md:p-3 flex gap-2 md:gap-3 w-full max-w-md mb-5 md:mb-7`}>
+      <div className={`${skCard} rounded-[24px] md:rounded-[32px] p-2 md:p-3 flex gap-2 md:gap-3 w-full max-w-2xl mb-5 md:mb-7`}>
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className={`${sk} rounded-[16px] md:rounded-[20px] h-11 md:h-14 flex-1`} />
         ))}
@@ -203,10 +219,10 @@ export default function ShopPage() {
   const invVisible = visible.filter((i) => ownedIds.includes(i.id));
   const ownedCountOf = (t: ShopItem['type']) => items.filter((i) => i.type === t && ownedIds.includes(i.id)).length;
   const equippedFor = (i: ShopItem) =>
-    (i.type === 'title' ? equippedTitle : i.type === 'theme' ? equippedTheme : equippedCursor) === i.id;
+    (i.type === 'title' ? equippedTitle : i.type === 'theme' ? equippedTheme : i.type === 'frame' ? equippedFrame : equippedCursor) === i.id;
 
   const tabBtn = (active: boolean) =>
-    `flex-1 py-3 md:py-4 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 border-4 btn-squishy transition-colors ${active
+    `flex-1 min-w-0 px-1 py-3 md:py-4 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-wide whitespace-nowrap flex items-center justify-center gap-1 md:gap-2 border-4 btn-squishy transition-colors ${active
       ? isHacker
         ? 'bg-green-500 border-green-400 text-[#0a0a0a] shadow-[0_4px_0_#16a34a]'
         : isDark
@@ -337,18 +353,22 @@ export default function ShopPage() {
         )}
 
         {/* แท็บประเภทของ — ใช้ชุดเดียวกันทั้งร้านและคลัง (กดสลับ ไม่ต้องเลื่อน) */}
-        <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex gap-2 md:gap-3 w-full max-w-md">
+        <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex gap-2 md:gap-3 w-full max-w-2xl">
           <button onClick={() => setTab('title')} className={tabBtn(tab === 'title')}>
             <Tag size={16} strokeWidth={3} /> ฉายา
-            {view === 'inventory' && <span className="ml-0.5 opacity-70">({ownedCountOf('title')})</span>}
+            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('title')})</span>}
           </button>
           <button onClick={() => setTab('theme')} className={tabBtn(tab === 'theme')}>
             <Palette size={16} strokeWidth={3} /> ธีมเว็บ
-            {view === 'inventory' && <span className="ml-0.5 opacity-70">({ownedCountOf('theme')})</span>}
+            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('theme')})</span>}
+          </button>
+          <button onClick={() => setTab('frame')} className={tabBtn(tab === 'frame')}>
+            <CircleUserRound size={16} strokeWidth={3} /> กรอบรูป
+            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('frame')})</span>}
           </button>
           <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>
             <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
-            {view === 'inventory' && <span className="ml-0.5 opacity-70">({ownedCountOf('cursor')})</span>}
+            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('cursor')})</span>}
           </button>
         </div>
 
@@ -511,6 +531,13 @@ export default function ShopPage() {
             <span className="px-3 py-1.5 rounded-xl text-xs font-black border-2 shadow-sm bg-orange-100 border-white text-orange-600 dark:bg-yellow-400/15 dark:border-[#4B3965] dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
               {item.label}
             </span>
+          </div>
+        ) : item.type === 'frame' ? (
+          /* 🖼️ พรีวิวกรอบ: วงกลมรูปโปรไฟล์จำลองพร้อมกรอบจริงที่จะได้ */
+          <div className="relative h-24 rounded-xl border-2 border-orange-100 dark:border-[#4B3965] hacker:border-green-900 mb-1 overflow-hidden flex items-center justify-center bg-orange-50/60 dark:bg-black/20 hacker:bg-black/40">
+            <div className={`w-14 h-14 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] p-0.5 ${frameClass(item.frameId)}`}>
+              <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Felix&radius=50" alt="" className="w-full h-full object-cover rounded-full" />
+            </div>
           </div>
         ) : item.type === 'cursor' ? (
           /* 🖱️ พรีวิวเอฟเฟกต์เมาส์: เทรลโค้งกระจายตามหลังลูกศร (ตำแหน่ง/องศาไม่เรียงแถว ให้ดูเป็นเทรลจริง) */

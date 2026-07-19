@@ -9,6 +9,7 @@ import { Terminal, Monitor, Globe, Trophy, AlertCircle, Crown, Sparkles, Zap, Us
 import Navbar from '@/components/Navbar';
 import { apiFetch } from '@/lib/api';
 import { getRankByExp } from '@/lib/ranks';
+import { frameClass } from '@/lib/frames';
 
 export default function LeaderboardPage() {
   const router = useRouter();
@@ -220,7 +221,7 @@ export default function LeaderboardPage() {
               {isChampion && (
                 <div className={`absolute -inset-2 rounded-full border-4 border-dashed animate-[spin_10s_linear_infinite] ${isHacker ? 'border-green-500/60' : 'border-yellow-400/70'}`} />
               )}
-              <div className={`${avatarSize} flex-shrink-0 rounded-full border-4 ${medal.ring} bg-white shadow-md flex items-center justify-center p-[3px] overflow-hidden relative`}>
+              <div className={`${avatarSize} flex-shrink-0 rounded-full border-4 ${medal.ring} bg-white shadow-md flex items-center justify-center p-[3px] relative ${frameClass(player.frame)}`}>
                 <img src={getAvatarUrl(player.avatar)} alt={`Rank ${rank}`} className="w-full h-full object-cover rounded-full" />
               </div>
               <div className={`absolute -bottom-2 -right-2 w-7 h-7 md:w-8 md:h-8 ${medal.badge} rounded-full flex items-center justify-center text-xs md:text-sm font-black border-2 border-white dark:border-[#382E54] hacker:border-[#0a0a0a] shadow-md z-10`}>
@@ -456,7 +457,7 @@ export default function LeaderboardPage() {
                     <span className="text-[8px] uppercase tracking-widest opacity-80 leading-none mt-0.5">Rank</span>
                     <span className="text-base md:text-lg leading-tight">#{myIndex + 1}</span>
                   </div>
-                  <div className="hidden sm:block w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm overflow-hidden p-0.5">
+                  <div className={`hidden sm:block w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm p-0.5 ${frameClass(user.activeFrame)}`}>
                     <img src={getAvatarUrl(user.avatar)} alt="me" className="w-full h-full object-cover rounded-full" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -573,7 +574,7 @@ export default function LeaderboardPage() {
 
                           <div className="col-span-6 md:col-span-6 flex items-center gap-2.5 md:gap-4 min-w-0">
                             <Link href={playerProfileUrl} className="flex-shrink-0 cursor-pointer">
-                              <div className={`w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm flex items-center justify-center overflow-hidden p-0.5 group-hover:scale-105 transition-transform ${isMe ? `ring-4 ${targetOs === 'linux' ? 'ring-orange-500' : targetOs === 'windows' ? 'ring-blue-500' : 'ring-pink-500'}` : ''}`}>
+                              <div className={`w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform ${frameClass(player.frame)} ${isMe ? `ring-4 ${targetOs === 'linux' ? 'ring-orange-500' : targetOs === 'windows' ? 'ring-blue-500' : 'ring-pink-500'}` : ''}`}>
                                 <img src={getAvatarUrl(player.avatar)} alt="avatar" className="w-full h-full object-cover rounded-full" />
                               </div>
                             </Link>

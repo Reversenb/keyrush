@@ -11,6 +11,7 @@ import {
   Terminal, Monitor, Trophy, Medal, MessageSquare
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { frameClass } from '@/lib/frames';
 
 // 🌟 ข้อมูลแรงค์กลาง — แก้ที่ lib/ranks.ts ที่เดียว
 import { RANKS } from '@/lib/ranks';
@@ -272,7 +273,7 @@ export default function PublicProfilePage() {
           <div className={`absolute top-0 left-0 w-full h-2 opacity-90 transition-colors duration-500 ${isHacker ? 'bg-green-500' : isDark ? 'bg-gradient-to-r from-yellow-400 to-amber-500' : 'bg-gradient-to-r from-orange-400 to-amber-400'}`}></div>
 
           <div className="relative">
-            <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[32px] border-8 p-1 overflow-hidden flex items-center justify-center flex-shrink-0 z-10 relative transition-colors duration-500 ${isHacker ? 'bg-[#0a0a0a] border-[#166534] shadow-[0_0_20px_rgba(34,197,94,0.2)]' : isDark ? 'bg-[#1E1B2E] border-[#382E54] shadow-[0_0_20px_rgba(250,204,21,0.1)]' : 'bg-white border-orange-100 shadow-[0_0_20px_rgba(249,115,22,0.2)]'}`}>
+            <div className={`w-32 h-32 md:w-40 md:h-40 rounded-[32px] border-8 p-1 flex items-center justify-center flex-shrink-0 z-10 ${frameClass(profileData.frame)} relative transition-colors duration-500 ${isHacker ? 'bg-[#0a0a0a] border-[#166534] shadow-[0_0_20px_rgba(34,197,94,0.2)]' : isDark ? 'bg-[#1E1B2E] border-[#382E54] shadow-[0_0_20px_rgba(250,204,21,0.1)]' : 'bg-white border-orange-100 shadow-[0_0_20px_rgba(249,115,22,0.2)]'}`}>
               <img src={getAvatarUrl(profileData.avatar)} alt="Avatar" className="w-full h-full object-cover rounded-[20px]" />
             </div>
           </div>

@@ -376,26 +376,106 @@
 .mint [class*="shadow-[0_6px_0_#be185d]" i] { box-shadow: 0 6px 0 #047857 !important; }
 
 /* =========================================================================
+   🖼️ กรอบรูปโปรไฟล์ (.kr-frame-<id>) — ครอบวงแหวนรอบรูปด้วย ::after
+   ใส่คลาสนี้ที่ "กล่องที่ห่อรูป" ได้เลย ไม่ต้องแก้โครงสร้าง HTML เดิม
+   id ต้องตรงกับ frameId ในแคตตาล็อกฝั่ง backend (src/shop/items.ts)
+   ========================================================================= */
+[class*="kr-frame-"] { position: relative; }
+[class*="kr-frame-"]::after {
+  content: '';
+  position: absolute;
+  /* วาดวงแหวนไว้ "นอก" กล่องรูป เพื่อให้มีระยะห่างจากรูปและมีที่ให้แสงเรือง
+     ⚠️ กล่องรูปที่ใส่กรอบต้องไม่มี overflow-hidden ไม่งั้นวงแหวนจะโดนตัดหายทั้งวง
+        (รูปข้างในมี rounded-* ของตัวเองอยู่แล้ว จึงไม่ต้องพึ่ง overflow ตัดขอบ) */
+  inset: -5px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── แบบวงแหวนสีเดียว + เรืองแสง ── */
+.kr-frame-silver::after {
+  border: 3px solid #cbd5e1;
+  box-shadow: 0 0 12px rgba(203, 213, 225, 0.95), inset 0 0 6px rgba(255, 255, 255, 0.7);
+}
+.kr-frame-gold::after {
+  border: 3px solid #fbbf24;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.9), inset 0 0 6px rgba(254, 243, 199, 0.7);
+}
+.kr-frame-neon::after {
+  border: 3px solid #22d3ee;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.95), inset 0 0 6px rgba(34, 211, 238, 0.6);
+  animation: kr-frame-pulse 1.8s ease-in-out infinite;
+}
+.kr-frame-sakura::after {
+  border: 3px solid #f472b6;
+  box-shadow: 0 0 16px rgba(244, 114, 182, 0.9), inset 0 0 6px rgba(252, 231, 243, 0.7);
+}
+
+/* ── แบบวงแหวนไล่สี (ใช้เทคนิค mask เจาะรูตรงกลางให้เหลือแค่ขอบ) ── */
+.kr-frame-fire::after,
+.kr-frame-diamond::after,
+.kr-frame-rainbow::after {
+  padding: 3px;
+  border: 0;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: kr-frame-spin 3.5s linear infinite;
+}
+.kr-frame-fire::after {
+  background: conic-gradient(from 0deg, #f97316, #fbbf24, #ef4444, #f97316);
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.8));
+}
+.kr-frame-diamond::after {
+  background: conic-gradient(from 0deg, #a5f3fc, #ffffff, #c7d2fe, #ffffff, #a5f3fc);
+  filter: drop-shadow(0 0 9px rgba(165, 243, 252, 0.9));
+  animation-duration: 5s;
+}
+.kr-frame-rainbow::after {
+  background: conic-gradient(from 0deg, #f87171, #fbbf24, #4ade80, #22d3ee, #a78bfa, #f87171);
+  filter: drop-shadow(0 0 9px rgba(167, 139, 250, 0.75));
+  animation-duration: 4s;
+}
+
+@keyframes kr-frame-spin { to { transform: rotate(360deg); } }
+@keyframes kr-frame-pulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(34,211,238,0.95), inset 0 0 6px rgba(34,211,238,0.6); }
+  50%      { box-shadow: 0 0 30px rgba(34,211,238,1),    inset 0 0 9px rgba(34,211,238,0.8); }
+}
+
+/* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — คงกรอบไว้ แต่หยุดหมุน/กะพริบ */
+@media (prefers-reduced-motion: reduce) {
+  [class*="kr-frame-"]::after { animation: none !important; }
+}
+
+/* =========================================================================
    🪟 .glass-card ฐาน — แต่ละหน้ามีนิยามของตัวเองใน <style> ซึ่งจะทับอันนี้อยู่แล้ว
    ⚠️ แต่ตอนโชว์ skeleton หน้าจะ return ออกไปก่อนถึง <style> ของตัวเอง
       ถ้าไม่มีฐานตรงนี้ การ์ดใน skeleton จะกลายเป็นกล่องเปล่าไม่มีพื้น/กรอบ/มุมโค้ง
    ========================================================================= */
+/* ⚠️ ห้ามตั้ง box-shadow ในกฎชุดนี้เด็ดขาด
+   CSS ที่อยู่นอก layer จะชนะ utility ของ Tailwind ทุกตัว (ไม่สนใจ specificity)
+   ถ้าตั้ง box-shadow ตรงนี้ จะไปทับคลาสพวก ring / shadow ที่การ์ดใช้
+   → เคยทำให้ไฮไลท์ ring-4 ของการ์ด "ใส่อยู่" ในหน้าร้านหายทั้งหมดมาแล้ว
+
+   ⚠️ อีกข้อ: ห้ามพิมพ์เครื่องหมายดอกจันติดกับสแลชในคอมเมนต์ CSS
+   เพราะมันจะปิดคอมเมนต์กลางคัน แล้วข้อความที่เหลือจะกลายเป็น CSS เสีย
+   ซึ่งไปกลืนกฎถัดไปหายทั้งอัน (เคยทำให้ .glass-card หายจากไฟล์ที่คอมไพล์มาแล้ว) */
 .glass-card {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
   border: 4px solid #ffffff;
   border-radius: 40px;
-  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.15);
 }
 .dark .glass-card {
   background: rgba(45, 34, 59, 0.7);
   border-color: #382E54;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 .hacker .glass-card {
   background: rgba(10, 10, 10, 0.85);
   border-color: #166534;
-  box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15);
 }
 
 /* =========================================================================

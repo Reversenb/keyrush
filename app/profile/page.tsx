@@ -11,6 +11,7 @@ import {
   Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw, Bot, AlertTriangle, X
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { frameClass } from '@/lib/frames';
 
 // 🤖 ลดเหลือ 50 ตัว — โหลดไวขึ้นครึ่งหนึ่ง (seed เก่าที่ user เคยเลือกไว้ยังแสดงผลได้ปกติ)
 const AVATAR_OPTIONS = [
@@ -415,6 +416,8 @@ export default function ProfilePage() {
 
               {/* ซ้าย: ส่วนจัดการรูปภาพ */}
               <div className="lg:col-span-4 flex flex-col items-center">
+                {/* กล่องนอกไว้ใส่กรอบ — กล่องในมี overflow-hidden ที่ตัวครอปรูปต้องใช้ ใส่กรอบตรงนั้นจะโดนตัด */}
+                <div className={`relative rounded-[40px] ${frameClass(user?.activeFrame)}`}>
                 <div className="relative size-48 md:size-56 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] rounded-[40px] overflow-hidden border-8 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm mb-5 group-hover:shadow-md transition-all duration-500 cursor-pointer">
                   {image ? (
                     <div className="relative w-full h-full bg-orange-50 dark:bg-black/30">
@@ -437,6 +440,7 @@ export default function ProfilePage() {
                       className="w-full h-full object-cover p-2 transition-transform duration-500 ease-out hover:scale-110"
                     />
                   )}
+                </div>
                 </div>
 
                 {image && (
