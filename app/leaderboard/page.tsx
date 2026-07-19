@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { Terminal, Monitor, Globe, RefreshCw, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal } from 'lucide-react';
+import { Terminal, Monitor, Globe, RefreshCw, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal, ChevronDown, Check } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { apiFetch } from '@/lib/api';
 import { getRankByExp } from '@/lib/ranks';
@@ -23,6 +23,8 @@ export default function LeaderboardPage() {
   const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [targetOs, setTargetOs] = useState<'linux' | 'windows' | 'combined'>('combined');
+  // 📂 dropdown เลือกหมวด (Total/Linux/Windows) — ประหยัดพื้นที่กว่าแถบ Tab เต็มแถว
+  const [osMenuOpen, setOsMenuOpen] = useState(false);
 
   // 🛡️ กัน hydration mismatch: สี/สไตล์หลายจุดคำนวณจาก useTheme() ใน JS
   // ตอน SSR server ไม่รู้ธีมของผู้ใช้ → ต้องรอ mount ฝั่ง client ก่อนค่อย render ของจริง
@@ -348,27 +350,78 @@ export default function LeaderboardPage() {
 
           </div>
 
-          {/* 🌟 ป้ายสลับสาย (Tabs) แบบ 3D 🌟 */}
-          <div className="flex justify-center relative z-20 w-full animate-in fade-in zoom-in duration-500 delay-100">
-            <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex w-full max-w-[650px] shadow-sm gap-2 md:gap-3 relative transition-colors">
+          {/* 🌟 แถวบน: การ์ดอันดับของคุณ (ซ้าย) + Dropdown เลือกหมวด (ขวา) 🌟 */}
+          <div className="flex items-stretch gap-3 md:gap-4 relative z-20 w-full animate-in fade-in zoom-in duration-500 delay-100">
 
-              {(['combined', 'linux', 'windows'] as const).map((os) => {
-                const isActive = targetOs === os;
-                const icon = os === 'linux' ? <Terminal size={18} strokeWidth={3} /> : os === 'windows' ? <Monitor size={18} strokeWidth={3} /> : <Globe size={18} strokeWidth={3} />;
-                const label = os === 'combined' ? 'Total' : os.charAt(0).toUpperCase() + os.slice(1);
+            {/* 📌 การ์ดอันดับของคุณ — กดแล้วไปหน้าตารางแรงค์ 📌 */}
+            {user && myIndex >= 0 ? (
+              <Link href="/ranks" title="ดูตารางแรงค์ทั้งหมด" className="block flex-1 min-w-0">
+                <div className={`glass-card h-full flex items-center gap-2.5 md:gap-4 px-3 md:px-6 py-2.5 md:py-3 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all ${styles.tableBorder}`}>
+                  <div className={`w-11 h-11 md:w-13 md:h-13 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${styles.bgMain} ${isHacker || isDark ? 'text-[#1E1B2E]' : 'text-white'}`}>
+                    <span className="text-[8px] uppercase tracking-widest opacity-80 leading-none mt-0.5">Rank</span>
+                    <span className="text-base md:text-lg leading-tight">#{myIndex + 1}</span>
+                  </div>
+                  <div className="hidden sm:block w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm overflow-hidden p-0.5">
+                    <img src={getAvatarUrl(user.avatar)} alt="me" className="w-full h-full object-cover rounded-full" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">อันดับของคุณ</p>
+                    <p className={`font-black truncate text-sm md:text-base ${styles.textMain}`}>
+                      {user.displayName || user.username?.split('@')[0]}
+                    </p>
+                    {user.title && (
+                      <p className="truncate text-[10px] md:text-[11px] font-black text-orange-400 dark:text-purple-300 hacker:text-green-600 transition-colors">
+                        ✦ {user.title}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0 hidden min-[420px]:block">
+                    <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">Total EXP</p>
+                    <p className={`font-black text-sm md:text-lg cute-header ${styles.textMain} flex items-center justify-end gap-1`}>
+                      <Zap size={13} className="fill-current" /> {getPlayerExp(leaderboardData[myIndex]).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div className="flex-1" />
+            )}
 
-                return (
-                  <button
-                    key={os}
-                    onClick={() => handleOsChange(os)}
-                    className={`flex-1 py-3 md:py-4 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-widest relative transition-all duration-300 flex items-center justify-center gap-1.5 md:gap-2 border-4 btn-squishy ${isActive ? `${styles.tabActiveBg} ${styles.tabActiveText}` : styles.tabIdleBg + ' ' + styles.tabIdleText}`}
-                  >
-                    {icon}
-                    <span className="relative z-10">{label}</span>
-                  </button>
-                );
-              })}
+            {/* 📂 Dropdown เลือกหมวด — แทนแถบ Tab เต็มแถว ประหยัดพื้นที่ 📂 */}
+            <div className="relative shrink-0 self-center">
+              <button
+                onClick={() => setOsMenuOpen((v) => !v)}
+                className={`flex items-center gap-1.5 md:gap-2 px-3.5 md:px-5 py-3 md:py-3.5 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-widest border-4 btn-squishy transition-all duration-300 ${styles.tabActiveBg} ${styles.tabActiveText}`}
+              >
+                {targetOs === 'linux' ? <Terminal size={16} strokeWidth={3} /> : targetOs === 'windows' ? <Monitor size={16} strokeWidth={3} /> : <Globe size={16} strokeWidth={3} />}
+                <span>{targetOs === 'combined' ? 'Total' : targetOs.charAt(0).toUpperCase() + targetOs.slice(1)}</span>
+                <ChevronDown size={16} strokeWidth={3} className={`transition-transform duration-300 ${osMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
 
+              {osMenuOpen && (
+                <>
+                  {/* ฉากหลังโปร่งใส — กดที่ไหนก็ปิดเมนู */}
+                  <div className="fixed inset-0 z-30" onClick={() => setOsMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 z-40 w-44 md:w-48 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-orange-100 dark:border-[#382E54] hacker:border-[#166534] rounded-[20px] p-2 shadow-xl flex flex-col gap-1 animate-in fade-in zoom-in-95 duration-200 transition-colors">
+                    {(['combined', 'linux', 'windows'] as const).map((os) => {
+                      const isActive = targetOs === os;
+                      const icon = os === 'linux' ? <Terminal size={15} strokeWidth={3} /> : os === 'windows' ? <Monitor size={15} strokeWidth={3} /> : <Globe size={15} strokeWidth={3} />;
+                      const label = os === 'combined' ? 'Total' : os.charAt(0).toUpperCase() + os.slice(1);
+                      return (
+                        <button
+                          key={os}
+                          onClick={() => { handleOsChange(os); setOsMenuOpen(false); }}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-[14px] text-[11px] md:text-xs font-black uppercase tracking-widest transition-colors ${isActive ? `${styles.tabActiveBg} ${styles.tabActiveText} border-2` : `${styles.tabIdleText} hover:bg-orange-50 dark:hover:bg-white/5 hacker:hover:bg-green-900/20`}`}
+                        >
+                          {icon}
+                          <span className="flex-1 text-left">{label}</span>
+                          {isActive && <Check size={14} strokeWidth={4} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -383,38 +436,6 @@ export default function LeaderboardPage() {
           ) : (
             <AnimatePresence mode="wait">
               <motion.div key={targetOs} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="w-full">
-
-                {/* 📌 การ์ดอันดับของคุณ — อยู่บนสุด เปิดหน้ามาเห็นทันที กดแล้วไปหน้าตารางแรงค์ 📌 */}
-                {user && myIndex >= 0 && (
-                  <Link href="/ranks" title="ดูตารางแรงค์ทั้งหมด" className="block">
-                  <motion.div
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 }}
-                    className={`glass-card flex items-center gap-3 md:gap-5 px-4 md:px-8 py-3 md:py-4 mb-4 md:mb-6 cursor-pointer hover:-translate-y-1 hover:shadow-md ${styles.tableBorder}`}
-                  >
-                    <div className={`w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm ${styles.bgMain} ${isHacker || isDark ? 'text-[#1E1B2E]' : 'text-white'}`}>
-                      <span className="text-[8px] uppercase tracking-widest opacity-80 leading-none mt-0.5">Rank</span>
-                      <span className="text-lg md:text-xl leading-tight">#{myIndex + 1}</span>
-                    </div>
-                    <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm overflow-hidden p-0.5">
-                      <img src={getAvatarUrl(user.avatar)} alt="me" className="w-full h-full object-cover rounded-full" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">อันดับของคุณ</p>
-                      <p className={`font-black truncate text-sm md:text-base ${styles.textMain}`}>
-                        {user.displayName || user.username?.split('@')[0]}
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[9px] md:text-[10px] uppercase tracking-widest opacity-50 font-black">Total EXP</p>
-                      <p className={`font-black text-base md:text-xl cute-header ${styles.textMain} flex items-center justify-end gap-1`}>
-                        <Zap size={14} className="fill-current" /> {getPlayerExp(leaderboardData[myIndex]).toLocaleString()}
-                      </p>
-                    </div>
-                  </motion.div>
-                  </Link>
-                )}
 
                 {/* 🌟 แท่น Podium Top 3 (ลำดับ 2-1-3) 🌟 */}
                 {leaderboardData.length >= 3 && (
