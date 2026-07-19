@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { Terminal, Monitor, Globe, RefreshCw, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal, ChevronDown, Check } from 'lucide-react';
+import { Terminal, Monitor, Globe, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal, ChevronDown, Check } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { apiFetch } from '@/lib/api';
 import { getRankByExp } from '@/lib/ranks';
@@ -350,8 +350,64 @@ export default function LeaderboardPage() {
 
           </div>
 
-          {/* 🌟 แถวบน: การ์ดอันดับของคุณ (ซ้าย) + Dropdown เลือกหมวด (ขวา) 🌟 */}
-          <div className="flex items-stretch gap-3 md:gap-4 relative z-20 w-full animate-in fade-in zoom-in duration-500 delay-100">
+          {loading ? (
+            /* 💀 Skeleton Loading — โครงหน้าจำลองระหว่างรอข้อมูล (แถวบน + Podium + ตาราง) 💀 */
+            <div className="w-full animate-in fade-in duration-300" aria-hidden>
+              {/* แถวบน: การ์ดอันดับ + ปุ่มหมวด */}
+              <div className="flex items-stretch gap-3 md:gap-4 mb-4 md:mb-6">
+                <div className={`flex-1 rounded-[24px] border-4 px-3 md:px-6 py-2.5 md:py-3 flex items-center gap-2.5 md:gap-4 ${styles.tableBorder} bg-white/60 dark:bg-[#1E1B2E]/60 hacker:bg-[#0a0a0a]/60`}>
+                  <div className={`w-11 h-11 md:w-13 md:h-13 shrink-0 rounded-2xl animate-pulse ${styles.bgLight}`} />
+                  <div className={`hidden sm:block w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-full animate-pulse ${styles.bgLight}`} />
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className={`h-2.5 w-20 rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-3.5 w-32 rounded-full animate-pulse ${styles.bgLight}`} />
+                  </div>
+                  <div className={`hidden min-[420px]:block h-6 w-20 rounded-full animate-pulse ${styles.bgLight}`} />
+                </div>
+                <div className={`w-28 md:w-36 self-stretch rounded-[16px] md:rounded-[20px] border-4 animate-pulse ${styles.tableBorder} ${styles.bgLight}`} />
+              </div>
+
+              {/* Podium 3 แท่น (2-1-3) */}
+              <div className="flex justify-center items-end gap-2 sm:gap-4 md:gap-8 mb-6 md:mb-10 px-1 md:px-2 mt-2 md:mt-4">
+                {[
+                  { w: 'w-24 sm:w-32 md:w-40', h: 'h-24 sm:h-28 md:h-32', av: 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20' },
+                  { w: 'w-32 sm:w-40 md:w-52', h: 'h-32 sm:h-36 md:h-44', av: 'w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28' },
+                  { w: 'w-24 sm:w-32 md:w-40', h: 'h-20 sm:h-24 md:h-28', av: 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20' },
+                ].map((s, i) => (
+                  <div key={i} className={`flex flex-col items-center gap-3 ${s.w}`}>
+                    <div className={`${s.av} rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-3 w-16 rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`w-full ${s.h} rounded-t-[20px] animate-pulse ${styles.bgLight}`} />
+                  </div>
+                ))}
+              </div>
+
+              {/* ตารางรายชื่อ */}
+              <div className={`glass-card overflow-hidden ${styles.tableBorder}`}>
+                <div className={`px-3 md:px-8 py-4 md:py-5 border-b-4 ${styles.tableHeader}`}>
+                  <div className={`h-3 w-40 rounded-full animate-pulse ${styles.bgLight}`} />
+                </div>
+                <div className={`divide-y-4 ${isHacker ? 'divide-green-900' : isDark ? 'divide-[#382E54]' : 'divide-white'}`}>
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-3 md:gap-5 px-3 md:px-8 py-3.5 md:py-4" style={{ opacity: 1 - i * 0.1 }}>
+                      <div className={`w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-xl animate-pulse ${styles.bgLight}`} />
+                      <div className={`w-9 h-9 md:w-10 md:h-10 shrink-0 rounded-full animate-pulse ${styles.bgLight}`} />
+                      <div className="flex-1 flex flex-col gap-2">
+                        <div className={`h-3 rounded-full animate-pulse ${styles.bgLight}`} style={{ width: `${55 - i * 4}%` }} />
+                        <div className={`h-2 rounded-full animate-pulse ${styles.bgLight}`} style={{ width: `${30 - i * 2}%` }} />
+                      </div>
+                      <div className={`h-4 w-16 md:w-20 shrink-0 rounded-full animate-pulse ${styles.bgLight}`} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div key={targetOs} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="w-full">
+
+          {/* 🌟 แถวบน: การ์ดอันดับของคุณ (ซ้าย) + Dropdown เลือกหมวด (ขวา) — โผล่พร้อมกันตอนโหลดเสร็จ 🌟 */}
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-stretch gap-3 md:gap-4 relative z-20 w-full mb-4 md:mb-6">
 
             {/* 📌 การ์ดอันดับของคุณ — กดแล้วไปหน้าตารางแรงค์ 📌 */}
             {user && myIndex >= 0 ? (
@@ -423,19 +479,7 @@ export default function LeaderboardPage() {
                 </>
               )}
             </div>
-          </div>
-
-          {loading ? (
-            <div className={`flex flex-col justify-center items-center py-32 ${styles.textMain}`}>
-              <div className="relative mb-6">
-                <Trophy size={56} strokeWidth={2.5} className="animate-bounce" />
-                <RefreshCw size={22} strokeWidth={3} className="animate-spin absolute -bottom-1 -right-3 opacity-70" />
-              </div>
-              <span className="tracking-widest uppercase font-black text-sm animate-pulse">Loading Rankings...</span>
-            </div>
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div key={targetOs} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }} className="w-full">
+          </motion.div>
 
                 {/* 🌟 แท่น Podium Top 3 (ลำดับ 2-1-3) 🌟 */}
                 {leaderboardData.length >= 3 && (
