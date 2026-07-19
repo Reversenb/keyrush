@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence, animate } from 'framer-motion';
+import { motion, animate } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { SkelStatCards, SkelListRows, skCard, sk } from '@/components/skeleton';
 import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import Navbar from '@/components/Navbar';
@@ -372,14 +372,37 @@ export default function DashboardPage() {
       <div className="fixed bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-20 dark:opacity-5 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors" />
       <div className="fixed top-[40%] left-[20%] w-[300px] h-[300px] bg-yellow-300 dark:bg-yellow-400 hacker:bg-green-500 rounded-full blur-[100px] opacity-20 dark:opacity-5 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors" style={{ animationDelay: '2s' }} />
 
-      <AnimatePresence>
-        {loading && <HackerLoadingScreen />}
-      </AnimatePresence>
-
       <div className="flex h-full grow flex-col relative z-10 w-full">
 
         <Navbar />
 
+        {loading ? (
+          /* 💀 Skeleton เฉพาะหน้า Dashboard: การ์ดต้อนรับ + สถิติ 4 ใบ + กราฟ + ประวัติล่าสุด 💀 */
+          <div className="flex-1 px-4 md:px-10 py-8 flex justify-center relative z-10 w-full animate-in fade-in duration-300" aria-hidden>
+            <div className="flex flex-col max-w-[1200px] w-full gap-6 md:gap-8">
+              <div className={`${skCard} rounded-[28px] p-6 md:p-8 flex items-center gap-4 md:gap-6`}>
+                <div className={`${sk} rounded-full w-16 h-16 md:w-20 md:h-20 shrink-0`} />
+                <div className="flex-1 flex flex-col gap-2.5">
+                  <div className={`${sk} rounded-full h-5 w-48 max-w-full`} />
+                  <div className={`${sk} rounded-full h-3.5 w-32`} />
+                </div>
+                <div className={`${sk} rounded-2xl h-10 w-28 hidden md:block`} />
+              </div>
+              <SkelStatCards n={4} cols="grid-cols-2 lg:grid-cols-4" />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+                <div className={`${skCard} rounded-[28px] p-5 md:p-6 flex flex-col gap-4`}>
+                  <div className={`${sk} rounded-full h-4 w-36`} />
+                  <div className="flex items-end gap-3 flex-1 min-h-48 md:min-h-56">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className={`${sk} rounded-t-xl flex-1`} style={{ height: `${30 + ((i * 37) % 60)}%` }} />
+                    ))}
+                  </div>
+                </div>
+                <SkelListRows n={4} />
+              </div>
+            </div>
+          </div>
+        ) : (
         <motion.main
           variants={containerVariants}
           initial="hidden"
@@ -613,6 +636,7 @@ export default function DashboardPage() {
 
           </div>
         </motion.main>
+        )}
       </div>
     </div>
   );

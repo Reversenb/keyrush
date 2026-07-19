@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, skCard, sk } from '@/components/skeleton';
 import { Terminal, ArrowRight, Edit3, Check, X, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
@@ -108,7 +108,20 @@ export default function WelcomePage() {
     return 'ROOT_USER';
   };
 
-  if (!isMounted || isLoading) return <HackerLoadingScreen />;
+  if (!isMounted || isLoading) return (
+    <PageSkeleton maxW="max-w-2xl" navbar={false}>
+      {/* การ์ดต้อนรับกลางจอ */}
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className={`${skCard} rounded-[32px] w-full p-8 md:p-10 flex flex-col items-center gap-5`}>
+          <div className={`${sk} rounded-full w-20 h-20 md:w-24 md:h-24`} />
+          <div className={`${sk} rounded-full h-6 w-48 md:w-56`} />
+          <div className={`${sk} rounded-full h-3.5 w-64 max-w-full`} />
+          <div className={`${sk} rounded-2xl h-12 w-full max-w-sm mt-3`} />
+          <div className={`${sk} rounded-2xl h-12 w-36`} />
+        </div>
+      </div>
+    </PageSkeleton>
+  );
 
   const containerVariants = {
     hidden: { opacity: 0 },

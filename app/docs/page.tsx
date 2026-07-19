@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, sk, skCard } from '@/components/skeleton';
 import Link from 'next/link';
 import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
@@ -75,7 +75,33 @@ export default function DatabankPage() {
     fetchDatabankData();
   }, [router]);
 
-  if (loading) return <HackerLoadingScreen />;
+  if (loading) return (
+    <PageSkeleton maxW="max-w-7xl">
+      {/* โครงตามหน้าจริง: Sidebar ซ้าย (หัวข้อ + เมนูแท็บแนวตั้ง) + กล่องเนื้อหาใหญ่ขวา */}
+      <div className="flex flex-col md:flex-row gap-8 pt-3 md:pt-4">
+        <aside className="w-full md:w-72 flex-shrink-0 px-2">
+          <div className={`${sk} rounded-[16px] h-8 w-40 mb-4`} />
+          <div className={`${sk} rounded-2xl h-10 md:h-12 w-52 mb-2`} />
+          <div className={`${sk} rounded-2xl h-10 md:h-12 w-40 mb-3`} />
+          <div className={`${sk} rounded-full h-3 w-44 mb-6`} />
+          <div className="flex flex-row md:flex-col gap-3 overflow-hidden">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className={`${sk} rounded-[20px] h-[52px] w-40 md:w-full flex-shrink-0`} style={{ opacity: 1 - i * 0.13 }} />
+            ))}
+          </div>
+        </aside>
+        <section className={`flex-1 min-h-[500px] rounded-[28px] p-6 md:p-10 ${skCard}`}>
+          <div className={`${sk} rounded-2xl h-8 w-56 max-w-full mb-3`} />
+          <div className={`${sk} rounded-full h-3.5 w-72 max-w-full mb-8`} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={`${sk} rounded-[20px] h-24`} style={{ opacity: 1 - i * 0.11 }} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </PageSkeleton>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans font-black flex flex-col selection:bg-orange-500/20 dark:selection:bg-yellow-400/20 hacker:selection:bg-green-500/20 relative overflow-hidden transition-colors duration-500">

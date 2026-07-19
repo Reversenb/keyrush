@@ -7,7 +7,7 @@ import type { TerminalHandle } from '@/components/TerminalBox';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, SkelTerminal, sk } from '@/components/skeleton';
 import { ChevronLeft, Terminal as TerminalIcon, Star, Volume2, VolumeX, LayoutDashboard, Map, LogOut, BookOpen, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 // 🌟 Import Components 
@@ -391,7 +391,16 @@ export default function GamePage() {
   const wpmTextHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#ffffff' : '#431407';
   const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
 
-  if (isInitializing) return <HackerLoadingScreen />;
+  if (isInitializing) return (
+    <PageSkeleton maxW="max-w-5xl">
+      {/* แถบหัวภารกิจ */}
+      <div className="flex items-center justify-center gap-3 mb-5 md:mb-6">
+        <div className={`${sk} rounded-2xl h-8 w-24`} />
+        <div className={`${sk} rounded-full h-5 w-40 md:w-56`} />
+      </div>
+      <SkelTerminal />
+    </PageSkeleton>
+  );
 
   // 🌟 หน้าจอถ้าเคลียร์ทุกด่านแล้ว (หรือถ้า Database ไม่มีข้อมูลด่านนั้นๆ)
   if (isAllCleared) {

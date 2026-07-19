@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
 import {
   ChevronDown, PlusCircle, Database, Terminal, Monitor,
   Search, X, Edit, Trash2, Heart, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, BookOpen, Target

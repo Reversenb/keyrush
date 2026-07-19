@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Terminal, Monitor, Zap, Medal, Trophy, CheckCircle, Lock, Power } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { SkelStatCards, SkelGridCards, sk } from '@/components/skeleton';
 import { apiFetch, clearUserState } from '@/lib/api';
 import { getRankByExp } from '@/lib/ranks';
 
@@ -199,10 +199,6 @@ export default function CampaignPage() {
       <div className={`fixed top-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full blur-[100px] opacity-20 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors duration-1000 ${isHacker ? 'bg-green-600' : isDark ? (isLinux ? 'bg-yellow-500' : 'bg-blue-600') : (isLinux ? 'bg-orange-400' : 'bg-blue-400')}`} />
       <div className={`fixed bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-20 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors duration-1000 ${isHacker ? 'bg-green-700' : isDark ? (isLinux ? 'bg-yellow-600' : 'bg-cyan-600') : (isLinux ? 'bg-amber-400' : 'bg-cyan-400')}`} style={{ animationDelay: '1.5s' }} />
 
-      <AnimatePresence>
-        {loading && <HackerLoadingScreen />}
-      </AnimatePresence>
-
       {/* ================= Header & Navbar ================= */}
       <div className="z-50 relative shrink-0">
         <Navbar theme="linux" />
@@ -211,10 +207,21 @@ export default function CampaignPage() {
       {/* ================= Main Content ================= */}
       <div className="flex-1 relative z-10 p-4 md:p-6 lg:p-8 flex justify-center pb-20">
 
+        {loading ? (
+          /* 💀 Skeleton เฉพาะหน้า Mission Control: หัวข้อ + สถิติ 3 ใบ + กริดภารกิจ 💀 */
+          <div className="w-full max-w-[1200px] flex flex-col gap-4 md:gap-6 animate-in fade-in duration-300" aria-hidden>
+            <div className="flex flex-col items-center md:items-start gap-3">
+              <div className={`${sk} rounded-2xl h-10 md:h-12 w-64 md:w-96 max-w-full`} />
+              <div className={`${sk} rounded-full h-3.5 w-48 md:w-72 max-w-full`} />
+            </div>
+            <SkelStatCards n={3} cols="grid-cols-2 sm:grid-cols-3" />
+            <SkelGridCards n={8} cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
+          </div>
+        ) : (
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate={!loading ? "show" : "hidden"}
+          animate="show"
           className="w-full max-w-[1200px] flex flex-col gap-4 md:gap-6"
         >
 
@@ -426,6 +433,7 @@ export default function CampaignPage() {
           </motion.div>
 
         </motion.div>
+        )}
       </div>
     </div>
   );

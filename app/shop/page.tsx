@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, SkelGridCards, skCard, sk } from '@/components/skeleton';
 import {
   ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X
 } from 'lucide-react';
@@ -169,7 +169,24 @@ export default function ShopPage() {
   };
 
   if (!mounted) return <div className="bg-background min-h-screen" />;
-  if (loading) return <HackerLoadingScreen />;
+  if (loading) return (
+    <PageSkeleton>
+      {/* แบนเนอร์ร้านค้า */}
+      <div className={`${skCard} rounded-[32px] h-36 md:h-44 mb-4 md:mb-6 p-6 md:p-8 flex flex-col justify-center gap-3`}>
+        <div className={`${sk} rounded-full h-6 md:h-8 w-48 md:w-64`} />
+        <div className={`${sk} rounded-full h-3.5 w-64 md:w-96 max-w-full`} />
+      </div>
+      {/* แท็บหมวด (ฉายา/ธีม/เอฟเฟกต์) + ปุ่มคลัง */}
+      <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
+        <div className="flex gap-2 md:gap-3">
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className={`${sk} rounded-2xl h-10 md:h-12 w-20 md:w-28`} />)}
+        </div>
+        <div className={`${sk} rounded-2xl h-10 md:h-12 w-24 md:w-32`} />
+      </div>
+      {/* การ์ดสินค้า */}
+      <SkelGridCards n={6} />
+    </PageSkeleton>
+  );
 
   // ใช้แท็บ (ฉายา/ธีมเว็บ) ชุดเดียวกันทั้งสองมุมมอง — คลังกรองเฉพาะของที่เป็นเจ้าของ
   const visible = items.filter((i) => i.type === tab);

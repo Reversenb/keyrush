@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, SkelHeader, SkelListRows, skCard, sk } from '@/components/skeleton';
 import {
   Keyboard, Terminal, Router as RouterIcon, Server,
   Bug, Fingerprint, Crown, ShieldCheck, Lock, CheckCircle
@@ -103,7 +103,21 @@ export default function RanksPage() {
     fetchUserProgress();
   }, []);
 
-  if (loading) return <HackerLoadingScreen />;
+  if (loading) return (
+    <PageSkeleton maxW="max-w-4xl">
+      <SkelHeader />
+      {/* การ์ดแรงค์ปัจจุบันของเรา */}
+      <div className={`${skCard} rounded-[28px] p-5 md:p-6 mb-4 md:mb-6 flex items-center gap-4`}>
+        <div className={`${sk} rounded-2xl w-14 h-14 md:w-16 md:h-16 shrink-0`} />
+        <div className="flex-1 flex flex-col gap-2.5">
+          <div className={`${sk} rounded-full h-4 w-40`} />
+          <div className={`${sk} rounded-full h-3 w-full max-w-xs`} />
+        </div>
+      </div>
+      {/* ไทม์ไลน์ลำดับแรงค์ */}
+      <SkelListRows n={8} />
+    </PageSkeleton>
+  );
 
   const totalExp = user ? (user.linuxExp || 0) + (user.windowsExp || 0) : 0;
 

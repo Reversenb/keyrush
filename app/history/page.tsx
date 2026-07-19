@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { SkelCalendar, SkelListRows, sk } from '@/components/skeleton';
 import {
   History as HistoryIcon, Terminal, Monitor, Database,
   FileText, Clock, Star, X, ListFilter, Zap, ChevronLeft, ChevronRight, CalendarDays
@@ -280,15 +280,23 @@ export default function HistoryPage() {
       <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-400 dark:bg-yellow-500 hacker:bg-green-600 rounded-full blur-[100px] opacity-20 dark:opacity-10 hacker:opacity-10 float-element pointer-events-none z-0 transition-colors" />
       <div className="fixed bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-amber-400 dark:bg-yellow-600 hacker:bg-green-700 rounded-full blur-[100px] opacity-20 dark:opacity-10 hacker:opacity-10 float-delayed pointer-events-none z-0 transition-colors" style={{ animationDelay: '1.5s' }} />
 
-      <AnimatePresence>
-        {loading && <HackerLoadingScreen />}
-      </AnimatePresence>
-
       <div className="relative z-40 shrink-0">
         <Navbar theme="linux" />
       </div>
 
-      {/* พื้นที่ Content หลัก */}
+      {loading ? (
+        /* 💀 Skeleton เฉพาะหน้า History: หัวข้อ + ปฏิทิน + ตารางประวัติ 💀 */
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 flex flex-col gap-6 md:gap-8 relative z-10 animate-in fade-in duration-300" aria-hidden>
+          <div className="flex flex-col gap-3">
+            <div className={`${sk} rounded-2xl h-10 md:h-14 w-56 md:w-80`} />
+            <div className={`${sk} rounded-full h-3.5 w-40 md:w-64`} />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 md:gap-6 items-start">
+            <SkelCalendar />
+            <SkelListRows n={7} />
+          </div>
+        </main>
+      ) : (
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12 flex flex-col gap-6 md:gap-8 relative z-10">
 
         {/* 🌟 Header & Back Button 🌟 */}
@@ -477,6 +485,7 @@ export default function HistoryPage() {
         </div>
 
       </main>
+      )}
 
       {/* 🌟 Footer 🌟 */}
       <footer className="py-8 text-center text-orange-400 dark:text-white/30 hacker:text-green-600/50 font-black text-[10px] uppercase tracking-widest relative z-10 border-t-4 border-white dark:border-[#382E54] hacker:border-[#166534] bg-white/60 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 backdrop-blur-md transition-colors">

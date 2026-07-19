@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Cropper from 'react-easy-crop';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, SkelListRows, skCard, sk } from '@/components/skeleton';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
@@ -170,7 +170,19 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <HackerLoadingScreen />;
+  if (loading) return (
+    <PageSkeleton maxW="max-w-3xl">
+      {/* การ์ดโปรไฟล์: รูป + ชื่อ + ฉายา */}
+      <div className={`${skCard} rounded-[32px] p-6 md:p-8 mb-4 md:mb-6 flex flex-col items-center gap-4`}>
+        <div className={`${sk} rounded-full w-24 h-24 md:w-28 md:h-28`} />
+        <div className={`${sk} rounded-full h-5 w-44`} />
+        <div className={`${sk} rounded-full h-3.5 w-28`} />
+        <div className={`${sk} rounded-2xl h-10 w-36 mt-2`} />
+      </div>
+      {/* ช่องข้อมูล/ตั้งค่า */}
+      <SkelListRows n={4} header={false} />
+    </PageSkeleton>
+  );
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },

@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, SkelStatCards, SkelListRows, skCard, sk } from '@/components/skeleton';
 import {
   AlertTriangle, ArrowLeft, Star, Calendar,
   Terminal, Monitor, Trophy, Medal, MessageSquare
@@ -140,7 +140,21 @@ export default function PublicProfilePage() {
     return { title: rank.title, ...lightMap[rank.id] };
   };
 
-  if (loading) return <HackerLoadingScreen />;
+  if (loading) return (
+    <PageSkeleton maxW="max-w-4xl">
+      {/* การ์ดโปรไฟล์สาธารณะ */}
+      <div className={`${skCard} rounded-[32px] p-6 md:p-8 mb-4 md:mb-6 flex items-center gap-4 md:gap-6`}>
+        <div className={`${sk} rounded-full w-20 h-20 md:w-24 md:h-24 shrink-0`} />
+        <div className="flex-1 flex flex-col gap-2.5">
+          <div className={`${sk} rounded-full h-5 w-44 max-w-full`} />
+          <div className={`${sk} rounded-full h-3.5 w-28`} />
+          <div className={`${sk} rounded-full h-3 w-56 max-w-full`} />
+        </div>
+      </div>
+      <SkelStatCards n={4} />
+      <SkelListRows n={4} />
+    </PageSkeleton>
+  );
 
   if (error || !profileData) {
     return (

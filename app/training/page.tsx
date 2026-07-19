@@ -14,7 +14,7 @@ import type { TerminalHandle } from '@/components/TerminalBox';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import HackerLoadingScreen from '@/components/HackerLoadingScreen';
+import { PageSkeleton, SkelTerminal, sk } from '@/components/skeleton';
 import { ChevronLeft, Terminal as TerminalIcon, Volume2, VolumeX, Dumbbell, RotateCcw, Monitor } from 'lucide-react';
 
 import VirtualFileSystemPanel from '@/components/VirtualFileSystemPanel';
@@ -222,7 +222,15 @@ export default function TrainingPage() {
   const wpmTextHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#ffffff' : '#431407';
   const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : (isLinux ? '#f97316' : '#3b82f6');
 
-  if (isInitializing) return <HackerLoadingScreen />;
+  if (isInitializing) return (
+    <PageSkeleton maxW="max-w-5xl">
+      <SkelTerminal />
+      {/* ชิปคำสั่งแนะนำ */}
+      <div className="flex flex-wrap justify-center gap-2 md:gap-3 mt-5 md:mt-6">
+        {Array.from({ length: 6 }).map((_, i) => <div key={i} className={`${sk} rounded-2xl h-9 w-20 md:w-28`} style={{ opacity: 1 - i * 0.12 }} />)}
+      </div>
+    </PageSkeleton>
+  );
 
   const avatarUrl = userData?.avatar?.startsWith('data:') ? userData.avatar : `https://api.dicebear.com/7.x/bottts/svg?seed=${userData?.avatar || 'Felix'}`;
 
