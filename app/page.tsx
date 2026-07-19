@@ -273,39 +273,7 @@ export default function KeyRushOrangeLandingPage() {
           transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, border-color 0.2s, color 0.2s, filter 0.35s ease;
         }
 
-        /* ✨ ปุ่ม CTA: แถบแสงกวาดซ้าย→ขวา + เรืองแสงรอบปุ่ม ตอนเอาเมาส์ชี้ */
-        .btn-shine { position: relative; overflow: hidden; }
-        .btn-shine::after {
-          content: '';
-          position: absolute;
-          top: -25%;
-          bottom: -25%;
-          left: -60%;
-          width: 45%;
-          background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
-          transform: skewX(-18deg);
-          pointer-events: none;
-          /* สถานะปกติไม่ใส่ transition → พอเอาเมาส์ออกจะรีเซ็ตทันที ไม่กวาดย้อนกลับให้เกะกะ */
-        }
-        .btn-shine:hover::after {
-          left: 130%;
-          transition: left 0.75s cubic-bezier(0.25, 0.6, 0.3, 1);
-        }
-
-        /* เรืองแสงด้วย filter (ไม่ใช้ box-shadow) เพื่อไม่ไปชนเงา 3D เดิมของปุ่ม
-           แยกตามธีมเพราะสีปุ่มต่างกัน — ธีมพรีเมียมต้องเขียนเองเพราะคลาส .hacker ไม่ครอบ .dragon */
-        .btn-shine:hover  { filter: drop-shadow(0 0 18px rgba(249,115,22,0.85)); }
-        .dark   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(250,204,21,0.80)); }
-        .hacker .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(34,197,94,0.85)); }
-        .dragon .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(239,68,68,0.85)); }
-        .sakura .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(236,72,153,0.80)); }
-        .sky    .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(14,165,233,0.80)); }
-        .mint   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(16,185,129,0.80)); }
-
-        /* เคารพผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหวในระบบ */
-        @media (prefers-reduced-motion: reduce) {
-          .btn-shine::after { display: none; }
-        }
+        /* ✨ เอฟเฟกต์ปุ่มเรืองแสง .btn-shine ย้ายไปไว้ที่ globals.css แล้ว (ใช้ร่วมได้ทุกหน้า) */
         .btn-squishy:hover { transform: translateY(-2px); }
         .btn-squishy:active { transform: translateY(6px); box-shadow: 0 0 0 transparent !important; }
 

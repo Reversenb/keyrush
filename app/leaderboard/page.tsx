@@ -165,8 +165,15 @@ export default function LeaderboardPage() {
     tabIdleText: isHacker ? 'text-green-700 hover:text-green-400' : isDark ? 'text-white/40 hover:text-yellow-400' : 'text-orange-400 hover:text-orange-600',
     tabIdleBg: isHacker ? 'bg-[#0a0a0a] border-green-900 hover:bg-[#111] hover:border-green-600 shadow-[0_4px_0_#14532d]' : isDark ? 'bg-[#1E1B2E] border-[#382E54] hover:bg-[#2D223B] hover:border-[#4B3965] shadow-[0_4px_0_#0a0a0a]' : 'bg-white border-orange-200 hover:bg-orange-50 hover:border-orange-300 shadow-[0_4px_0_#fed7aa]',
     tabActiveText: isHacker ? 'text-[#0a0a0a]' : isDark ? 'text-[#1E1B2E]' : 'text-white',
-    tabActiveBg: isHacker ? 'bg-green-500 border-green-400 shadow-[0_4px_0_#16a34a]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_4px_0_#ca8a04]' : (targetOs === 'linux' ? 'bg-orange-500 border-orange-400 shadow-[0_4px_0_#c2410c]' : targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_4px_0_#1d4ed8]' : 'bg-pink-500 border-pink-400 shadow-[0_4px_0_#be185d]')
+    tabActiveBg: isHacker ? 'bg-green-500 border-green-400 shadow-[0_4px_0_#16a34a]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_4px_0_#ca8a04]' : (targetOs === 'linux' ? 'bg-orange-500 border-orange-400 shadow-[0_4px_0_#c2410c]' : targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_4px_0_#1d4ed8]' : 'bg-pink-500 border-pink-400 shadow-[0_4px_0_#be185d]'),
+
+    // ปุ่มหมวดหลัก (Total/Linux/Windows) — เงาหนา 6px ให้นูนน่ากดแบบปุ่ม CTA หน้าแรก
+    // ⚠️ ใช้ค่า hex ที่ globals.css map ไว้ให้ธีมพรีเมียมแล้วเท่านั้น (#c2410c/#15803d/#be185d) ไม่งั้นเงาจะค้างสีเดิม
+    tabActiveRaised: isHacker ? 'bg-green-500 border-green-400 shadow-[0_6px_0_#15803d]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_6px_0_#ca8a04]' : (targetOs === 'linux' ? 'bg-orange-500 border-orange-400 shadow-[0_6px_0_#c2410c]' : targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_6px_0_#1d4ed8]' : 'bg-pink-500 border-pink-400 shadow-[0_6px_0_#be185d]')
   };
+
+  // สีกรอบกลางๆ ของชิ้นส่วน skeleton — ให้ตรงกับกรอบขององค์ประกอบจริงในแต่ละธีม
+  const skelBorder = isHacker ? 'border-green-800' : isDark ? 'border-[#382E54]' : 'border-white';
 
   // 🏆 EXP ของแชมป์ ไว้คิดแถบเทียบสัดส่วนในตาราง
   const topExp = leaderboardData.length > 0 ? Math.max(1, getPlayerExp(leaderboardData[0])) : 1;
@@ -351,52 +358,84 @@ export default function LeaderboardPage() {
           </div>
 
           {loading ? (
-            /* 💀 Skeleton Loading — โครงหน้าจำลองระหว่างรอข้อมูล (แถวบน + Podium + ตาราง) 💀 */
+            /* 💀 Skeleton Loading — จำลองโครงจริงทุกชิ้น (แถวบน + Podium + ตาราง) ให้เงาทับตรงตำแหน่ง 💀 */
             <div className="w-full animate-in fade-in duration-300" aria-hidden>
-              {/* แถวบน: การ์ดอันดับ + ปุ่มหมวด */}
-              <div className="flex items-stretch gap-3 md:gap-4 mb-4 md:mb-6">
-                <div className={`flex-1 rounded-[24px] border-4 px-3 md:px-6 py-2.5 md:py-3 flex items-center gap-2.5 md:gap-4 ${styles.tableBorder} bg-white/60 dark:bg-[#1E1B2E]/60 hacker:bg-[#0a0a0a]/60`}>
+
+              {/* ── แถวบน: การ์ดอันดับของคุณ + ปุ่มหมวด ── */}
+              <div className="flex items-stretch gap-3 md:gap-4 w-full mb-4 md:mb-6">
+                {/* ใช้ glass-card ตัวเดียวกับของจริง → มุมโค้ง/พื้น/เบลอ/เงา ตรงเป๊ะ */}
+                <div className={`glass-card flex-1 min-w-0 flex items-center gap-2.5 md:gap-4 px-3 md:px-6 py-2.5 md:py-3 ${styles.tableBorder}`}>
                   <div className={`w-11 h-11 md:w-13 md:h-13 shrink-0 rounded-2xl animate-pulse ${styles.bgLight}`} />
                   <div className={`hidden sm:block w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-full animate-pulse ${styles.bgLight}`} />
-                  <div className="flex-1 flex flex-col gap-2">
+                  {/* 3 บรรทัด: ป้าย "อันดับของคุณ" + ชื่อ + ฉายา */}
+                  <div className="min-w-0 flex-1 flex flex-col gap-1.5">
                     <div className={`h-2.5 w-20 rounded-full animate-pulse ${styles.bgLight}`} />
-                    <div className={`h-3.5 w-32 rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-4 w-32 max-w-full rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-2.5 w-24 max-w-full rounded-full animate-pulse ${styles.bgLight}`} />
                   </div>
-                  <div className={`hidden min-[420px]:block h-6 w-20 rounded-full animate-pulse ${styles.bgLight}`} />
+                  {/* Total EXP — ซ่อนที่จอแคบเหมือนของจริง */}
+                  <div className="shrink-0 hidden min-[420px]:flex flex-col items-end gap-1.5">
+                    <div className={`h-2.5 w-16 rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-5 w-20 rounded-full animate-pulse ${styles.bgLight}`} />
+                  </div>
                 </div>
-                <div className={`w-28 md:w-36 self-stretch rounded-[16px] md:rounded-[20px] border-4 animate-pulse ${styles.tableBorder} ${styles.bgLight}`} />
+                {/* ปุ่มหมวด: สูงเท่าปุ่มจริง + กึ่งกลางแนวตั้ง + เงาทึบ 3D (ไม่ใช่เงาฟุ้งของการ์ด) */}
+                <div className={`w-28 md:w-36 h-12 md:h-14 self-center shrink-0 rounded-[16px] md:rounded-[20px] border-4 animate-pulse ${styles.bgLight} ${isHacker ? 'border-green-800 shadow-[0_6px_0_#14532d]' : isDark ? 'border-[#382E54] shadow-[0_6px_0_#1E1B2E]' : 'border-white shadow-[0_6px_0_#fed7aa]'}`} />
               </div>
 
-              {/* Podium 3 แท่น (2-1-3) */}
+              {/* ── Podium 3 แท่น (ลำดับ 2-1-3) ── */}
               <div className="flex justify-center items-end gap-2 sm:gap-4 md:gap-8 mb-6 md:mb-10 px-1 md:px-2 mt-2 md:mt-4">
                 {[
-                  { w: 'w-24 sm:w-32 md:w-40', h: 'h-24 sm:h-28 md:h-32', av: 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20' },
-                  { w: 'w-32 sm:w-40 md:w-52', h: 'h-32 sm:h-36 md:h-44', av: 'w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28' },
-                  { w: 'w-24 sm:w-32 md:w-40', h: 'h-20 sm:h-24 md:h-28', av: 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20' },
+                  { w: 'w-24 sm:w-32 md:w-40', h: 'h-24 sm:h-28 md:h-32', av: 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20', champ: false },
+                  { w: 'w-32 sm:w-40 md:w-52', h: 'h-32 sm:h-36 md:h-44', av: 'w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28', champ: true },
+                  { w: 'w-24 sm:w-32 md:w-40', h: 'h-20 sm:h-24 md:h-28', av: 'w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20', champ: false },
                 ].map((s, i) => (
-                  <div key={i} className={`flex flex-col items-center gap-3 ${s.w}`}>
-                    <div className={`${s.av} rounded-full animate-pulse ${styles.bgLight}`} />
-                    <div className={`h-3 w-16 rounded-full animate-pulse ${styles.bgLight}`} />
-                    <div className={`w-full ${s.h} rounded-t-[20px] animate-pulse ${styles.bgLight}`} />
+                  <div key={i} className={`flex flex-col items-center ${s.w}`}>
+                    {/* มงกุฎของแชมป์ — กันความสูงให้ตรงกับของจริง */}
+                    {s.champ && <div className={`w-9 h-9 mb-1 rounded-xl animate-pulse ${styles.bgLight}`} />}
+                    <div className={`${s.av} rounded-full border-4 mb-2 md:mb-3 animate-pulse ${styles.bgLight} ${skelBorder}`} />
+                    <div className={`h-4 w-20 max-w-full rounded-full animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-2.5 w-14 rounded-full mt-1 animate-pulse ${styles.bgLight}`} />
+                    <div className={`h-6 w-24 max-w-full rounded-xl md:rounded-[14px] border-2 mt-1 animate-pulse ${styles.bgLight} ${skelBorder}`} />
+                    <div className={`w-full ${s.h} rounded-t-[20px] md:rounded-t-[28px] mt-3 md:mt-4 border-4 border-b-0 animate-pulse ${styles.bgLight} ${skelBorder}`} />
                   </div>
                 ))}
               </div>
 
-              {/* ตารางรายชื่อ */}
+              {/* ── ตารางรายชื่อ: grid-cols-12 ระยะเดียวกับของจริง ── */}
               <div className={`glass-card overflow-hidden ${styles.tableBorder}`}>
-                <div className={`px-3 md:px-8 py-4 md:py-5 border-b-4 ${styles.tableHeader}`}>
-                  <div className={`h-3 w-40 rounded-full animate-pulse ${styles.bgLight}`} />
+                <div className={`grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 border-b-4 ${styles.tableHeader}`}>
+                  <div className="col-span-2 md:col-span-1 flex justify-center"><div className={`h-3 md:h-4 w-8 rounded-full animate-pulse ${styles.bgLight}`} /></div>
+                  <div className="col-span-6"><div className={`h-3 md:h-4 w-16 rounded-full animate-pulse ${styles.bgLight}`} /></div>
+                  <div className="col-span-2 hidden md:flex justify-center"><div className={`h-4 w-8 rounded-full animate-pulse ${styles.bgLight}`} /></div>
+                  <div className="col-span-4 md:col-span-3 flex justify-end"><div className={`h-3 md:h-4 w-16 rounded-full animate-pulse ${styles.bgLight}`} /></div>
                 </div>
+
                 <div className={`divide-y-4 ${isHacker ? 'divide-green-900' : isDark ? 'divide-[#382E54]' : 'divide-white'}`}>
                   {Array.from({ length: 7 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 md:gap-5 px-3 md:px-8 py-3.5 md:py-4" style={{ opacity: 1 - i * 0.1 }}>
-                      <div className={`w-8 h-8 md:w-9 md:h-9 shrink-0 rounded-xl animate-pulse ${styles.bgLight}`} />
-                      <div className={`w-9 h-9 md:w-10 md:h-10 shrink-0 rounded-full animate-pulse ${styles.bgLight}`} />
-                      <div className="flex-1 flex flex-col gap-2">
-                        <div className={`h-3 rounded-full animate-pulse ${styles.bgLight}`} style={{ width: `${55 - i * 4}%` }} />
-                        <div className={`h-2 rounded-full animate-pulse ${styles.bgLight}`} style={{ width: `${30 - i * 2}%` }} />
+                    <div key={i} className="grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 items-center" style={{ opacity: 1 - i * 0.1 }}>
+                      {/* อันดับ */}
+                      <div className="col-span-2 md:col-span-1 flex justify-center">
+                        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full animate-pulse ${styles.bgLight}`} />
                       </div>
-                      <div className={`h-4 w-16 md:w-20 shrink-0 rounded-full animate-pulse ${styles.bgLight}`} />
+                      {/* รูป + ชื่อ */}
+                      <div className="col-span-6 flex items-center gap-2.5 md:gap-4 min-w-0">
+                        <div className={`w-10 h-10 md:w-14 md:h-14 shrink-0 rounded-full border-4 animate-pulse ${styles.bgLight} ${skelBorder}`} />
+                        <div className="min-w-0 flex-1 flex flex-col gap-2">
+                          <div className={`h-3.5 rounded-full animate-pulse ${styles.bgLight}`} style={{ width: `${70 - i * 5}%` }} />
+                          <div className={`h-2.5 rounded-full animate-pulse ${styles.bgLight}`} style={{ width: `${45 - i * 3}%` }} />
+                        </div>
+                      </div>
+                      {/* LVL + แรงค์ (โผล่เฉพาะจอกว้าง) */}
+                      <div className="col-span-2 hidden md:flex flex-col items-center justify-center gap-2">
+                        <div className={`h-7 w-16 rounded-xl animate-pulse ${styles.bgLight}`} />
+                        <div className={`h-2.5 w-14 rounded-full animate-pulse ${styles.bgLight}`} />
+                      </div>
+                      {/* EXP + แถบสัดส่วน */}
+                      <div className="col-span-4 md:col-span-3 flex flex-col items-end gap-1 md:gap-1.5">
+                        <div className={`h-5 md:h-7 w-16 md:w-24 rounded-full animate-pulse ${styles.bgLight}`} />
+                        <div className={`w-16 sm:w-20 md:w-28 h-1.5 rounded-full animate-pulse ${styles.bgLight}`} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -447,7 +486,7 @@ export default function LeaderboardPage() {
             <div className="relative shrink-0 self-center">
               <button
                 onClick={() => setOsMenuOpen((v) => !v)}
-                className={`flex items-center gap-1.5 md:gap-2 px-3.5 md:px-5 py-3 md:py-3.5 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-widest border-4 btn-squishy transition-all duration-300 ${styles.tabActiveBg} ${styles.tabActiveText}`}
+                className={`flex items-center gap-1.5 md:gap-2 px-3.5 md:px-5 py-3 md:py-3.5 rounded-[16px] md:rounded-[20px] text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-widest border-4 btn-shine btn-squishy transition-all duration-300 ${styles.tabActiveRaised} ${styles.tabActiveText}`}
               >
                 {targetOs === 'linux' ? <Terminal size={16} strokeWidth={3} /> : targetOs === 'windows' ? <Monitor size={16} strokeWidth={3} /> : <Globe size={16} strokeWidth={3} />}
                 <span>{targetOs === 'combined' ? 'Total' : targetOs.charAt(0).toUpperCase() + targetOs.slice(1)}</span>
