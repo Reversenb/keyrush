@@ -381,26 +381,43 @@ export default function DashboardPage() {
         {loading ? (
           /* 💀 Skeleton เฉพาะหน้า Dashboard: การ์ดต้อนรับ + สถิติ 4 ใบ + กราฟ + ประวัติล่าสุด 💀 */
           <div className="flex-1 px-4 md:px-10 py-8 flex justify-center relative z-10 w-full animate-in fade-in duration-300" aria-hidden>
-            <div className="flex flex-col max-w-[1200px] w-full gap-6 md:gap-8">
-              <div className={`${skCard} rounded-[28px] p-6 md:p-8 flex items-center gap-4 md:gap-6`}>
-                <div className={`${sk} rounded-full w-16 h-16 md:w-20 md:h-20 shrink-0`} />
-                <div className="flex-1 flex flex-col gap-2.5">
-                  <div className={`${sk} rounded-full h-5 w-48 max-w-full`} />
-                  <div className={`${sk} rounded-full h-3.5 w-32`} />
+            <div className="flex flex-col max-w-[1200px] w-full gap-8">
+              {/* Welcome Card: ชื่อ+ฉายา ซ้าย / ปุ่ม 2 อันขวาล่าง */}
+              <div className={`${skCard} rounded-[28px] p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6`}>
+                <div className="flex flex-col gap-3 w-full">
+                  <div className={`${sk} rounded-2xl h-8 md:h-10 w-72 max-w-full`} />
+                  <div className={`${sk} rounded-[14px] h-8 w-44`} />
                 </div>
-                <div className={`${sk} rounded-2xl h-10 w-28 hidden md:block`} />
+                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0">
+                  <div className={`${sk} rounded-[24px] h-14 w-full sm:w-44`} />
+                  <div className={`${sk} rounded-[24px] h-14 w-full sm:w-44`} />
+                </div>
               </div>
-              <SkelStatCards n={4} cols="grid-cols-2 lg:grid-cols-4" />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                <div className={`${skCard} rounded-[28px] p-5 md:p-6 flex flex-col gap-4`}>
-                  <div className={`${sk} rounded-full h-4 w-36`} />
-                  <div className="flex items-end gap-3 flex-1 min-h-48 md:min-h-56">
+              {/* Stats Cards 4 ใบ (breakpoint เดียวกับจริง) */}
+              <SkelStatCards n={4} cols="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" />
+              {/* Graphs: WPM กว้าง 2 ส่วน + Accuracy โดนัท 1 ส่วน */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className={`${skCard} lg:col-span-2 rounded-[28px] p-8 flex flex-col gap-6`}>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex flex-col gap-2">
+                      <div className={`${sk} rounded-full h-5 w-40`} />
+                      <div className={`${sk} rounded-full h-3 w-56 max-w-full`} />
+                    </div>
+                    <div className={`${sk} rounded-2xl h-16 w-28`} />
+                  </div>
+                  <div className="flex items-end gap-3 flex-1 min-h-44 md:min-h-52">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div key={i} className={`${sk} rounded-t-xl flex-1`} style={{ height: `${30 + ((i * 37) % 60)}%` }} />
                     ))}
                   </div>
                 </div>
-                <SkelListRows n={4} />
+                <div className={`${skCard} rounded-[28px] p-8 flex flex-col items-center gap-8`}>
+                  <div className="w-full flex flex-col gap-2">
+                    <div className={`${sk} rounded-full h-5 w-32`} />
+                    <div className={`${sk} rounded-full h-3 w-44 max-w-full`} />
+                  </div>
+                  <div className={`${sk} rounded-full w-40 h-40 md:w-48 md:h-48`} />
+                </div>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Cropper from 'react-easy-crop';
-import { PageSkeleton, SkelListRows, skCard, sk } from '@/components/skeleton';
+import { PageSkeleton, skCard, sk } from '@/components/skeleton';
 import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
@@ -171,16 +171,41 @@ export default function ProfilePage() {
   };
 
   if (loading) return (
-    <PageSkeleton maxW="max-w-3xl">
-      {/* การ์ดโปรไฟล์: รูป + ชื่อ + ฉายา */}
-      <div className={`${skCard} rounded-[32px] p-6 md:p-8 mb-4 md:mb-6 flex flex-col items-center gap-4`}>
-        <div className={`${sk} rounded-full w-24 h-24 md:w-28 md:h-28`} />
-        <div className={`${sk} rounded-full h-5 w-44`} />
-        <div className={`${sk} rounded-full h-3.5 w-28`} />
-        <div className={`${sk} rounded-2xl h-10 w-36 mt-2`} />
+    <PageSkeleton maxW="max-w-5xl">
+      {/* Header: หัวข้อ USER PROFILE ซ้าย + ปุ่ม Dashboard/Save ขวา (โครงเดียวกับหน้าจริง) */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 md:mb-8 gap-4 mt-2 md:mt-6">
+        <div className={`${sk} rounded-2xl h-10 md:h-14 w-64 md:w-96 max-w-full`} />
+        <div className="flex flex-row w-full lg:w-auto gap-3">
+          <div className={`${sk} rounded-2xl md:rounded-[24px] h-12 flex-1 lg:flex-none lg:w-40`} />
+          <div className={`${sk} rounded-2xl md:rounded-[24px] h-12 flex-1 lg:flex-none lg:w-44`} />
+        </div>
       </div>
-      {/* ช่องข้อมูล/ตั้งค่า */}
-      <SkelListRows n={4} header={false} />
+      {/* บอร์ดตั้งค่าโปรไฟล์: ซ้ายรูป+ตัวเลือก avatar / ขวาฟอร์ม */}
+      <div className={`${skCard} rounded-[28px] p-6 md:p-10`}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          <div className="lg:col-span-4 flex flex-col items-center">
+            <div className={`${sk} rounded-[40px] size-48 md:size-56 mb-5`} />
+            <div className={`${sk} rounded-full h-3.5 w-36 mb-4`} />
+            <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-5 gap-3 w-full">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className={`${sk} rounded-full aspect-square`} style={{ opacity: 1 - i * 0.06 }} />
+              ))}
+            </div>
+          </div>
+          <div className="lg:col-span-8 flex flex-col gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-2.5">
+                <div className={`${sk} rounded-full h-3.5 w-32`} />
+                <div className={`${sk} rounded-2xl h-14 w-full`} />
+              </div>
+            ))}
+            <div className="flex flex-col gap-2.5">
+              <div className={`${sk} rounded-full h-3.5 w-40`} />
+              <div className={`${sk} rounded-2xl h-28 w-full`} />
+            </div>
+          </div>
+        </div>
+      </div>
     </PageSkeleton>
   );
 

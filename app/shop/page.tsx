@@ -171,17 +171,23 @@ export default function ShopPage() {
   if (!mounted) return <div className="bg-background min-h-screen" />;
   if (loading) return (
     <PageSkeleton>
-      {/* แบนเนอร์ร้านค้า */}
-      <div className={`${skCard} rounded-[32px] h-36 md:h-44 mb-4 md:mb-6 p-6 md:p-8 flex flex-col justify-center gap-3`}>
-        <div className={`${sk} rounded-full h-6 md:h-8 w-48 md:w-64`} />
-        <div className={`${sk} rounded-full h-3.5 w-64 md:w-96 max-w-full`} />
-      </div>
-      {/* แท็บหมวด (ฉายา/ธีม/เอฟเฟกต์) + ปุ่มคลัง */}
-      <div className="flex items-center justify-between gap-3 mb-4 md:mb-6">
-        <div className="flex gap-2 md:gap-3">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className={`${sk} rounded-2xl h-10 md:h-12 w-20 md:w-28`} />)}
+      {/* แบนเนอร์ร้านค้า: ซ้ายไอคอน+ชื่อร้าน / ขวากล่องเหรียญ+ปุ่มคลัง (โครงเดียวกับหน้าจริง) */}
+      <div className={`${skCard} rounded-[32px] mb-4 md:mb-6 p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-5`}>
+        <div className="flex items-center gap-4 min-w-0">
+          <div className={`${sk} rounded-[20px] md:rounded-[24px] size-16 md:size-20 shrink-0`} />
+          <div className="flex flex-col gap-2.5 min-w-0">
+            <div className={`${sk} rounded-full h-7 md:h-9 w-48 md:w-64 max-w-full`} />
+            <div className={`${sk} rounded-full h-3.5 w-56 md:w-80 max-w-full`} />
+          </div>
         </div>
-        <div className={`${sk} rounded-2xl h-10 md:h-12 w-24 md:w-32`} />
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          <div className={`${sk} rounded-2xl h-14 md:h-16 w-40`} />
+          <div className={`${sk} rounded-2xl h-12 md:h-13 w-32`} />
+        </div>
+      </div>
+      {/* แถบแท็บหมวด (ฉายา/ธีมเว็บ/เอฟเฟกต์) — กล่องเดียว 3 ปุ่ม ไม่มีปุ่มฝั่งขวา */}
+      <div className={`${skCard} rounded-[24px] md:rounded-[32px] p-2 md:p-3 flex gap-2 md:gap-3 w-full max-w-md mb-4 md:mb-6`}>
+        {Array.from({ length: 3 }).map((_, i) => <div key={i} className={`${sk} rounded-2xl h-10 md:h-11 flex-1`} />)}
       </div>
       {/* การ์ดสินค้า */}
       <SkelGridCards n={6} />
