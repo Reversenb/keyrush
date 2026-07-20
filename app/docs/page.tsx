@@ -427,7 +427,7 @@ function GameModesContent() {
               ) : (
                 <Link
                   href={mode.href}
-                  className="btn-squishy shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border-4 transition-colors
+                  className="btn-shine shine-plain btn-squishy shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border-4 transition-colors
                     bg-orange-500 border-white text-white shadow-[0_4px_0_#c2410c] hover:bg-orange-400
                     dark:bg-yellow-400 dark:border-yellow-300 dark:text-[#1E1B2E] dark:shadow-[0_4px_0_#ca8a04] dark:hover:bg-yellow-300
                     hacker:bg-green-500 hacker:border-green-400 hacker:text-[#0a0a0a] hacker:shadow-[0_4px_0_#14532d] hacker:hover:bg-green-400"

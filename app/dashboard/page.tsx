@@ -453,14 +453,14 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0 z-10">
                 <button
                   onClick={() => router.push('/map')}
-                  className="btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-white dark:bg-[#2D223B] hacker:bg-[#111] text-orange-600 dark:text-yellow-400 hacker:text-green-500 rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#0a0a0a] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
+                  className="btn-shine shine-plain btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-white dark:bg-[#2D223B] hacker:bg-[#111] text-orange-600 dark:text-yellow-400 hacker:text-green-500 rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#0a0a0a] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
                 >
                   <Map size={20} strokeWidth={3} /> ดูแผนที่ภารกิจ
                 </button>
 
                 <button
                   onClick={() => router.push('/campaignpage')}
-                  className="btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-white dark:border-transparent hacker:border-transparent shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#a16207] hacker:shadow-[0_8px_0_#14532d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 transition-all"
+                  className="btn-shine shine-plain btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-white dark:border-transparent hacker:border-transparent shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#a16207] hacker:shadow-[0_8px_0_#14532d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 transition-all"
                 >
                   <Play size={20} strokeWidth={3} fill="currentColor" /> ลุยภารกิจต่อ
                 </button>

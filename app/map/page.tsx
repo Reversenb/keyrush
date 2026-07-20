@@ -235,7 +235,7 @@ export default function ModeSelectionMapPage() {
                                                     ยังไม่ปลดล็อค
                                                 </div>
                                             ) : (
-                                                <Link href={mode.link} className="btn-squishy inline-flex items-center gap-2 px-8 py-4 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 border-4 border-white dark:border-yellow-500 hacker:border-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] font-black rounded-[24px] uppercase tracking-widest shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#14532d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 font-prompt text-sm md:text-base transition-colors">
+                                                <Link href={mode.link} className="btn-shine shine-plain btn-squishy inline-flex items-center gap-2 px-8 py-4 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 border-4 border-white dark:border-yellow-500 hacker:border-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] font-black rounded-[24px] uppercase tracking-widest shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#14532d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 font-prompt text-sm md:text-base transition-colors">
                                                     <Play size={20} fill="currentColor" />
                                                     เข้าสู่ภารกิจ
                                                 </Link>
