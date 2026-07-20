@@ -3,7 +3,18 @@
 // frameId มาจาก src/shop/items.ts ฝั่ง backend
 
 // รายชื่อกรอบที่มีจริง — กันกรณี backend ส่ง id แปลกๆ มาแล้วได้คลาสมั่วๆ ติดไปกับ element
-const VALID_FRAMES = ['silver', 'gold', 'neon', 'sakura', 'fire', 'diamond', 'rainbow'] as const;
+const VALID_FRAMES = [
+  // วงแหวนสีเดียว
+  'silver', 'gold', 'neon', 'sakura',
+  'bronze', 'rose', 'mint', 'sky', 'violet', 'crimson',
+  // ไล่สีหมุน
+  'fire', 'diamond', 'rainbow',
+  'emerald', 'ocean', 'sunset', 'amethyst',
+  // ไล่สี + แสงเต้น
+  'venom', 'galaxy', 'phoenix', 'aurora',
+  // ระดับตำนาน
+  'eclipse', 'dragon', 'void',
+] as const;
 
 export type FrameId = (typeof VALID_FRAMES)[number];
 

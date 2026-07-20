@@ -1065,9 +1065,17 @@
   50%      { box-shadow: 0 0 30px rgba(34,211,238,1),    inset 0 0 9px rgba(34,211,238,0.8); }
 }
 
-/* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — คงกรอบไว้ แต่หยุดหมุน/กะพริบ */
+/* ผู้ใช้ที่ตั้งค่าลดการเคลื่อนไหว — คงกรอบไว้ แต่หยุดหมุน/กะพริบ
+   กรอบที่แสงมาจาก keyframes ล้วนๆ ต้องใส่ filter นิ่งๆ กลับให้ ไม่งั้นวงแหวนจะทึบไม่มีแสง */
 @media (prefers-reduced-motion: reduce) {
   [class*="kr-frame-"]::after { animation: none !important; }
+  .kr-frame-venom::after   { filter: drop-shadow(0 0 12px rgba(132, 204, 22, 0.9)); }
+  .kr-frame-galaxy::after  { filter: drop-shadow(0 0 13px rgba(99, 102, 241, 0.9)); }
+  .kr-frame-phoenix::after { filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.9)); }
+  .kr-frame-aurora::after  { filter: drop-shadow(0 0 14px rgba(52, 211, 153, 0.9)); }
+  .kr-frame-eclipse::after { filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.9)); }
+  .kr-frame-dragon::after  { filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.95)); }
+  .kr-frame-void::after    { filter: drop-shadow(0 0 18px rgba(124, 58, 237, 0.9)); }
 }
 
 /* =========================================================================
