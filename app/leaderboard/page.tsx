@@ -150,28 +150,28 @@ export default function LeaderboardPage() {
 
   // 🌟 สไตล์สำหรับโหมดต่างๆ และการรองรับ Theme (Cute/Dark/Hacker)
   const styles = {
-    selection: targetOs === 'linux' ? 'selection:bg-orange-500/20' : targetOs === 'windows' ? 'selection:bg-blue-500/20' : 'selection:bg-pink-500/20',
+    selection: targetOs === 'windows' ? 'selection:bg-blue-500/20' : 'selection:bg-orange-500/20',
 
-    // โทนสีหลัก
-    textMain: isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : (targetOs === 'linux' ? 'text-orange-500' : targetOs === 'windows' ? 'text-blue-500' : 'text-pink-500'),
-    bgMain: isHacker ? 'bg-green-500' : isDark ? 'bg-yellow-400' : (targetOs === 'linux' ? 'bg-orange-500' : targetOs === 'windows' ? 'bg-blue-500' : 'bg-pink-500'),
-    bgLight: isHacker ? 'bg-green-900/30' : isDark ? 'bg-white/10' : (targetOs === 'linux' ? 'bg-orange-100' : targetOs === 'windows' ? 'bg-blue-100' : 'bg-pink-100'),
+    // โทนสีหลัก — Total ใช้โทนส้มเดียวกับ Linux
+    textMain: isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : (targetOs === 'windows' ? 'text-blue-500' : 'text-orange-500'),
+    bgMain: isHacker ? 'bg-green-500' : isDark ? 'bg-yellow-400' : (targetOs === 'windows' ? 'bg-blue-500' : 'bg-orange-500'),
+    bgLight: isHacker ? 'bg-green-900/30' : isDark ? 'bg-white/10' : (targetOs === 'windows' ? 'bg-blue-100' : 'bg-orange-100'),
 
     // ตาราง
     tableBorder: isHacker ? 'border-green-800 shadow-[0_10px_40px_rgba(34,197,94,0.2)]' : isDark ? 'border-[#382E54] shadow-[0_10px_40px_rgba(0,0,0,0.35)]' : 'border-white shadow-[0_10px_40px_rgba(249,115,22,0.12)]',
-    tableHeader: isHacker ? 'bg-green-900/40 border-green-800 text-green-500' : isDark ? 'bg-black/20 border-[#382E54] text-yellow-500' : (targetOs === 'linux' ? 'bg-orange-100 border-white text-orange-600' : targetOs === 'windows' ? 'bg-blue-100 border-white text-blue-600' : 'bg-pink-100 border-white text-pink-600'),
-    tableRowHover: isHacker ? 'hover:bg-green-900/20 border-[#166534]' : isDark ? 'hover:bg-white/5 border-[#382E54]' : (targetOs === 'linux' ? 'hover:bg-orange-50/80 border-white' : targetOs === 'windows' ? 'hover:bg-blue-50/80 border-white' : 'hover:bg-pink-50/80 border-white'),
-    tableRowMe: isHacker ? 'bg-green-900/30 border-l-8 border-l-green-500 shadow-sm border-[#166534]' : isDark ? 'bg-[#2D223B] border-l-8 border-l-yellow-400 shadow-sm border-[#382E54]' : (targetOs === 'linux' ? 'bg-orange-50 border-l-8 border-l-orange-500 shadow-sm border-white' : targetOs === 'windows' ? 'bg-blue-50 border-l-8 border-l-blue-500 shadow-sm border-white' : 'bg-pink-50 border-l-8 border-l-pink-500 shadow-sm border-white'),
+    tableHeader: isHacker ? 'bg-green-900/40 border-green-800 text-green-500' : isDark ? 'bg-black/20 border-[#382E54] text-yellow-500' : (targetOs === 'windows' ? 'bg-blue-100 border-white text-blue-600' : 'bg-orange-100 border-white text-orange-600'),
+    tableRowHover: isHacker ? 'hover:bg-green-900/20 border-[#166534]' : isDark ? 'hover:bg-white/5 border-[#382E54]' : (targetOs === 'windows' ? 'hover:bg-blue-50/80 border-white' : 'hover:bg-orange-50/80 border-white'),
+    tableRowMe: isHacker ? 'bg-green-900/30 border-l-8 border-l-green-500 shadow-sm border-[#166534]' : isDark ? 'bg-[#2D223B] border-l-8 border-l-yellow-400 shadow-sm border-[#382E54]' : (targetOs === 'windows' ? 'bg-blue-50 border-l-8 border-l-blue-500 shadow-sm border-white' : 'bg-orange-50 border-l-8 border-l-orange-500 shadow-sm border-white'),
 
     // สีปุ่ม Tab
     tabIdleText: isHacker ? 'text-green-700 hover:text-green-400' : isDark ? 'text-white/40 hover:text-yellow-400' : 'text-orange-400 hover:text-orange-600',
     tabIdleBg: isHacker ? 'bg-[#0a0a0a] border-green-900 hover:bg-[#111] hover:border-green-600 shadow-[0_4px_0_#14532d]' : isDark ? 'bg-[#1E1B2E] border-[#382E54] hover:bg-[#2D223B] hover:border-[#4B3965] shadow-[0_4px_0_#0a0a0a]' : 'bg-white border-orange-200 hover:bg-orange-50 hover:border-orange-300 shadow-[0_4px_0_#fed7aa]',
     tabActiveText: isHacker ? 'text-[#0a0a0a]' : isDark ? 'text-[#1E1B2E]' : 'text-white',
-    tabActiveBg: isHacker ? 'bg-green-500 border-green-400 shadow-[0_4px_0_#16a34a]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_4px_0_#ca8a04]' : (targetOs === 'linux' ? 'bg-orange-500 border-orange-400 shadow-[0_4px_0_#c2410c]' : targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_4px_0_#1d4ed8]' : 'bg-pink-500 border-pink-400 shadow-[0_4px_0_#be185d]'),
+    tabActiveBg: isHacker ? 'bg-green-500 border-green-400 shadow-[0_4px_0_#16a34a]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_4px_0_#ca8a04]' : (targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_4px_0_#1d4ed8]' : 'bg-orange-500 border-orange-400 shadow-[0_4px_0_#c2410c]'),
 
     // ปุ่มหมวดหลัก (Total/Linux/Windows) — เงาหนา 6px ให้นูนน่ากดแบบปุ่ม CTA หน้าแรก
     // ⚠️ ใช้ค่า hex ที่ globals.css map ไว้ให้ธีมพรีเมียมแล้วเท่านั้น (#c2410c/#15803d/#be185d) ไม่งั้นเงาจะค้างสีเดิม
-    tabActiveRaised: isHacker ? 'bg-green-500 border-green-400 shadow-[0_6px_0_#15803d]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_6px_0_#ca8a04]' : (targetOs === 'linux' ? 'bg-orange-500 border-orange-400 shadow-[0_6px_0_#c2410c]' : targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_6px_0_#1d4ed8]' : 'bg-pink-500 border-pink-400 shadow-[0_6px_0_#be185d]')
+    tabActiveRaised: isHacker ? 'bg-green-500 border-green-400 shadow-[0_6px_0_#15803d]' : isDark ? 'bg-yellow-400 border-yellow-300 shadow-[0_6px_0_#ca8a04]' : (targetOs === 'windows' ? 'bg-blue-500 border-blue-400 shadow-[0_6px_0_#1d4ed8]' : 'bg-orange-500 border-orange-400 shadow-[0_6px_0_#c2410c]')
   };
 
   // สีกรอบกลางๆ ของชิ้นส่วน skeleton — ให้ตรงกับกรอบขององค์ประกอบจริงในแต่ละธีม
@@ -578,7 +578,7 @@ export default function LeaderboardPage() {
 
                           <div className="col-span-6 md:col-span-6 flex items-center gap-2.5 md:gap-4 min-w-0">
                             <Link href={playerProfileUrl} className="flex-shrink-0 cursor-pointer">
-                              <div className={`w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform ${frameClass(player.frame)} ${isMe ? `ring-4 ${targetOs === 'linux' ? 'ring-orange-500' : targetOs === 'windows' ? 'ring-blue-500' : 'ring-pink-500'}` : ''}`}>
+                              <div className={`w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform ${frameClass(player.frame)} ${isMe ? `ring-4 ${targetOs === 'windows' ? 'ring-blue-500' : 'ring-orange-500'}` : ''}`}>
                                 <img src={getAvatarUrl(player.avatar)} alt="avatar" className="w-full h-full object-cover rounded-full" />
                               </div>
                             </Link>
