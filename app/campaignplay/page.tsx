@@ -50,7 +50,7 @@ export default function GamePage() {
   // -- Theme State --
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst'; const isAmethyst = currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   // -- User & Session States --
@@ -391,7 +391,7 @@ export default function GamePage() {
   const themeBorder = isHacker ? 'border-green-600' : isDark ? (isLinux ? 'border-yellow-400' : 'border-blue-400') : (isLinux ? 'border-orange-500' : 'border-blue-500');
 
   const wpmTextHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#ffffff' : '#431407';
-  const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? '#facc15' : '#60a5fa') : currentTheme === 'sky' ? '#0ea5e9' : currentTheme === 'mint' ? '#10b981' : (isLinux ? '#f97316' : '#3b82f6');
+  const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? (isAmethyst ? '#c084fc' : '#facc15') : '#60a5fa') : currentTheme === 'sky' ? '#0ea5e9' : currentTheme === 'mint' ? '#10b981' : (isLinux ? '#f97316' : '#3b82f6');
 
   if (isInitializing) return (
     <PageSkeleton maxW="max-w-[1800px]">

@@ -4,7 +4,9 @@
 @import "tailwindcss";
 
 /* 🌟 เคล็ดลับสำคัญ: บังคับให้ Tailwind v4 เปลี่ยนธีมตามปุ่มกดเท่านั้น (ปิดการดึงธีมจากระบบเครื่อง) 🌟 */
-@custom-variant dark (&:where(.dark, .dark *));
+/* 💜 Amethyst ยืมสไตล์ชุดเดียวกับ dark ทั้งชุด แล้วค่อย override เหลือง → ม่วงทับอีกที
+   (สูตรเดียวกับที่ dragon ทำกับ hacker ด้านล่าง) */
+@custom-variant dark (&:where(.dark, .dark *, .amethyst, .amethyst *));
 /* 🐉 Dragon ยืมสไตล์ชุดเดียวกับ hacker: (ซึ่งเขียนไว้ครบทุกจุด = ไม่รั่ว)
    แล้วค่อย override พาเลตต์เขียว → แดงทับอีกที */
 @custom-variant hacker (&:where(.hacker, .hacker *, .dragon, .dragon *));
@@ -227,6 +229,47 @@
   --color-lime-500: #ef4444;
 }
 
+/* 💜 Amethyst Night — ฐานธีม Dark: พื้นม่วงเข้มชุดเดิมทุกประการ
+   เปลี่ยนเฉพาะ "สีเน้น" จากเหลืองทองเป็นม่วงอเมทิสต์
+   ⚠️ ใช้ :root.amethyst ด้วยเหตุผลเดียวกับ Sakura (ต้องชนะ :root ของ Tailwind)
+   ⚠️ ไม่แตะ --background/--foreground และ hex พื้นหลัง (#1E1B2E/#2D223B/#382E54/#4B3965)
+      เพราะโจทย์คือคงพื้นม่วงเข้มเดิมไว้ → ประหยัดการ override ไปหลายร้อยจุด */
+:root.amethyst {
+  /* ⚠️ ต้องประกาศเอง: next-themes ใส่คลาส .amethyst อย่างเดียว ไม่ได้ใส่ .dark ด้วย
+     ค่าใน .dark {} จึงไม่ถูกใช้ → ถ้าไม่ก๊อปมา body จะไปหยิบพื้นครีมของ :root (ธีมสว่าง) */
+  --background: #2e2946;
+  --foreground: #FDF2F8;
+
+  /* เหลืองทุกเฉดที่ธีม dark ใช้เป็นสีเน้น → ม่วง (ครอบคลุม dark:*-yellow-* ทั้งเว็บในทีเดียว) */
+  --color-yellow-50: #faf5ff;
+  --color-yellow-100: #f3e8ff;
+  --color-yellow-200: #e9d5ff;
+  --color-yellow-300: #d8b4fe;
+  --color-yellow-400: #c084fc;
+  --color-yellow-500: #a855f7;
+  --color-yellow-600: #9333ea;
+  --color-yellow-700: #7e22ce;
+  --color-yellow-800: #6b21a8;
+  --color-yellow-900: #581c87;
+  --color-yellow-950: #3b0764;
+
+  --shimmer-base: rgba(168, 85, 247, 0.08);
+  --shimmer-highlight: rgba(168, 85, 247, 0.2);
+}
+
+/* -------------------------------------------------------------------------
+   💜 Amethyst: เงา/แสงสีเหลืองของธีม dark ฝังเป็น hex ตรงๆ ซึ่ง override
+   ด้วยตัวแปรไม่ได้ → ดักจากชื่อคลาสแล้วทับเฉพาะในขอบเขต .amethyst
+   (#ca8a04 = yellow-600, #a16207 = yellow-700, rgba(250,204,21) = yellow-400)
+   ------------------------------------------------------------------------- */
+.amethyst [class*="shadow-[0_4px_0_#ca8a04]" i] { box-shadow: 0 4px 0 #7e22ce !important; }
+.amethyst [class*="shadow-[0_6px_0_#ca8a04]" i] { box-shadow: 0 6px 0 #7e22ce !important; }
+.amethyst [class*="shadow-[0_8px_0_#ca8a04]" i] { box-shadow: 0 8px 0 #7e22ce !important; }
+.amethyst [class*="shadow-[0_10px_0_#ca8a04]" i] { box-shadow: 0 10px 0 #7e22ce !important; }
+.amethyst [class*="shadow-[0_8px_0_#a16207]" i] { box-shadow: 0 8px 0 #6b21a8 !important; }
+.amethyst [class*="shadow-[0_0_30px_rgba(250,204,21,0.2)]" i] { box-shadow: 0 0 30px rgba(192,132,252,0.25) !important; }
+.amethyst [class*="shadow-[0_8px_0_rgba(250,204,21,0.2)]" i] { box-shadow: 0 8px 0 rgba(192,132,252,0.25) !important; }
+
 /* -------------------------------------------------------------------------
    🐉 Dragon: ธีม hacker ฝังสีเขียว/ดำเป็น hex ตรงๆ อยู่ 5 สี (~446 จุด)
    ซึ่ง override ด้วยตัวแปรไม่ได้ → ดักจากชื่อคลาสแล้วทับเฉพาะในขอบเขต .dragon
@@ -287,6 +330,21 @@
 :root.dragon .cute-header { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8); }
 :root.dragon .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(239, 68, 68, 0.3); }
 :root.dragon .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(239, 68, 68, 0.6); }
+
+/* 💜 Amethyst เจอปัญหาเดียวกับ Dragon เป๊ะๆ: <style> ในแต่ละหน้าเขียน ".dark .glass-card"
+   ตรงๆ ซึ่งไม่ใช่ Tailwind variant → @custom-variant ที่แก้ไว้ด้านบนไม่ช่วย
+   ต้องมิเรอร์กฎของ .dark มาเองทั้งชุด ไม่งั้นการ์ดจะขาวโพลนบนพื้นม่วงเข้ม */
+:root.amethyst .glass-card {
+  background: rgba(45, 34, 59, 0.7);
+  border-color: #382E54;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+:root.amethyst .cute-header { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3); }
+:root.amethyst .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.3); }
+:root.amethyst .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.6); }
+:root.amethyst ::-webkit-scrollbar-track { background: #1E1B2E !important; }
+:root.amethyst ::-webkit-scrollbar-thumb { background: #4B3965 !important; }
+:root.amethyst ::-webkit-scrollbar-thumb:hover { background: #a855f7 !important; }
 
 /* 🌸 Sakura ใช้ฐานสว่าง (การ์ดขาวถูกต้องแล้ว) แค่ปรับเงา/แถบเลื่อนให้เป็นโทนชมพู */
 :root.sakura .glass-card { box-shadow: 0 10px 30px rgba(236, 72, 153, 0.12); }
@@ -497,6 +555,8 @@
 /* ธีมมืดใช้ screen blend → ไฟสว่างทับพื้นแบบแสงจริง (ธีมสว่างใช้ไม่ได้ เพราะพื้นขาวจะกลืนหมด) */
 .dark [class*="kr-row-ember"]::after,
 .dark [class*="kr-row-inferno"]::after,
+.amethyst [class*="kr-row-ember"]::after,
+.amethyst [class*="kr-row-inferno"]::after,
 .hacker [class*="kr-row-ember"]::after,
 .hacker [class*="kr-row-inferno"]::after { mix-blend-mode: screen; }
 
@@ -1141,6 +1201,7 @@
   .sakura .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(236,72,153,0.80)); }
   .sky    .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(14,165,233,0.80)); }
   .mint   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(16,185,129,0.80)); }
+  .amethyst .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(168,85,247,0.80)); }
 
   /* ผู้ใช้ที่ตั้งค่า "ลดการเคลื่อนไหว" ในระบบ — ยังเห็นแสงกวาด (เอฟเฟกต์เล็ก ไม่ทำให้เวียนหัว)
      แต่ย่นให้เร็วขึ้น จะได้ไม่รบกวนสายตา

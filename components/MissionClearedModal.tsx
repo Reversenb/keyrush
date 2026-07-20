@@ -39,7 +39,7 @@ export default function MissionClearedModal({
     // 🌟 Theme State
     const { theme: activeTheme, resolvedTheme } = useTheme();
     const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-    const isDark = currentTheme === 'dark';
+    const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
     const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
     return (

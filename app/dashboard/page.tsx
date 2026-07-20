@@ -169,14 +169,14 @@ export default function DashboardPage() {
   // 🌟 ดึงค่า Theme เพื่อสลับสี SVG กราฟให้รองรับ 3 ธีม
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst'; const isAmethyst = currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   // สีหลักของแต่ละธีม (ส้ม -> เหลือง -> เขียว/แดง -> ชมพู)
   const isSakura = currentTheme === 'sakura';
   const isSky = currentTheme === 'sky';
   const isMint = currentTheme === 'mint';
-  const primaryHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : (isDark ? '#facc15' : isSakura ? '#ec4899' : isSky ? '#0ea5e9' : isMint ? '#10b981' : '#f97316');
+  const primaryHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : (isDark ? (isAmethyst ? '#c084fc' : '#facc15') : isSakura ? '#ec4899' : isSky ? '#0ea5e9' : isMint ? '#10b981' : '#f97316');
 
   useEffect(() => {
     setIsMounted(true); // ✅ เซ็ตค่า Mounted เมื่อรันฝั่ง Client สำเร็จ

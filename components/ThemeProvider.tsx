@@ -14,7 +14,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             defaultTheme="light"
             enableSystem={false}
             /* ธีมพื้นฐาน 2 (light/dark) + ธีมพรีเมียมที่ซื้อจากร้าน รวม hacker (โผล่ใน Navbar เมื่อใส่อยู่) */
-            themes={['light', 'dark', 'hacker', 'sakura', 'dragon', 'sky', 'mint']}
+            themes={['light', 'dark', 'hacker', 'sakura', 'dragon', 'sky', 'mint', 'amethyst']}
         >
             {children}
         </Provider>

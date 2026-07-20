@@ -22,7 +22,7 @@ const CustomDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const selectedLabel = options.find(o => o.value === value)?.label || 'SELECT...';
 
-  const isDark = theme === 'dark';
+  const isDark = theme === 'dark' || theme === 'amethyst';
   const isHacker = theme === 'hacker' || theme === 'dragon'; const isDragon = theme === 'dragon';
 
   const labelColor = isHacker ? 'text-green-600' : isDark ? 'text-yellow-500' : 'text-orange-400';
@@ -85,7 +85,7 @@ const FilterDropdown = ({ options, value, onChange, theme }: { options: { value:
   const [isOpen, setIsOpen] = useState(false);
   const selectedLabel = options.find(o => o.value === value)?.label || 'ALL';
 
-  const isDark = theme === 'dark';
+  const isDark = theme === 'dark' || theme === 'amethyst';
   const isHacker = theme === 'hacker' || theme === 'dragon'; const isDragon = theme === 'dragon';
 
   return (
@@ -144,7 +144,7 @@ export default function MissionControlCMS() {
 
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   useEffect(() => {

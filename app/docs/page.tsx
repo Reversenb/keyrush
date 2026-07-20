@@ -42,7 +42,7 @@ export default function DatabankPage() {
   // 🌟 ดึงข้อมูลธีมมาไว้ชั้นนอกสุด เพื่อใช้ร่วมกันกับ Pop-up ข้างล่าง
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   useEffect(() => {
@@ -467,7 +467,7 @@ function GameModesContent() {
 function LinuxContent({ docs, onSelect }: { docs: any[], onSelect: (doc: any) => void }) {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -572,7 +572,7 @@ function LinuxContent({ docs, onSelect }: { docs: any[], onSelect: (doc: any) =>
 function WindowsContent({ docs, onSelect }: { docs: any[], onSelect: (doc: any) => void }) {
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   const [searchQuery, setSearchQuery] = useState('');

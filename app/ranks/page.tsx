@@ -52,7 +52,7 @@ export default function RanksPage() {
   // 🌟 ระบบ Theme
   const { theme: activeTheme, resolvedTheme } = useTheme();
   const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
   // 🌟 ฟังก์ชันคำนวณสีของแต่ละ Rank ตาม Theme ปัจจุบัน

@@ -196,11 +196,11 @@ export default function CursorGlow() {
 
   const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon';
   const isDragon = currentTheme === 'dragon';
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === 'dark' || currentTheme === 'amethyst'; const isAmethyst = currentTheme === 'amethyst';
   const isSakura = currentTheme === 'sakura';
   const isSky = currentTheme === 'sky';
   const isMint = currentTheme === 'mint';
-  const dotColor = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? '#facc15' : isSakura ? '#f472b6' : isSky ? '#38bdf8' : isMint ? '#34d399' : '#fb923c';
+  const dotColor = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isAmethyst ? '#c084fc' : '#facc15') : isSakura ? '#f472b6' : isSky ? '#38bdf8' : isMint ? '#34d399' : '#fb923c';
   const dotShadow = isHacker ? (isDragon ? 'rgba(248,113,113,0.7)' : 'rgba(74,222,128,0.7)') : isDark ? 'rgba(250,204,21,0.6)' : isSakura ? 'rgba(244,114,182,0.6)' : isSky ? 'rgba(56,189,248,0.6)' : isMint ? 'rgba(52,211,153,0.6)' : 'rgba(251,146,60,0.55)';
 
   return (

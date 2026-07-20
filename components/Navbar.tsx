@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
   Terminal, LayoutDashboard, User as UserIcon, LogOut,
-  ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code, Zap, Heart, Flame, Cloud, Leaf, ShoppingBag
+  ShieldCheck, Menu, X, ChevronRight, Sun, Moon, Code, Zap, Heart, Flame, Cloud, Leaf, Gem, ShoppingBag
 } from 'lucide-react'; // 🌟 เพิ่มไอคอน Code สำหรับธีม Hacker
 import { apiFetch, logout } from '@/lib/api';
 import CoinIcon from '@/components/CoinIcon';
@@ -135,6 +135,7 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     dragon: { label: 'Red Dragon', icon: <Flame size={20} strokeWidth={3} /> },
     sky: { label: 'Sky Blue', icon: <Cloud size={20} strokeWidth={3} fill="currentColor" /> },
     mint: { label: 'Mint', icon: <Leaf size={20} strokeWidth={3} fill="currentColor" /> },
+    amethyst: { label: 'Amethyst Night', icon: <Gem size={20} strokeWidth={3} /> },
   };
   const themeMeta = THEME_META[currentTheme || 'light'] || THEME_META.light;
   // ธีมถัดไปในวงจร (ไว้โชว์ "Switch to ..." ในเมนูมือถือ)

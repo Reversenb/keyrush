@@ -31,7 +31,7 @@ export default function HackerLoadingScreen() {
     }
 
     // 🌟 เช็คโหมดเพื่อกำหนดสี Matrix Rain
-    const isDark = currentTheme === 'dark';
+    const isDark = currentTheme === 'dark' || currentTheme === 'amethyst';
     const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
     const isSakura = currentTheme === 'sakura';
 

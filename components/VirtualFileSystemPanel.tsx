@@ -47,7 +47,7 @@ export default function VirtualFileSystemPanel({
     // 🌟 ดึงค่า Theme เพื่อเปลี่ยนสีสันต่างๆ ให้เข้ากับโหมด
     const { theme: activeTheme, resolvedTheme } = useTheme();
     const currentTheme = activeTheme === 'system' ? resolvedTheme : activeTheme;
-    const isDark = currentTheme === 'dark';
+    const isDark = currentTheme === 'dark' || currentTheme === 'amethyst'; const isAmethyst = currentTheme === 'amethyst';
     const isHacker = currentTheme === 'hacker' || currentTheme === 'dragon'; const isDragon = currentTheme === 'dragon';
 
     // 🎬 เอฟเฟกต์ที่กำลังเล่น — โชว์ ~2.4 วิแล้วหายเอง
@@ -61,7 +61,7 @@ export default function VirtualFileSystemPanel({
 
     const fxKind = fx?.effect.kind;
     const fxTargets: string[] = (fx?.effect.kind === 'permission' || fx?.effect.kind === 'scan') ? fx.effect.targets : [];
-    const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#facc15' : currentTheme === 'sky' ? '#0ea5e9' : currentTheme === 'mint' ? '#10b981' : (targetOs === 'linux' ? '#f97316' : '#3b82f6');
+    const accentHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? (isAmethyst ? '#c084fc' : '#facc15') : currentTheme === 'sky' ? '#0ea5e9' : currentTheme === 'mint' ? '#10b981' : (targetOs === 'linux' ? '#f97316' : '#3b82f6');
     const FxIcon = fxKind ? EFFECT_ICONS[fxKind] : Activity;
 
     const getFileStyle = (fileName: string) => {
