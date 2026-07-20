@@ -311,8 +311,9 @@ export default function ShopPage() {
               transition={{ delay: 0.2, duration: 0.45, ease: 'easeOut' }}
               className="flex items-stretch gap-3 shrink-0 flex-wrap"
             >
-              {/* เงาทึบหนาเท่าปุ่ม → ฐานล่างของทั้งสองกล่องอยู่ระดับเดียวกันพอดี */}
-              <div className="flex items-center gap-3 px-4 py-2.5 md:px-5 md:py-3 rounded-2xl border-4 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-800 shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#14532d] transition-colors">
+              {/* เงาทึบหนาเท่าปุ่ม → ฐานล่างของทั้งสองกล่องอยู่ระดับเดียวกันพอดี
+                  ส่วนฮาโลเรืองแสงตามธีมของ .btn-shine ถูกปิดด้วย .shine-plain (ดู globals.css) */}
+              <div className="btn-shine shine-plain flex items-center gap-3 px-4 py-3 md:px-5 md:py-3.5 rounded-2xl border-4 bg-white dark:bg-[#2D223B] hacker:bg-[#0a0a0a] border-orange-100 dark:border-[#4B3965] hacker:border-green-800 shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#14532d] transition-colors">
                 <div className="size-9 md:size-10 rounded-xl flex items-center justify-center shadow-sm bg-amber-400 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]">
                   <CoinIcon size={22} />
                 </div>
@@ -327,10 +328,10 @@ export default function ShopPage() {
               {/* 📦 ปุ่มสลับ ร้านค้า ↔ คลังของฉัน
                   ⚠️ ป้ายตัวเลขต้องอยู่ "นอก" ปุ่ม เพราะ .btn-shine ใช้ overflow:hidden (กันแสงกวาดล้น)
                      ถ้าวางไว้ในปุ่มจะโดนตัดหาย */}
-              <div className="relative flex shrink-0">
+              <div className="relative flex items-stretch shrink-0">
                 <button
                   onClick={() => setView(view === 'inventory' ? 'shop' : 'inventory')}
-                  className="btn-shine btn-squishy flex items-center justify-center gap-2 w-full px-5 md:px-6 py-3 md:py-3.5 rounded-2xl border-4 font-black text-[11px] md:text-xs uppercase tracking-widest transition-colors bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#14532d]"
+                  className="btn-shine btn-squishy flex items-center justify-center gap-2 w-full h-full px-5 md:px-6 py-3 md:py-3.5 rounded-2xl border-4 font-black text-[11px] md:text-xs uppercase tracking-widest transition-colors bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#ca8a04] hacker:shadow-[0_8px_0_#14532d]"
                 >
                   {view === 'inventory' ? <ShoppingBag size={16} strokeWidth={3} /> : <Package size={16} strokeWidth={3} />}
                   {view === 'inventory' ? 'กลับร้านค้า' : 'คลังของฉัน'}

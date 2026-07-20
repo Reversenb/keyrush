@@ -1171,6 +1171,9 @@
    ใช้คู่กับ .btn-squishy ได้ (ต้องมี filter อยู่ใน transition ของหน้านั้น)
    ========================================================================= */
 .btn-shine { position: relative; overflow: hidden; }
+/* .shine-plain — เอาเฉพาะแถบแสงกวาด ตัดฮาโลสีตามธีมทิ้ง (ใช้คู่กับ .btn-shine เสมอ)
+   ต้องเขียนสองคลาสซ้อนให้ specificity ชนะ .dark/.hacker .btn-shine:hover ด้านล่าง */
+.btn-shine.shine-plain:hover { filter: none !important; }
 .btn-shine::after {
   content: '';
   position: absolute;
