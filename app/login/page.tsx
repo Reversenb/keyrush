@@ -142,7 +142,7 @@ export default function KeyRushOrangeLoginPage() {
         <Link
           href="/"
           style={{ textDecoration: 'none' }}
-          className="flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group btn-squishy no-underline hover:no-underline"
+          className="glow-hover flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group btn-squishy no-underline hover:no-underline"
         >
           <div className="w-10 h-10 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-2xl shadow-md flex items-center justify-center transform -rotate-6 border-2 border-white dark:border-transparent hacker:border-transparent group-hover:rotate-0 transition-all">
             <Terminal size={22} strokeWidth={4} />

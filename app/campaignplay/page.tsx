@@ -515,7 +515,7 @@ export default function GamePage() {
       <div className={`fixed bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full blur-[200px] opacity-20 hacker:opacity-10 pointer-events-none z-0 transition-colors duration-1000 ${isHacker ? 'bg-green-700' : isDark ? (isLinux ? 'bg-yellow-600' : 'bg-cyan-600') : (isLinux ? 'bg-amber-400' : 'bg-cyan-400')}`} style={{ animationDelay: '1.5s' }}></div>
 
       <header className="flex items-center justify-between border-b-4 border-white dark:border-[#382E54] hacker:border-[#166534] px-6 py-4 bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/90 backdrop-blur-md relative z-40 shadow-sm transition-colors duration-500">
-        <Link href="/campaignpage" className="flex items-center gap-3 text-orange-950 dark:text-white hacker:text-green-500 transition-colors cursor-pointer group hover:text-orange-500 dark:hover:text-yellow-400 hacker:hover:text-green-400">
+        <Link href="/campaignpage" className="glow-hover flex items-center gap-3 text-orange-950 dark:text-white hacker:text-green-500 transition-all cursor-pointer group hover:text-orange-500 dark:hover:text-yellow-400 hacker:hover:text-green-400">
           <ChevronLeft size={24} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform text-orange-400 dark:text-yellow-500 hacker:text-green-600" />
           <div className={`size-10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-2 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] shadow-sm ${themeText}`}>
             <TerminalIcon size={20} strokeWidth={3} />

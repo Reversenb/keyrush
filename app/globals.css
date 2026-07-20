@@ -1196,15 +1196,25 @@
   }
 
   /* ฮาโลใช้ filter (ไม่ใช้ box-shadow) เพื่อไม่ชนเงา 3D เดิมของปุ่ม
-     แยกตามธีมเพราะสีปุ่มต่างกัน — ธีมพรีเมียมต้องเขียนเองเพราะ .hacker ไม่ครอบ .dragon */
-  .btn-shine:hover         { filter: drop-shadow(0 0 18px rgba(249,115,22,0.85)); }
-  .dark   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(250,204,21,0.80)); }
-  .hacker .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(34,197,94,0.85)); }
-  .dragon .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(239,68,68,0.85)); }
-  .sakura .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(236,72,153,0.80)); }
-  .sky    .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(14,165,233,0.80)); }
-  .mint   .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(16,185,129,0.80)); }
-  .amethyst .btn-shine:hover { filter: drop-shadow(0 0 18px rgba(168,85,247,0.80)); }
+     แยกตามธีมเพราะสีปุ่มต่างกัน — ธีมพรีเมียมต้องเขียนเองเพราะ .hacker ไม่ครอบ .dragon
+     .glow-hover = เอาเฉพาะฮาโล ไม่เอาแถบแสงกวาด (สำหรับของที่ไม่ใช่ปุ่มสี่เหลี่ยมทึบ
+     เช่นโลโก้ ซึ่งถ้าใช้ .btn-shine จะติด overflow:hidden จนไอคอนที่หมุนอยู่โดนตัด) */
+  .btn-shine:hover,
+  .glow-hover:hover         { filter: drop-shadow(0 0 18px rgba(249,115,22,0.85)); }
+  .dark   .btn-shine:hover,
+  .dark   .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(250,204,21,0.80)); }
+  .hacker .btn-shine:hover,
+  .hacker .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(34,197,94,0.85)); }
+  .dragon .btn-shine:hover,
+  .dragon .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(239,68,68,0.85)); }
+  .sakura .btn-shine:hover,
+  .sakura .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(236,72,153,0.80)); }
+  .sky    .btn-shine:hover,
+  .sky    .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(14,165,233,0.80)); }
+  .mint   .btn-shine:hover,
+  .mint   .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(16,185,129,0.80)); }
+  .amethyst .btn-shine:hover,
+  .amethyst .glow-hover:hover { filter: drop-shadow(0 0 18px rgba(168,85,247,0.80)); }
 
   /* ผู้ใช้ที่ตั้งค่า "ลดการเคลื่อนไหว" ในระบบ — ยังเห็นแสงกวาด (เอฟเฟกต์เล็ก ไม่ทำให้เวียนหัว)
      แต่ย่นให้เร็วขึ้น จะได้ไม่รบกวนสายตา

@@ -156,15 +156,15 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     bgMain: theme === 'linux' ? 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500' : 'bg-blue-500 dark:bg-blue-400 hacker:bg-green-500',
 
     // ปุ่มไอคอนหลัก (กระดิ่ง, Sign In, Hamburger, รูปโปรไฟล์)
-    btn3D: "btn-shine shine-plain btn-squishy flex items-center justify-center font-black transition-all border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-black border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#166534] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400",
+    btn3D: "btn-shine btn-squishy flex items-center justify-center font-black transition-all border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-black border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#ca8a04] hacker:shadow-[0_6px_0_#166534] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400",
 
     // Nav Link (Desktop & Mobile)
-    navActive: "btn-shine shine-plain border-4 bg-orange-100 dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-black border-orange-300 dark:border-yellow-600 hacker:border-green-600 shadow-[0_4px_0_#fdba74] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#166534] -translate-y-1",
-    navIdle: "btn-shine shine-plain border-4 bg-transparent text-orange-950/60 dark:text-white/60 hacker:text-green-500/60 border-transparent hover:bg-white dark:hover:bg-yellow-400 hacker:hover:bg-green-500 hover:text-orange-600 dark:hover:text-[#1E1B2E] hacker:hover:text-black hover:border-orange-200 dark:hover:border-yellow-500 hacker:hover:border-green-600 hover:shadow-[0_4px_0_#fed7aa] dark:hover:shadow-[0_4px_0_#ca8a04] hacker:hover:shadow-[0_4px_0_#166534] hover:-translate-y-1 transition-all",
+    navActive: "btn-shine border-4 bg-orange-100 dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-black border-orange-300 dark:border-yellow-600 hacker:border-green-600 shadow-[0_4px_0_#fdba74] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#166534] -translate-y-1",
+    navIdle: "btn-shine border-4 bg-transparent text-orange-950/60 dark:text-white/60 hacker:text-green-500/60 border-transparent hover:bg-white dark:hover:bg-yellow-400 hacker:hover:bg-green-500 hover:text-orange-600 dark:hover:text-[#1E1B2E] hacker:hover:text-black hover:border-orange-200 dark:hover:border-yellow-500 hacker:hover:border-green-600 hover:shadow-[0_4px_0_#fed7aa] dark:hover:shadow-[0_4px_0_#ca8a04] hacker:hover:shadow-[0_4px_0_#166534] hover:-translate-y-1 transition-all",
 
     // ปุ่มใน Dropdown 
-    dropdownBtn: "btn-shine shine-plain w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center justify-between group nav-squishy border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-black border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#166534] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400",
-    dropdownLogout: "btn-shine shine-plain w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center gap-3 group nav-squishy border-4 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] text-rose-500 dark:text-rose-400 hacker:text-rose-500 border-rose-200 dark:border-rose-900 hacker:border-rose-900 shadow-[0_4px_0_#fecdd3] dark:shadow-[0_4px_0_#4c1d95] hacker:shadow-[0_4px_0_#881337] hover:bg-rose-50 dark:hover:bg-[#2D223B] hacker:hover:bg-[#111]"
+    dropdownBtn: "btn-shine w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center justify-between group nav-squishy border-4 bg-white dark:bg-yellow-400 hacker:bg-green-500 text-orange-600 dark:text-[#1E1B2E] hacker:text-black border-orange-200 dark:border-yellow-500 hacker:border-green-600 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#ca8a04] hacker:shadow-[0_4px_0_#166534] hover:bg-orange-50 dark:hover:bg-yellow-300 hacker:hover:bg-green-400",
+    dropdownLogout: "btn-shine w-full text-left px-4 py-3 text-sm font-black rounded-2xl flex items-center gap-3 group nav-squishy border-4 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] text-rose-500 dark:text-rose-400 hacker:text-rose-500 border-rose-200 dark:border-rose-900 hacker:border-rose-900 shadow-[0_4px_0_#fecdd3] dark:shadow-[0_4px_0_#4c1d95] hacker:shadow-[0_4px_0_#881337] hover:bg-rose-50 dark:hover:bg-[#2D223B] hacker:hover:bg-[#111]"
   };
 
   const isLinkActive = (path: string) => pathname?.startsWith(path);
@@ -183,14 +183,16 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
         .btn-squishy:active { transform: translateY(6px); box-shadow: 0 0 0 transparent !important; }
 
         .nav-squishy {
-          transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, border-color 0.2s;
+          /* filter อยู่ในลิสต์ด้วยเพื่อให้ฮาโลของ .btn-shine ค่อยๆ สว่าง ไม่ใช่เด้งติดทันที
+             (btn-squishy ใช้ transition-all ของ Tailwind อยู่แล้วเลยไม่ต้องเติม) */
+          transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, border-color 0.2s, filter 0.25s ease;
         }
         .nav-squishy:active { transform: translateY(4px); box-shadow: 0 0 0 transparent !important; }
       `}</style>
 
       {/* โลโก้ (ยึดตามโครงสร้างเดิมของบอส) */}
       <div className="flex items-center gap-8">
-        <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group no-underline hover:no-underline">
+        <Link href="/" className="glow-hover flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group no-underline hover:no-underline">
           <div className={`w-10 h-10 ${styles.bgMain} text-white dark:text-[#1E1B2E] hacker:text-black rounded-2xl shadow-md flex items-center justify-center transform -rotate-6 border-2 border-white dark:border-transparent hacker:border-transparent group-hover:rotate-0 transition-all`}>
             <Terminal size={20} strokeWidth={4} />
           </div>

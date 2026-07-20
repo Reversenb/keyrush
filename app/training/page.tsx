@@ -320,7 +320,7 @@ export default function TrainingPage() {
 
       {/* Header */}
       <header className="flex items-center justify-between border-b-4 border-white dark:border-[#382E54] hacker:border-[#166534] px-6 py-4 bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/90 backdrop-blur-md relative z-40 shadow-sm transition-colors duration-500">
-        <Link href="/map" className="flex items-center gap-3 text-orange-950 dark:text-white hacker:text-green-500 transition-colors cursor-pointer group hover:text-orange-500 dark:hover:text-yellow-400 hacker:hover:text-green-400">
+        <Link href="/map" className="glow-hover flex items-center gap-3 text-orange-950 dark:text-white hacker:text-green-500 transition-all cursor-pointer group hover:text-orange-500 dark:hover:text-yellow-400 hacker:hover:text-green-400">
           <ChevronLeft size={24} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform text-orange-400 dark:text-yellow-500 hacker:text-green-600" />
           <div className={`size-10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-2 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] shadow-sm ${themeText}`}>
             <Dumbbell size={20} strokeWidth={3} />

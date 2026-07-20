@@ -332,7 +332,7 @@ export default function KeyRushOrangeLandingPage() {
 
       <header className="relative z-50 flex items-center justify-between border-b-4 border-white dark:border-[#382E54] hacker:border-green-800 bg-white/70 dark:bg-[#1E1B2E]/70 hacker:bg-[#0a0a0a]/80 backdrop-blur-md px-6 md:px-10 py-4 sticky top-0 shadow-sm transition-colors duration-500">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group no-underline">
+          <Link href="/" className="glow-hover flex items-center gap-3 transition-all hover:scale-105 cursor-pointer group no-underline">
             <div className={`w-10 h-10 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-2xl shadow-md flex items-center justify-center transform -rotate-6 border-2 border-white dark:border-transparent hacker:border-transparent group-hover:rotate-0 transition-all`}>
               <Terminal size={22} strokeWidth={4} />
             </div>
