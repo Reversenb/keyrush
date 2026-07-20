@@ -561,9 +561,10 @@ export default function LeaderboardPage() {
                           key={player.id}
                           variants={itemVariants}
                           className={`grid grid-cols-12 gap-2 md:gap-4 px-3 md:px-8 py-4 md:py-5 items-center transition-all duration-300 group ${isMe ? styles.tableRowMe : styles.tableRowHover} ${rowEffectClass(player.rowEffect)}`}
-                          // หน่วงตามลำดับแถว ไม่ให้ทุกคนที่ซื้อเอฟเฟกต์วิ่งพร้อมกันจนรก
+                          // ทุกแถววิ่งพร้อมกัน (delay 0) — เดิมหน่วงตามอันดับทีละ 0.9 วิ
+                          // ทำให้เอฟเฟกต์ของเรากับของเพื่อนที่อันดับห่างกันขึ้นไม่พร้อมกัน
                           // ⚠️ ต้องส่งเป็น CSS variable เพราะ animation-delay ที่ตั้งบนแถวไม่ถ่ายทอดไปยัง ::before/::after
-                          style={player.rowEffect ? ({ ['--kr-row-delay']: `${index * 0.9}s` } as React.CSSProperties) : undefined}
+                          style={player.rowEffect ? ({ ['--kr-row-delay']: '0s' } as React.CSSProperties) : undefined}
                         >
                           {/* อันดับ — Top 3 ได้เหรียญ */}
                           <div className="col-span-2 md:col-span-1 flex justify-center">
