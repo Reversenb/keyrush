@@ -18,7 +18,7 @@ export const RANKS: RankInfo[] = [
   { id: 2, title: 'Bronze', minExp: 200, icon: 'terminal', desc: 'ผ่านด่านแรกมาแล้ว เริ่มจำคำสั่งพื้นฐานได้และพิมพ์ได้คล่องขึ้น' },
   { id: 3, title: 'Gold', minExp: 500, icon: 'router', desc: 'ใช้คำสั่งได้หลากหลาย จัดการไฟล์และเครือข่ายเบื้องต้นได้สบายๆ' },
   { id: 4, title: 'Platinum', minExp: 1000, icon: 'dns', desc: 'ระดับมืออาชีพ ควบคุมเซิร์ฟเวอร์และโครงสร้างพื้นฐานได้อย่างชำนาญ' },
-  { id: 5, title: 'Diamond', minExp: 2000, icon: 'bug_report', desc: 'ฝีมือระดับหัวกะทิ เชี่ยวชาญคำสั่งขั้นสูงและแก้ปัญหาซับซ้อนได้ไว' },
+  { id: 5, title: 'Diamond', minExp: 2000, icon: 'diamond', desc: 'ฝีมือระดับหัวกะทิ เชี่ยวชาญคำสั่งขั้นสูงและแก้ปัญหาซับซ้อนได้ไว' },
   { id: 6, title: 'Phantom', minExp: 3500, icon: 'fingerprint', desc: 'เงาไร้ร่องรอย พิมพ์เร็วแม่นจนแทบไม่มีใครตามทัน' },
   { id: 7, title: 'Root Master', minExp: 5000, icon: 'admin_panel_settings', desc: 'จุดสูงสุดของห่วงโซ่ รูทได้ทุกเซิร์ฟเวอร์ ควบคุมทุกเครือข่ายบนโลกอินเทอร์เน็ต' },
   { id: 8, title: 'Keyrush Master', minExp: 10000, icon: 'master', desc: 'ตำนานแห่ง KeyRush ผู้พิชิตทุกคำสั่งและทุกโหมด — มีเพียงไม่กี่คนที่ไปถึงจุดนี้' },

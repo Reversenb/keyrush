@@ -373,7 +373,7 @@ export default function ShopPage() {
             {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('frame')})</span>}
           </button>
           <button onClick={() => setTab('row')} className={tabBtn(tab === 'row')}>
-            <Flame size={16} strokeWidth={3} /> เอฟเฟกต์แถว
+            <Flame size={16} strokeWidth={3} /> เอฟเฟกต์
             {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('row')})</span>}
           </button>
           <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>

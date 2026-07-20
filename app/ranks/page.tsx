@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import { PageSkeleton, sk } from '@/components/skeleton';
 import {
   Keyboard, Terminal, Router as RouterIcon, Server,
-  Bug, Fingerprint, Crown, ShieldCheck, Lock, CheckCircle
+  Bug, Gem, Fingerprint, Crown, ShieldCheck, Lock, CheckCircle
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { RANKS as BASE_RANKS } from '@/lib/ranks';
@@ -36,6 +36,7 @@ const getIcon = (name: string, size: number, className: string = "") => {
     case 'router': return <RouterIcon {...props} />;
     case 'dns': return <Server {...props} />;
     case 'bug_report': return <Bug {...props} />;
+    case 'diamond': return <Gem {...props} />;
     case 'fingerprint': return <Fingerprint {...props} />;
     case 'admin_panel_settings': return <Crown {...props} />;
     case 'master': return <ShieldCheck {...props} />;
