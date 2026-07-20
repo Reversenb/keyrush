@@ -27,6 +27,16 @@ const DOC_TABS = [
   { id: 'faq', label: 'FAQ', icon: <HelpCircle size={20} strokeWidth={3} />, color: 'text-yellow-500 dark:text-yellow-400 hacker:text-green-500' },
 ];
 
+// ✨ อนิเมชันเมนูฝั่งซ้าย — ไล่โผล่ทีละอันแบบสปริง (ค่าเดียวกับที่หน้า Leaderboard ใช้)
+const sidebarStagger = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
+};
+const sidebarItem = {
+  hidden: { opacity: 0, x: -20 },
+  show: { opacity: 1, x: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+};
+
 export default function DatabankPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('getting-started');
@@ -153,23 +163,33 @@ export default function DatabankPage() {
             <p className="text-[11px] text-orange-600 dark:text-white/50 hacker:text-green-600 font-black mt-3 uppercase tracking-widest transition-colors">KeyRush Official Docs 📚</p>
           </div>
 
-          <nav className="flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-4 md:pb-0 custom-scrollbar mt-6">
+          {/* ✨ เมนูไล่โผล่ทีละอันจากซ้าย (stagger) ตอนเข้าหน้า */}
+          <motion.nav
+            variants={sidebarStagger}
+            initial="hidden"
+            animate="show"
+            className="flex flex-row md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-4 md:pb-0 custom-scrollbar mt-6"
+          >
             {DOC_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-5 py-4 rounded-[20px] font-black text-sm text-left transition-all duration-300 flex-shrink-0 md:flex-shrink-0 border-4 btn-squishy ${activeTab === tab.id
+              /* ⚠️ อนิเมชันต้องอยู่ที่ตัวห่อ ห้ามใส่ที่ <button> ตรงๆ
+                 เพราะ framer-motion เขียน transform ลง inline style ซึ่งจะไปทับ
+                 .btn-squishy:hover และ scale-[1.02] ของแท็บที่เลือกอยู่จนไม่ทำงาน */
+              <motion.div key={tab.id} variants={sidebarItem} className="flex-shrink-0">
+                <button
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-5 py-4 rounded-[20px] font-black text-sm text-left transition-all duration-300 border-4 btn-squishy ${activeTab === tab.id
                   ? 'bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-white dark:border-[#4B3965] hacker:border-green-600 text-orange-950 dark:text-white hacker:text-white shadow-sm scale-[1.02]'
                   : 'bg-white/40 dark:bg-white/5 hacker:bg-white/5 border-transparent text-orange-950/60 dark:text-white/50 hacker:text-white/50 hover:bg-white/80 dark:hover:bg-white/10 hacker:hover:bg-[#111] hover:text-orange-950 dark:hover:text-white hacker:hover:text-green-400 hover:border-white dark:hover:border-[#382E54] hacker:hover:border-green-800'
-                  }`}
-              >
-                <span className={`${tab.color} ${activeTab === tab.id ? 'scale-110 transition-transform' : ''}`}>
-                  {tab.icon}
-                </span>
-                <span className="whitespace-nowrap tracking-wider">{tab.label}</span>
-              </button>
+                    }`}
+                >
+                  <span className={`${tab.color} ${activeTab === tab.id ? 'scale-110 transition-transform' : ''}`}>
+                    {tab.icon}
+                  </span>
+                  <span className="whitespace-nowrap tracking-wider">{tab.label}</span>
+                </button>
+              </motion.div>
             ))}
-          </nav>
+          </motion.nav>
         </aside>
 
         {/* Content Area */}
