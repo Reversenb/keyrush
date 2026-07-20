@@ -62,7 +62,7 @@ Login ด้วย Google → เลือก OS → เลือกด่าน
 |---|---|
 | Next.js (App Router) | React Framework จัดการ Routing และทำหน้าที่เป็น API Proxy (rewrites) ให้ Cookie เป็น first-party |
 | React + TypeScript | สร้าง UI Components พร้อมความปลอดภัยของชนิดข้อมูล |
-| Tailwind CSS | Styling สไตล์ Modern & Glassmorphism รองรับ 3 ธีม (Cute / Dark / Hacker) ผ่าน `next-themes` |
+| Tailwind CSS | Styling สไตล์ Modern & Glassmorphism รองรับธีมพื้นฐาน (Cute / Dark) + ธีมพรีเมียมจากร้านค้า (Hacker / Sakura / …) ผ่าน `next-themes` |
 | xterm.js | Terminal Emulator จริงในเบราว์เซอร์ ปรับสี/ฟอนต์/พื้นหลังได้ พร้อมเอฟเฟกต์ CRT scanline |
 | Framer Motion | Animation ของ UI และระบบจำลองผลคำสั่ง (Virtual File System) |
 | `@react-oauth/google` | Login ผ่านบัญชี Google แบบ Client-side Token Flow |

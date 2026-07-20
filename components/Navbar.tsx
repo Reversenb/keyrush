@@ -26,6 +26,8 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  // เช็คสิทธิ์ธีมได้ก็ต่อเมื่อรู้ข้อมูลผู้ใช้จริงจาก backend แล้ว (กันรีเซ็ตธีมของคนที่ซื้อไว้ตอนโหลดแรก)
+  const [userSynced, setUserSynced] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -58,6 +60,7 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
           localStorage.removeItem('keyrush_user');
           window.dispatchEvent(new Event('keyrush-user-updated'));
         }
+        setUserSynced(true);
       } catch (e) { }
     };
     syncUser();
@@ -107,10 +110,16 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
     return 'Hacker';
   };
 
-  // 🌟 สลับธีม: พื้นฐาน 3 ธีม + ธีมพรีเมียมเฉพาะที่ "กดใส่อยู่" เท่านั้น 🌟
-  // (ซื้อแล้วแต่ยังไม่ใส่ = ไม่โผล่ในวงจร / กดถอดในร้าน = หายไป)
+  // 🌟 สลับธีม: พื้นฐาน 2 ธีม (Cute/Dark) + ธีมพรีเมียมเฉพาะที่ "กดใส่อยู่" เท่านั้น 🌟
+  // (ซื้อแล้วแต่ยังไม่ใส่ = ไม่โผล่ในวงจร / กดถอดในร้าน = หายไป) — Hacker ก็เป็นธีมซื้อในร้านแล้ว
   const equippedThemeId: string | null = user?.activeTheme ?? null;
-  const themeRing = ['light', 'dark', 'hacker', ...(equippedThemeId ? [equippedThemeId] : [])];
+  const themeRing = ['light', 'dark', ...(equippedThemeId ? [equippedThemeId] : [])];
+
+  // 🔒 ใช้ธีมพรีเมียมที่ไม่ได้ใส่อยู่ไม่ได้ (เช่นค่าเก่าใน localStorage สมัย Hacker ยังฟรี) — เด้งกลับ Cute
+  useEffect(() => {
+    if (!userSynced || !currentTheme) return;
+    if (!themeRing.includes(currentTheme)) setTheme('light');
+  }, [userSynced, currentTheme, equippedThemeId]);
 
   const cycleTheme = () => {
     const idx = themeRing.indexOf(currentTheme || 'light');

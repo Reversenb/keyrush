@@ -904,11 +904,46 @@
   border: 3px solid #f472b6;
   box-shadow: 0 0 16px rgba(244, 114, 182, 0.9), inset 0 0 6px rgba(252, 231, 243, 0.7);
 }
+.kr-frame-bronze::after {
+  border: 3px solid #d97706;
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.9), inset 0 0 6px rgba(254, 215, 170, 0.6);
+}
+.kr-frame-rose::after {
+  border: 3px solid #fb7185;
+  box-shadow: 0 0 14px rgba(251, 113, 133, 0.9), inset 0 0 6px rgba(255, 228, 230, 0.7);
+}
+.kr-frame-mint::after {
+  border: 3px solid #34d399;
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.9), inset 0 0 6px rgba(209, 250, 229, 0.7);
+}
+.kr-frame-sky::after {
+  border: 3px solid #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.9), inset 0 0 6px rgba(224, 242, 254, 0.7);
+}
+.kr-frame-violet::after {
+  border: 3px solid #a78bfa;
+  box-shadow: 0 0 16px rgba(167, 139, 250, 0.9), inset 0 0 6px rgba(237, 233, 254, 0.7);
+}
+.kr-frame-crimson::after {
+  border: 3px solid #dc2626;
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.9), inset 0 0 6px rgba(254, 202, 202, 0.6);
+}
 
 /* ── แบบวงแหวนไล่สี (ใช้เทคนิค mask เจาะรูตรงกลางให้เหลือแค่ขอบ) ── */
 .kr-frame-fire::after,
 .kr-frame-diamond::after,
-.kr-frame-rainbow::after {
+.kr-frame-rainbow::after,
+.kr-frame-emerald::after,
+.kr-frame-ocean::after,
+.kr-frame-sunset::after,
+.kr-frame-amethyst::after,
+.kr-frame-venom::after,
+.kr-frame-galaxy::after,
+.kr-frame-phoenix::after,
+.kr-frame-aurora::after,
+.kr-frame-eclipse::after,
+.kr-frame-dragon::after,
+.kr-frame-void::after {
   padding: 3px;
   border: 0;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -932,7 +967,99 @@
   animation-duration: 4s;
 }
 
+/* ── ระดับกลาง: ไล่สีหมุน ── */
+.kr-frame-emerald::after {
+  background: conic-gradient(from 0deg, #065f46, #10b981, #a7f3d0, #10b981, #065f46);
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+  animation-duration: 4.5s;
+}
+.kr-frame-ocean::after {
+  background: conic-gradient(from 0deg, #1e40af, #0ea5e9, #a5f3fc, #0ea5e9, #1e40af);
+  filter: drop-shadow(0 0 9px rgba(14, 165, 233, 0.85));
+  animation-duration: 5s;
+}
+.kr-frame-sunset::after {
+  background: conic-gradient(from 0deg, #fb923c, #f472b6, #a78bfa, #fb923c);
+  filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.8));
+  animation-duration: 4.5s;
+}
+.kr-frame-amethyst::after {
+  background: conic-gradient(from 0deg, #7e22ce, #c084fc, #f0abfc, #c084fc, #7e22ce);
+  filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.85));
+  animation-duration: 4s;
+}
+
+/* ── ระดับสูง: ไล่สี + แสงเต้นเป็นจังหวะ (หมุน + เรืองแสงพร้อมกัน) ── */
+.kr-frame-venom::after {
+  background: conic-gradient(from 0deg, #15803d, #84cc16, #d9f99d, #84cc16, #15803d);
+  animation: kr-frame-spin 3s linear infinite, kr-frame-glow-venom 1.6s ease-in-out infinite;
+}
+.kr-frame-galaxy::after {
+  background: conic-gradient(from 0deg, #1e1b4b, #6366f1, #e879f9, #6366f1, #1e1b4b);
+  animation: kr-frame-spin 6s linear infinite, kr-frame-glow-galaxy 2.4s ease-in-out infinite;
+}
+.kr-frame-phoenix::after {
+  background: conic-gradient(from 0deg, #7f1d1d, #ef4444, #f59e0b, #fde68a, #f59e0b, #ef4444, #7f1d1d);
+  animation: kr-frame-spin 2.6s linear infinite, kr-frame-glow-phoenix 1.4s ease-in-out infinite;
+}
+.kr-frame-aurora::after {
+  background: conic-gradient(from 0deg, #34d399, #22d3ee, #a78bfa, #f472b6, #22d3ee, #34d399);
+  animation: kr-frame-spin 7s linear infinite, kr-frame-glow-aurora 3s ease-in-out infinite;
+}
+
+/* ── ระดับตำนาน: วงแหวนหนาพิเศษ + แสงจัดเต็ม ── */
+.kr-frame-eclipse::after,
+.kr-frame-dragon::after,
+.kr-frame-void::after {
+  /* หนากว่าปกติและถอยออกอีกนิด ให้ดูอลังการกว่ากรอบระดับล่าง */
+  inset: -7px;
+  padding: 5px;
+}
+.kr-frame-eclipse::after {
+  background: conic-gradient(from 0deg, #0a0a0a 0deg, #fbbf24 60deg, #fef3c7 90deg, #fbbf24 120deg, #0a0a0a 200deg, #0a0a0a 360deg);
+  animation: kr-frame-spin 5s linear infinite, kr-frame-glow-eclipse 2s ease-in-out infinite;
+}
+.kr-frame-dragon::after {
+  background: conic-gradient(from 0deg, #7f1d1d, #ef4444, #fbbf24, #7f1d1d, #ef4444, #fbbf24, #7f1d1d);
+  animation: kr-frame-spin 1.8s linear infinite, kr-frame-glow-dragon 1.2s ease-in-out infinite;
+}
+.kr-frame-void::after {
+  background: conic-gradient(from 0deg, #000000 0deg, #7c3aed 90deg, #c4b5fd 140deg, #7c3aed 190deg, #000000 300deg, #000000 360deg);
+  animation: kr-frame-spin 9s linear infinite, kr-frame-glow-void 2.8s ease-in-out infinite;
+}
+
 @keyframes kr-frame-spin { to { transform: rotate(360deg); } }
+
+/* แสงเรืองของแต่ละกรอบ — แยก keyframes เพราะ filter ใช้ค่าสีคนละชุด
+   ⚠️ ต้องไม่แตะ transform ในนี้ ไม่งั้นจะทับ kr-frame-spin ที่รันคู่กันอยู่ */
+@keyframes kr-frame-glow-venom {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(132, 204, 22, 0.8)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(132, 204, 22, 1)); }
+}
+@keyframes kr-frame-glow-galaxy {
+  0%, 100% { filter: drop-shadow(0 0 9px rgba(99, 102, 241, 0.8)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(232, 121, 249, 0.95)); }
+}
+@keyframes kr-frame-glow-phoenix {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.85)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(245, 158, 11, 1)); }
+}
+@keyframes kr-frame-glow-aurora {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.8)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(167, 139, 250, 0.95)); }
+}
+@keyframes kr-frame-glow-eclipse {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.85)); }
+  50%      { filter: drop-shadow(0 0 26px rgba(254, 243, 199, 1)); }
+}
+@keyframes kr-frame-glow-dragon {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.9)); }
+  50%      { filter: drop-shadow(0 0 28px rgba(251, 191, 36, 1)); }
+}
+@keyframes kr-frame-glow-void {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(124, 58, 237, 0.85)); }
+  50%      { filter: drop-shadow(0 0 30px rgba(196, 181, 253, 1)); }
+}
 @keyframes kr-frame-pulse {
   0%, 100% { box-shadow: 0 0 18px rgba(34,211,238,0.95), inset 0 0 6px rgba(34,211,238,0.6); }
   50%      { box-shadow: 0 0 30px rgba(34,211,238,1),    inset 0 0 9px rgba(34,211,238,0.8); }

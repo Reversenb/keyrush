@@ -60,6 +60,8 @@ export default function KeyRushOrangeLandingPage() {
 
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
+  // เช็คสิทธิ์ธีมได้ก็ต่อเมื่อรู้ข้อมูลผู้ใช้จริงจาก backend แล้ว (กันรีเซ็ตธีมของคนที่ซื้อไว้ตอนโหลดแรก)
+  const [userSynced, setUserSynced] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -94,6 +96,7 @@ export default function KeyRushOrangeLandingPage() {
           clearUserState();
           setUser(null);
         }
+        setUserSynced(true);
       } catch (e) {
         console.error("Auth status check failed", e);
       }
@@ -197,9 +200,15 @@ export default function KeyRushOrangeLandingPage() {
     setShowDropdown(false);
   };
 
-  // 🌟 สลับธีม: พื้นฐาน 3 ธีม + ธีมพรีเมียมที่ "ใส่อยู่" (ระบบเดียวกับ Navbar)
+  // 🌟 สลับธีม: พื้นฐาน 2 ธีม (Cute/Dark) + ธีมพรีเมียมที่ "ใส่อยู่" (ระบบเดียวกับ Navbar)
   const equippedThemeId: string | null = user?.activeTheme ?? null;
-  const themeRing = ['light', 'dark', 'hacker', ...(equippedThemeId ? [equippedThemeId] : [])];
+  const themeRing = ['light', 'dark', ...(equippedThemeId ? [equippedThemeId] : [])];
+
+  // 🔒 ใช้ธีมพรีเมียมที่ไม่ได้ใส่อยู่ไม่ได้ (เช่นค่าเก่าใน localStorage สมัย Hacker ยังฟรี) — เด้งกลับ Cute
+  useEffect(() => {
+    if (!userSynced || !currentTheme) return;
+    if (!themeRing.includes(currentTheme)) setTheme('light');
+  }, [userSynced, currentTheme, equippedThemeId]);
 
   const cycleTheme = () => {
     const idx = themeRing.indexOf(currentTheme || 'light');
