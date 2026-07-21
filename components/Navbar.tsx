@@ -254,7 +254,19 @@ export default function Navbar({ theme = 'linux' }: NavbarProps) {
                     className="absolute right-0 mt-4 w-72 bg-white/95 dark:bg-[#1E1B2E]/95 hacker:bg-[#0a0a0a]/95 backdrop-blur-2xl border-4 border-white dark:border-[#382E54] hacker:border-green-600 rounded-[24px] shadow-xl overflow-hidden z-50 p-3"
                   >
                     <div className="px-4 py-3 mb-3 bg-orange-50/80 dark:bg-black/20 hacker:bg-[#111] rounded-2xl border-2 border-white dark:border-white/5 hacker:border-green-900/30">
-                      <p className={`font-black tracking-tight truncate text-base ${styles.textMain}`}>{getShowName()}</p>
+                      {/* ชื่อ + 🔥 สตรีควันฝึกต่อเนื่อง (ซ่อนเมื่อยังไม่มีสตรีค จะได้ไม่โชว์เลข 0 ให้เสียกำลังใจ) */}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className={`font-black tracking-tight truncate text-base ${styles.textMain}`}>{getShowName()}</p>
+                        {(user.streak ?? 0) > 0 && (
+                          <span
+                            title={`ฝึกต่อเนื่อง ${user.streak} วัน — เว้นได้ไม่เกิน 3 วัน`}
+                            className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-black tabular-nums border-2 bg-orange-100 border-orange-200 text-orange-600 dark:bg-yellow-400/15 dark:border-yellow-500/30 dark:text-yellow-400 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400"
+                          >
+                            <Flame size={12} strokeWidth={3} fill="currentColor" />
+                            {user.streak}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-orange-950/50 dark:text-white/50 hacker:text-green-500/60 truncate mt-0.5 font-bold">
                         {user.email || user.username || 'Hacker Operative'}
                       </p>

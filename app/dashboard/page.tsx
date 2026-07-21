@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion, animate } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { SkelStatCards, SkelListRows, skCard, sk } from '@/components/skeleton';
-import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, BookOpen, Zap, Terminal } from 'lucide-react';
+import { Play, Map, History, Activity, Target, ArrowRight, Cpu, AppWindow, Trophy, Flame, Zap, Terminal } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import Navbar from '@/components/Navbar';
 import { apiFetch, clearUserState } from '@/lib/api';
@@ -237,7 +237,6 @@ export default function DashboardPage() {
   const winExp = user?.windowsExp || 0;
 
   const totalExp = linuxExp + winExp;
-  const totalLessonsCompleted = (linuxLvl - 1) + (winLvl - 1);
 
   let currentRank = RANKS[0];
   for (let i = 0; i < RANKS.length; i++) {
@@ -422,239 +421,240 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-        <motion.main
-          variants={containerVariants}
-          initial="hidden"
-          animate={!loading ? "show" : "hidden"}
-          className="flex-1 px-4 md:px-10 py-8 flex justify-center relative z-10 w-full"
-        >
-          <div className="flex flex-col max-w-[1200px] w-full flex-1 gap-8 mx-auto">
+          <motion.main
+            variants={containerVariants}
+            initial="hidden"
+            animate={!loading ? "show" : "hidden"}
+            className="flex-1 px-4 md:px-10 py-8 flex justify-center relative z-10 w-full"
+          >
+            <div className="flex flex-col max-w-[1200px] w-full flex-1 gap-8 mx-auto">
 
-            {/* 🌟 Welcome Card 🌟 */}
-            <motion.div variants={itemVariants} className="glass-card p-8 md:p-10 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end gap-6 shadow-sm">
-              <div className="flex flex-col gap-2 w-full z-10">
-                <h1 className="text-black-600 dark:text-white hacker:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight cute-header transition-colors">
-                  Welcome back, <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">{getShowName()}</span>
-                </h1>
-                {/* 🏷️ ฉายาจากร้านค้า (ถ้ายังไม่ใส่ ชวนไปเลือกที่ร้าน) */}
-                <div className="mt-1">
-                  {user?.title ? (
-                    <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[14px] border-2 text-sm md:text-base font-black shadow-sm transition-colors bg-orange-100 border-white text-orange-600 dark:bg-yellow-400/15 dark:border-[#4B3965] dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
-                      ✦ {user.title}
-                    </span>
-                  ) : (
-                    <Link href="/shop" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[14px] border-2 border-dashed text-xs md:text-sm font-black uppercase tracking-widest transition-colors border-orange-200 text-orange-400 hover:text-orange-600 hover:border-orange-400 dark:border-[#4B3965] dark:text-white/40 dark:hover:text-yellow-400 hacker:border-green-900 hacker:text-green-700 hacker:hover:text-green-500">
-                      ยังไม่มีฉายา — ไปเลือกที่ร้านค้า ✨
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0 z-10">
-                <button
-                  onClick={() => router.push('/map')}
-                  className="btn-shine shine-plain btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-white dark:bg-[#2D223B] hacker:bg-[#111] text-orange-600 dark:text-yellow-400 hacker:text-green-500 rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#0a0a0a] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
-                >
-                  <Map size={20} strokeWidth={3} /> ดูแผนที่ภารกิจ
-                </button>
-
-                <button
-                  onClick={() => router.push('/campaignpage')}
-                  className="btn-shine shine-plain btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-white dark:border-transparent hacker:border-transparent shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#a16207] hacker:shadow-[0_8px_0_#14532d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 transition-all"
-                >
-                  <Play size={20} strokeWidth={3} fill="currentColor" /> ลุยภารกิจต่อ
-                </button>
-              </div>
-            </motion.div>
-
-            {/* 🌟 STATS CARDS 🌟 */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-              {[
-                { label: 'Lessons Completed', value: totalLessonsCompleted, icon: <BookOpen size={28} strokeWidth={3} />, color: 'blue' },
-                { label: 'Total XP', value: totalExp, icon: <Zap size={28} strokeWidth={3} fill="currentColor" />, color: 'primary', isXp: true },
-                { label: 'Coins', value: user?.coins || 0, icon: <CoinIcon size={28} />, color: 'amber', isCoins: true },
-                { label: 'Your Rank', title: currentRank.title, icon: <Trophy size={28} strokeWidth={3} />, color: 'pink', rankColor: currentRank.color }
-              ].map((stat, i) => {
-                const cardContent = (
-                  <>
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="p-4 rounded-[20px] bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-500/10 text-orange-500 dark:text-yellow-400 hacker:text-green-500 border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm group-hover:scale-110 transition-all">
-                        {stat.icon}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest mb-1 transition-colors">{stat.label}</p>
-                      {stat.title ? (
-                        <p className={`text-2xl lg:text-3xl font-black tracking-tight cute-header transition-colors ${getLightModeRankColor(stat.rankColor!)}`}>
-                          {stat.title.toUpperCase()}
-                        </p>
-                      ) : (
-                        <p className={`text-4xl font-black tracking-tight cute-header transition-colors ${stat.isCoins ? 'text-amber-500 dark:text-yellow-400 hacker:text-green-400' : 'text-orange-600 dark:text-yellow-400 hacker:text-green-500'}`}>
-                          <AnimatedNumber value={stat.value as number} start={!loading} />
-                        </p>
-                      )}
-                    </div>
-                  </>
-                );
-                const cardClass = "glass-card p-8 hover:-translate-y-2 transition-all duration-300 group shadow-sm flex flex-col justify-center";
-
-                // 🏆 การ์ดแรงค์ → ตารางแรงค์ | 🪙 การ์ดเหรียญ → ร้านค้า (กดได้ทั้งกล่อง)
-                const linkHref = stat.title ? '/ranks' : stat.isCoins ? '/shop' : null;
-                return linkHref ? (
-                  <Link key={i} href={linkHref} title={stat.title ? 'ดูตารางแรงค์ทั้งหมด' : 'ไปที่ร้านค้า'} className={`${cardClass} cursor-pointer`}>
-                    {cardContent}
-                  </Link>
-                ) : (
-                  <div key={i} className={cardClass}>
-                    {cardContent}
+              {/* 🌟 Welcome Card 🌟 */}
+              <motion.div variants={itemVariants} className="glass-card p-8 md:p-10 relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-end gap-6 shadow-sm">
+                <div className="flex flex-col gap-2 w-full z-10">
+                  <h1 className="text-black-600 dark:text-white hacker:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight cute-header transition-colors">
+                    Welcome back, <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">{getShowName()}</span>
+                  </h1>
+                  {/* 🏷️ ฉายาจากร้านค้า (ถ้ายังไม่ใส่ ชวนไปเลือกที่ร้าน) */}
+                  <div className="mt-1">
+                    {user?.title ? (
+                      <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[14px] border-2 text-sm md:text-base font-black shadow-sm transition-colors bg-orange-100 border-white text-orange-600 dark:bg-yellow-400/15 dark:border-[#4B3965] dark:text-yellow-300 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400">
+                        ✦ {user.title}
+                      </span>
+                    ) : (
+                      <Link href="/shop" className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[14px] border-2 border-dashed text-xs md:text-sm font-black uppercase tracking-widest transition-colors border-orange-200 text-orange-400 hover:text-orange-600 hover:border-orange-400 dark:border-[#4B3965] dark:text-white/40 dark:hover:text-yellow-400 hacker:border-green-900 hacker:text-green-700 hacker:hover:text-green-500">
+                        ยังไม่มีฉายา — ไปเลือกที่ร้านค้า ✨
+                      </Link>
+                    )}
                   </div>
-                );
-              })}
-            </motion.div>
+                </div>
 
-            {/* 🌟 GRAPHS SECTION 🌟 */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto shrink-0 z-10">
+                  <button
+                    onClick={() => router.push('/map')}
+                    className="btn-shine shine-plain btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-white dark:bg-[#2D223B] hacker:bg-[#111] text-orange-600 dark:text-yellow-400 hacker:text-green-500 rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_8px_0_#fed7aa] dark:shadow-[0_8px_0_#1E1B2E] hacker:shadow-[0_8px_0_#0a0a0a] hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
+                  >
+                    <Map size={20} strokeWidth={3} /> ดูแผนที่ภารกิจ
+                  </button>
 
-              {/* WPM Chart */}
-              <div className="lg:col-span-2 glass-card p-8 flex flex-col gap-6 relative overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center relative z-10 gap-4">
+                  <button
+                    onClick={() => router.push('/campaignpage')}
+                    className="btn-shine shine-plain btn-squishy flex items-center justify-center gap-2 px-6 py-4 w-full sm:w-auto bg-orange-500 dark:bg-yellow-400 hacker:bg-green-600 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] rounded-[24px] font-black text-sm uppercase tracking-widest border-4 border-white dark:border-transparent hacker:border-transparent shadow-[0_8px_0_#c2410c] dark:shadow-[0_8px_0_#a16207] hacker:shadow-[0_8px_0_#14532d] hover:bg-orange-400 dark:hover:bg-yellow-300 hacker:hover:bg-green-500 transition-all"
+                  >
+                    <Play size={20} strokeWidth={3} fill="currentColor" /> ลุยภารกิจต่อ
+                  </button>
+                </div>
+              </motion.div>
+
+              {/* 🌟 STATS CARDS 🌟 */}
+              <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                {[
+                  // 🔥 สตรีค — server คิดมาให้แล้วจาก /api/user/progress (ดู backend src/lib/streak.ts)
+                  { label: 'วันต่อเนื่อง', value: user?.streak || 0, icon: <Flame size={28} strokeWidth={3} fill="currentColor" />, color: 'blue' },
+                  { label: 'Total EXP', value: totalExp, icon: <Zap size={28} strokeWidth={3} fill="currentColor" />, color: 'primary', isXp: true },
+                  { label: 'Coins', value: user?.coins || 0, icon: <CoinIcon size={28} />, color: 'amber', isCoins: true },
+                  { label: 'Your Rank', title: currentRank.title, icon: <Trophy size={28} strokeWidth={3} />, color: 'pink', rankColor: currentRank.color }
+                ].map((stat, i) => {
+                  const cardContent = (
+                    <>
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="p-4 rounded-[20px] bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-500/10 text-orange-500 dark:text-yellow-400 hacker:text-green-500 border-4 border-white dark:border-[#382E54] hacker:border-[#166534] shadow-sm group-hover:scale-110 transition-all">
+                          {stat.icon}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-orange-400 dark:text-white/50 hacker:text-white/50 text-xs font-black uppercase tracking-widest mb-1 transition-colors">{stat.label}</p>
+                        {stat.title ? (
+                          <p className={`text-2xl lg:text-3xl font-black tracking-tight cute-header transition-colors ${getLightModeRankColor(stat.rankColor!)}`}>
+                            {stat.title.toUpperCase()}
+                          </p>
+                        ) : (
+                          <p className={`text-4xl font-black tracking-tight cute-header transition-colors ${stat.isCoins ? 'text-amber-500 dark:text-yellow-400 hacker:text-green-400' : 'text-orange-600 dark:text-yellow-400 hacker:text-green-500'}`}>
+                            <AnimatedNumber value={stat.value as number} start={!loading} />
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  );
+                  const cardClass = "glass-card p-8 hover:-translate-y-2 transition-all duration-300 group shadow-sm flex flex-col justify-center";
+
+                  // 🏆 การ์ดแรงค์ → ตารางแรงค์ | 🪙 การ์ดเหรียญ → ร้านค้า (กดได้ทั้งกล่อง)
+                  const linkHref = stat.title ? '/ranks' : stat.isCoins ? '/shop' : null;
+                  return linkHref ? (
+                    <Link key={i} href={linkHref} title={stat.title ? 'ดูตารางแรงค์ทั้งหมด' : 'ไปที่ร้านค้า'} className={`${cardClass} cursor-pointer`}>
+                      {cardContent}
+                    </Link>
+                  ) : (
+                    <div key={i} className={cardClass}>
+                      {cardContent}
+                    </div>
+                  );
+                })}
+              </motion.div>
+
+              {/* 🌟 GRAPHS SECTION 🌟 */}
+              <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full">
+
+                {/* WPM Chart */}
+                <div className="lg:col-span-2 glass-card p-8 flex flex-col gap-6 relative overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center relative z-10 gap-4">
+                    <div>
+                      <h3 className="text-orange-950 dark:text-white hacker:text-white text-xl font-black uppercase tracking-tight flex items-center gap-2 cute-header transition-colors">
+                        <Activity className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" strokeWidth={3} /> WPM OUTPUT
+                      </h3>
+                      <p className="text-orange-600 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest mt-1 transition-colors">วิเคราะห์ความเร็วการพิมพ์ของคุณ</p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white dark:bg-[#382E54] hacker:bg-[#111] px-5 py-3 rounded-2xl border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] shadow-sm transition-colors">
+                      <span className="text-4xl font-black text-orange-500 dark:text-yellow-400 hacker:text-green-500 cute-header transition-colors">
+                        <AnimatedNumber value={stats.avgWpm} start={!loading} />
+                      </span>
+                      <span className="text-[11px] text-orange-400 dark:text-white/60 hacker:text-white/60 font-black uppercase tracking-widest mt-3 transition-colors">avg</span>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full z-10">
+                    <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} isDragon={isDragon} isSakura={isSakura} isSky={isSky} isMint={isMint} />
+                  </div>
+                </div>
+
+                {/* Accuracy Chart */}
+                <div className="glass-card p-8 flex flex-col items-center justify-center gap-8 relative overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
+                  <div className="w-full relative z-10 text-center sm:text-left">
+                    <h3 className="text-orange-950 dark:text-white hacker:text-white text-xl font-black uppercase tracking-tight flex items-center gap-2 justify-center sm:justify-start cute-header transition-colors">
+                      <Target className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" strokeWidth={3} /> ACCURACY
+                    </h3>
+                    <p className="text-orange-600 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest mt-1 transition-colors">ความแม่นยำในการพิมพ์</p>
+                  </div>
+                  <div className="relative size-48 sm:size-56 flex items-center justify-center z-10">
+                    <svg className="size-full -rotate-90 transform drop-shadow-sm" viewBox="0 0 100 100">
+                      <circle className="text-orange-100 dark:text-white/10 hacker:text-white/10 transition-colors" cx="50" cy="50" fill="transparent" r="38" stroke="currentColor" strokeWidth="8"></circle>
+                      {/* วงแหวนใช้สี status (แดง/เหลือง/เขียว) ให้ตรงกับป้ายคำอธิบายด้านใน */}
+                      <circle
+                        cx="50" cy="50" fill="transparent" r="38"
+                        stroke={getAccColorHex(stats.avgAccuracy)}
+                        strokeDasharray={circleCircumference}
+                        strokeDashoffset={!loading ? accOffset : circleCircumference}
+                        strokeLinecap="round" strokeWidth="8" className="transition-all duration-[1500ms] ease-out delay-300"
+                      ></circle>
+                    </svg>
+                    <div className="absolute flex flex-col items-center">
+                      <span className="text-4xl font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 tracking-tight cute-header transition-colors">
+                        <AnimatedNumber value={stats.avgAccuracy} start={!loading} />%
+                      </span>
+                      <span className={`text-[11px] font-black uppercase tracking-widest mt-2 px-4 py-1.5 rounded-xl bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-white dark:border-[#4B3965] hacker:border-[#166534] shadow-sm transition-colors ${getAccColorClass(stats.avgAccuracy)}`}>
+                        {getAccLabel(stats.avgAccuracy)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* 🌟 RECENT LOGS 🌟 */}
+              <motion.div variants={itemVariants} className="glass-card flex flex-col overflow-hidden shadow-sm w-full group hover:shadow-md transition-shadow">
+                <div className="p-6 md:p-8 border-b-4 border-white dark:border-[#382E54] hacker:border-[#166534] bg-white/50 dark:bg-black/20 hacker:bg-black/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
                   <div>
                     <h3 className="text-orange-950 dark:text-white hacker:text-white text-xl font-black uppercase tracking-tight flex items-center gap-2 cute-header transition-colors">
-                      <Activity className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" strokeWidth={3} /> WPM OUTPUT
+                      <History className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" strokeWidth={3} /> RECENT MISSIONS 🎯
                     </h3>
-                    <p className="text-orange-600 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest mt-1 transition-colors">วิเคราะห์ความเร็วการพิมพ์ของคุณ</p>
+                    <p className="text-orange-600 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest mt-1 transition-colors">ประวัติการทำภารกิจล่าสุดของคุณ</p>
                   </div>
-                  <div className="flex items-center gap-3 bg-white dark:bg-[#382E54] hacker:bg-[#111] px-5 py-3 rounded-2xl border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] shadow-sm transition-colors">
-                    <span className="text-4xl font-black text-orange-500 dark:text-yellow-400 hacker:text-green-500 cute-header transition-colors">
-                      <AnimatedNumber value={stats.avgWpm} start={!loading} />
-                    </span>
-                    <span className="text-[11px] text-orange-400 dark:text-white/60 hacker:text-white/60 font-black uppercase tracking-widest mt-3 transition-colors">avg</span>
-                  </div>
+
+                  <button
+                    onClick={() => router.push('/history')}
+                    className="btn-squishy flex items-center gap-2 px-5 py-3 bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#1E1B2E] hacker:shadow-[0_6px_0_#0a0a0a] rounded-[20px] text-xs font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
+                  >
+                    ดูทั้งหมด <ArrowRight size={18} strokeWidth={3} />
+                  </button>
                 </div>
 
-                <div className="relative w-full z-10">
-                  <WpmChart points={stats.recentWpm} avg={stats.avgWpm} accentHex={primaryHex} isDark={isDark} isHacker={isHacker} isDragon={isDragon} isSakura={isSakura} isSky={isSky} isMint={isMint} />
-                </div>
-              </div>
-
-              {/* Accuracy Chart */}
-              <div className="glass-card p-8 flex flex-col items-center justify-center gap-8 relative overflow-hidden shadow-sm group hover:shadow-md transition-shadow">
-                <div className="w-full relative z-10 text-center sm:text-left">
-                  <h3 className="text-orange-950 dark:text-white hacker:text-white text-xl font-black uppercase tracking-tight flex items-center gap-2 justify-center sm:justify-start cute-header transition-colors">
-                    <Target className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" strokeWidth={3} /> ACCURACY
-                  </h3>
-                  <p className="text-orange-600 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest mt-1 transition-colors">ความแม่นยำในการพิมพ์</p>
-                </div>
-                <div className="relative size-48 sm:size-56 flex items-center justify-center z-10">
-                  <svg className="size-full -rotate-90 transform drop-shadow-sm" viewBox="0 0 100 100">
-                    <circle className="text-orange-100 dark:text-white/10 hacker:text-white/10 transition-colors" cx="50" cy="50" fill="transparent" r="38" stroke="currentColor" strokeWidth="8"></circle>
-                    {/* วงแหวนใช้สี status (แดง/เหลือง/เขียว) ให้ตรงกับป้ายคำอธิบายด้านใน */}
-                    <circle
-                      cx="50" cy="50" fill="transparent" r="38"
-                      stroke={getAccColorHex(stats.avgAccuracy)}
-                      strokeDasharray={circleCircumference}
-                      strokeDashoffset={!loading ? accOffset : circleCircumference}
-                      strokeLinecap="round" strokeWidth="8" className="transition-all duration-[1500ms] ease-out delay-300"
-                    ></circle>
-                  </svg>
-                  <div className="absolute flex flex-col items-center">
-                    <span className="text-4xl font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 tracking-tight cute-header transition-colors">
-                      <AnimatedNumber value={stats.avgAccuracy} start={!loading} />%
-                    </span>
-                    <span className={`text-[11px] font-black uppercase tracking-widest mt-2 px-4 py-1.5 rounded-xl bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-white dark:border-[#4B3965] hacker:border-[#166534] shadow-sm transition-colors ${getAccColorClass(stats.avgAccuracy)}`}>
-                      {getAccLabel(stats.avgAccuracy)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 🌟 RECENT LOGS 🌟 */}
-            <motion.div variants={itemVariants} className="glass-card flex flex-col overflow-hidden shadow-sm w-full group hover:shadow-md transition-shadow">
-              <div className="p-6 md:p-8 border-b-4 border-white dark:border-[#382E54] hacker:border-[#166534] bg-white/50 dark:bg-black/20 hacker:bg-black/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors">
-                <div>
-                  <h3 className="text-orange-950 dark:text-white hacker:text-white text-xl font-black uppercase tracking-tight flex items-center gap-2 cute-header transition-colors">
-                    <History className="text-orange-500 dark:text-yellow-400 hacker:text-green-500" strokeWidth={3} /> RECENT MISSIONS 🎯
-                  </h3>
-                  <p className="text-orange-600 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest mt-1 transition-colors">ประวัติการทำภารกิจล่าสุดของคุณ</p>
-                </div>
-
-                <button
-                  onClick={() => router.push('/history')}
-                  className="btn-squishy flex items-center gap-2 px-5 py-3 bg-white dark:bg-[#2D223B] hacker:bg-[#111] border-4 border-orange-200 dark:border-[#4B3965] hacker:border-[#166534] shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#1E1B2E] hacker:shadow-[0_6px_0_#0a0a0a] rounded-[20px] text-xs font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 hover:bg-orange-50 dark:hover:bg-[#382E54] hacker:hover:bg-[#1a1a1a] transition-all"
-                >
-                  ดูทั้งหมด <ArrowRight size={18} strokeWidth={3} />
-                </button>
-              </div>
-
-              <div className="overflow-x-auto w-full">
-                <table className="w-full text-left text-sm whitespace-nowrap min-w-[700px]">
-                  <thead className="bg-orange-100 dark:bg-white/5 hacker:bg-white/5 text-orange-600 dark:text-yellow-400/70 hacker:text-green-500/70 font-black text-[11px] uppercase tracking-widest border-b-4 border-white dark:border-[#382E54] hacker:border-[#166534] transition-colors">
-                    <tr>
-                      <th className="px-8 py-5">ระบบเป้าหมาย (Target)</th>
-                      <th className="px-8 py-5">ด่าน (Sector)</th>
-                      <th className="px-8 py-5 text-center">WPM</th>
-                      <th className="px-8 py-5 text-center">ความแม่นยำ</th>
-                      <th className="px-8 py-5 text-right">เวลาทำภารกิจ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y-4 divide-white dark:divide-[#382E54] hacker:divide-[#166534] transition-colors">
-                    {stats.recentLessons && stats.recentLessons.length > 0 ? (
-                      stats.recentLessons.map((lesson: any, i: number) => {
-                        const isLinux = lesson.os === 'linux';
-                        const themeColor = isLinux ? 'text-orange-500 dark:text-yellow-400 hacker:text-green-500' : 'text-blue-500 dark:text-blue-400 hacker:text-green-500';
-                        const bgIcon = isLinux ? 'bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-500/10' : 'bg-blue-100 dark:bg-blue-500/20 hacker:bg-green-500/10';
-                        return (
-                          <tr key={i} className="group hover:bg-white/60 dark:hover:bg-white/5 hacker:hover:bg-white/5 transition-colors">
-                            <td className="px-8 py-5">
-                              <div className="flex items-center gap-4">
-                                <div className={`size-14 rounded-[20px] flex items-center justify-center border-4 border-white dark:border-transparent hacker:border-transparent ${themeColor} ${bgIcon} group-hover:scale-110 transition-transform shadow-sm`}>
-                                  {isLinux ? <Cpu size={24} strokeWidth={2.5} /> : <AppWindow size={24} strokeWidth={2.5} />}
-                                </div>
-                                <div>
-                                  <span className="font-black text-orange-950 dark:text-white hacker:text-white block uppercase tracking-wider text-sm transition-colors">
-                                    {isLinux ? 'Linux CLI Terminal' : 'Windows CMD Core'}
-                                  </span>
-                                  <span className={`text-[10px] font-black uppercase ${themeColor}`}>[ MISSION COMPLETE ✨ ]</span>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-8 py-5 text-orange-800 dark:text-white/80 hacker:text-white/80 text-sm uppercase font-black tracking-widest transition-colors">Node_{lesson.level.toString().padStart(2, '0')}</td>
-                            <td className="px-8 py-5 text-center font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-xl cute-header transition-colors">{lesson.wpm}</td>
-                            <td className="px-8 py-5 text-center">
-                              <span className={`font-black px-4 py-2 rounded-xl bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-white dark:border-[#4B3965] hacker:border-[#166534] shadow-sm text-sm transition-colors ${getAccColorClass(lesson.accuracy)}`}>
-                                {lesson.accuracy}%
-                              </span>
-                            </td>
-                            <td className="px-8 py-5 text-right text-orange-400 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest transition-colors">
-                              {new Date(lesson.createdAt).toLocaleString('en-GB', { hour12: false, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    ) : (
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full text-left text-sm whitespace-nowrap min-w-[700px]">
+                    <thead className="bg-orange-100 dark:bg-white/5 hacker:bg-white/5 text-orange-600 dark:text-yellow-400/70 hacker:text-green-500/70 font-black text-[11px] uppercase tracking-widest border-b-4 border-white dark:border-[#382E54] hacker:border-[#166534] transition-colors">
                       <tr>
-                        {/* ห้ามใส่ flex ที่ <td> ตรงๆ — จะทำลาย table layout แล้ว colSpan ไม่ทำงาน */}
-                        <td colSpan={5} className="px-8 py-20 text-center transition-colors">
-                          <div className="flex flex-col items-center justify-center gap-4 text-orange-400 dark:text-white/50 hacker:text-white/50 font-black">
-                            <Terminal size={48} strokeWidth={3} className="opacity-30 animate-bounce" />
-                            <span className="text-sm uppercase tracking-widest">ยังไม่มีประวัติการทำภารกิจ เริ่มฝึกพิมพ์กันเลย! 🚀</span>
-                          </div>
-                        </td>
+                        <th className="px-8 py-5">ระบบเป้าหมาย (Target)</th>
+                        <th className="px-8 py-5">ด่าน (Sector)</th>
+                        <th className="px-8 py-5 text-center">WPM</th>
+                        <th className="px-8 py-5 text-center">ความแม่นยำ</th>
+                        <th className="px-8 py-5 text-right">เวลาทำภารกิจ</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
+                    </thead>
+                    <tbody className="divide-y-4 divide-white dark:divide-[#382E54] hacker:divide-[#166534] transition-colors">
+                      {stats.recentLessons && stats.recentLessons.length > 0 ? (
+                        stats.recentLessons.map((lesson: any, i: number) => {
+                          const isLinux = lesson.os === 'linux';
+                          const themeColor = isLinux ? 'text-orange-500 dark:text-yellow-400 hacker:text-green-500' : 'text-blue-500 dark:text-blue-400 hacker:text-green-500';
+                          const bgIcon = isLinux ? 'bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-500/10' : 'bg-blue-100 dark:bg-blue-500/20 hacker:bg-green-500/10';
+                          return (
+                            <tr key={i} className="group hover:bg-white/60 dark:hover:bg-white/5 hacker:hover:bg-white/5 transition-colors">
+                              <td className="px-8 py-5">
+                                <div className="flex items-center gap-4">
+                                  <div className={`size-14 rounded-[20px] flex items-center justify-center border-4 border-white dark:border-transparent hacker:border-transparent ${themeColor} ${bgIcon} group-hover:scale-110 transition-transform shadow-sm`}>
+                                    {isLinux ? <Cpu size={24} strokeWidth={2.5} /> : <AppWindow size={24} strokeWidth={2.5} />}
+                                  </div>
+                                  <div>
+                                    <span className="font-black text-orange-950 dark:text-white hacker:text-white block uppercase tracking-wider text-sm transition-colors">
+                                      {isLinux ? 'Linux CLI Terminal' : 'Windows CMD Core'}
+                                    </span>
+                                    <span className={`text-[10px] font-black uppercase ${themeColor}`}>[ MISSION COMPLETE ✨ ]</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-8 py-5 text-orange-800 dark:text-white/80 hacker:text-white/80 text-sm uppercase font-black tracking-widest transition-colors">Node_{lesson.level.toString().padStart(2, '0')}</td>
+                              <td className="px-8 py-5 text-center font-black text-orange-600 dark:text-yellow-400 hacker:text-green-500 text-xl cute-header transition-colors">{lesson.wpm}</td>
+                              <td className="px-8 py-5 text-center">
+                                <span className={`font-black px-4 py-2 rounded-xl bg-white dark:bg-[#382E54] hacker:bg-[#111] border-4 border-white dark:border-[#4B3965] hacker:border-[#166534] shadow-sm text-sm transition-colors ${getAccColorClass(lesson.accuracy)}`}>
+                                  {lesson.accuracy}%
+                                </span>
+                              </td>
+                              <td className="px-8 py-5 text-right text-orange-400 dark:text-white/50 hacker:text-white/50 text-[11px] font-black uppercase tracking-widest transition-colors">
+                                {new Date(lesson.createdAt).toLocaleString('en-GB', { hour12: false, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          {/* ห้ามใส่ flex ที่ <td> ตรงๆ — จะทำลาย table layout แล้ว colSpan ไม่ทำงาน */}
+                          <td colSpan={5} className="px-8 py-20 text-center transition-colors">
+                            <div className="flex flex-col items-center justify-center gap-4 text-orange-400 dark:text-white/50 hacker:text-white/50 font-black">
+                              <Terminal size={48} strokeWidth={3} className="opacity-30 animate-bounce" />
+                              <span className="text-sm uppercase tracking-widest">ยังไม่มีประวัติการทำภารกิจ เริ่มฝึกพิมพ์กันเลย! 🚀</span>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
 
 
-            <footer className="py-10 text-center text-orange-400 dark:text-white/30 hacker:text-white/30 font-black text-[11px] uppercase tracking-widest transition-colors">
-              © 2026 KeyRush
-            </footer>
+              <footer className="py-10 text-center text-orange-400 dark:text-white/30 hacker:text-white/30 font-black text-[11px] uppercase tracking-widest transition-colors">
+                © 2026 KeyRush
+              </footer>
 
-          </div>
-        </motion.main>
+            </div>
+          </motion.main>
         )}
       </div>
     </div>
