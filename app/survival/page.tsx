@@ -41,7 +41,8 @@ export default function Page() {
     // ✨ Visual & Settings State
     const [flash, setFlash] = useState<'success' | 'error' | null>(null);
     const [addedTime, setAddedTime] = useState<number | null>(null);
-    const [showKeyboard, setShowKeyboard] = useState<boolean>(true);
+    // เริ่มต้นปิดไว้ — ให้ผู้เล่นกดปุ่มคีย์บอร์ดเปิดเองถ้าต้องการตัวช่วย
+    const [showKeyboard, setShowKeyboard] = useState<boolean>(false);
     const [kbColor, setKbColor] = useState<KbColor>('blue');
     const [selectedOS, setSelectedOS] = useState<'windows' | 'linux'>('linux');
 
@@ -600,9 +601,13 @@ export default function Page() {
                         {gameState === 'playing' && phase === 'memorize' && activeCommands.length > 0 && (
                             <div className="w-full h-full flex flex-col items-center justify-center p-4 md:p-10 overflow-y-auto">
                                 <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
+                                    // ⚠️ key ตาม currentIndex เพื่อให้ React ถอด/สร้างใหม่ทุกข้อ
+                                    // ไม่งั้น element ถูก reuse แล้ว initial จะเล่นแค่ข้อแรกข้อเดียว
+                                    key={currentIndex}
+                                    initial={{ scale: 0.85, opacity: 0, y: 12 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
                                     exit={{ scale: 1.1, opacity: 0 }}
+                                    transition={{ type: 'spring', stiffness: 320, damping: 22 }}
                                     className="flex flex-col items-center justify-center text-center w-full my-auto"
                                 >
                                     <div className="inline-flex items-center justify-center w-14 h-14 md:w-20 md:h-20 rounded-full bg-amber-100 dark:bg-amber-500/20 hacker:bg-green-900/30 text-amber-500 hacker:text-green-500 mb-4 md:mb-6">
@@ -664,14 +669,21 @@ export default function Page() {
                                 />
 
                                 <div className="flex-1 overflow-y-auto flex flex-col items-center justify-start pt-5 md:pt-12 px-3 md:px-10 pb-4 md:pb-6 w-full">
-                                    <div className="w-full max-w-4xl text-center md:text-left flex flex-col items-center md:items-start shrink-0">
+                                    {/* key ตามข้อ → โจทย์ใหม่เด้งขึ้นมาใหม่ทุกครั้ง ไม่ใช่เปลี่ยนข้อความเฉยๆ */}
+                                    <motion.div
+                                        key={currentIndex}
+                                        initial={{ opacity: 0, y: -14, scale: 0.96 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 340, damping: 24 }}
+                                        className="w-full max-w-4xl text-center md:text-left flex flex-col items-center md:items-start shrink-0"
+                                    >
                                         <div className="inline-flex items-center gap-2 px-3 py-1 md:px-4 md:py-1.5 bg-orange-100 dark:bg-yellow-400/15 hacker:bg-green-900/30 text-orange-600 dark:text-yellow-300 hacker:text-green-400 rounded-xl text-xs md:text-sm font-bold mb-3 md:mb-4 mt-8 md:mt-0">
                                             <Sparkles size={16} /> ภารกิจ ({selectedOS.toUpperCase()})
                                         </div>
                                         <p className="text-base md:text-xl lg:text-2xl font-medium text-slate-600 dark:text-slate-300 hacker:text-green-500 mb-4 md:mb-8 w-full leading-relaxed break-words">
                                             {activeCommands[currentIndex].description}
                                         </p>
-                                    </div>
+                                    </motion.div>
 
                                     <div className="font-mono text-xl sm:text-2xl md:text-5xl lg:text-6xl flex flex-wrap items-center justify-center md:justify-start gap-2 md:gap-4 bg-slate-100 dark:bg-slate-950 hacker:bg-black p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 border-slate-200 dark:border-white/5 hacker:border-green-900/60 overflow-hidden shadow-inner w-full max-w-4xl shrink-0">
                                         <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-600 font-bold opacity-50 shrink-0">$&gt;</span>
