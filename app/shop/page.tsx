@@ -622,7 +622,7 @@ export default function ShopPage() {
             {[0, 1, 2].map((r) => (
               <div
                 key={r}
-                className={`relative flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg bg-white/70 dark:bg-white/5 hacker:bg-white/5 ${r === 1 ? rowEffectClass(item.rowId) : ''}`}
+                className={`relative flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg bg-white/70 dark:bg-white/5 hacker:bg-white/5 ${r === 1 ? `${rowEffectClass(item.rowId)} kr-row-preview` : ''}`}
               >
                 <div className={`w-5 h-5 rounded-full shrink-0 ${r === 1 ? 'bg-orange-400 dark:bg-yellow-400 hacker:bg-green-500' : 'bg-orange-200 dark:bg-white/15 hacker:bg-green-900'}`} />
                 <div className="flex-1 flex flex-col gap-1">
