@@ -61,6 +61,8 @@ export default function ShopPage() {
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
   // 🔍 ฉายาที่กดดูแบบขยาย (popup สไตล์เดียวกับหน้า Docs)
   const [selectedTitle, setSelectedTitle] = useState<ShopItem | null>(null);
+  // 🛒 ของที่รอยืนยันการซื้อ — กดปุ่มซื้อแล้วจะมาโผล่ที่นี่ก่อน ยังไม่ยิง API
+  const [confirmItem, setConfirmItem] = useState<ShopItem | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -101,6 +103,7 @@ export default function ShopPage() {
   }, [router]);
 
   const handleBuy = async (item: ShopItem) => {
+    setConfirmItem(null); // ปิด popup ยืนยันก่อน แล้วค่อยยิงซื้อจริง
     setBusyId(item.id);
     try {
       const res = await apiFetch('/api/shop/buy', {
@@ -471,7 +474,7 @@ export default function ShopPage() {
                       </button>
                     ) : (
                       <button
-                        onClick={() => handleBuy(selectedTitle)}
+                        onClick={() => setConfirmItem(selectedTitle)}
                         disabled={busy || !canAfford}
                         className={`btn-squishy flex-1 py-4 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm flex items-center justify-center gap-2 transition-colors ${canAfford
                           ? 'bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]'
@@ -481,6 +484,76 @@ export default function ShopPage() {
                         {busy ? '...' : canAfford ? <><ShoppingCart size={18} strokeWidth={3} /> ซื้อเลย</> : <><Lock size={18} strokeWidth={3} /> เหรียญไม่พอ</>}
                       </button>
                     )}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
+
+      {/* 🛒 Popup ยืนยันก่อนซื้อ — z สูงกว่า popup ฉายา (150) เพราะซ้อนทับกันได้ */}
+      <AnimatePresence>
+        {confirmItem && (() => {
+          const busy = busyId === confirmItem.id;
+          const coinsLeft = coins - confirmItem.price;
+          return (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => !busy && setConfirmItem(null)}
+                className={`fixed inset-0 backdrop-blur-md ${isHacker ? 'bg-black/80' : isDark ? 'bg-black/70' : 'bg-orange-950/40'}`}
+              />
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } }}
+                exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                className={`relative w-full max-w-md border-4 rounded-[32px] shadow-2xl flex flex-col z-10 ${isHacker ? 'bg-[#0a0a0a] border-green-500' : isDark ? 'bg-[#1E1B2E] border-yellow-400' : 'bg-white border-orange-400'}`}
+              >
+                <div className="p-7 md:p-8 space-y-5">
+                  <div className="flex items-center gap-3">
+                    <div className="size-11 rounded-2xl flex items-center justify-center shrink-0 bg-amber-400 dark:bg-yellow-400 hacker:bg-green-500 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]">
+                      <ShoppingCart size={22} strokeWidth={3} />
+                    </div>
+                    <h3 className={`text-2xl font-black tracking-tight ${isHacker ? 'text-green-400' : isDark ? 'text-yellow-400' : 'text-orange-600'}`}>
+                      ยืนยันการซื้อ
+                    </h3>
+                  </div>
+
+                  <div className={`p-5 rounded-[20px] border-l-8 border-r-2 border-y-2 shadow-inner space-y-3 ${isHacker ? 'bg-[#111] border-l-green-500 border-green-900' : isDark ? 'bg-[#2D223B]/50 border-l-yellow-400 border-[#382E54]' : 'bg-orange-50 border-l-orange-500 border-white'}`}>
+                    <p className={`text-lg font-black break-words leading-snug ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>
+                      {confirmItem.name}
+                    </p>
+                    <div className="flex items-center justify-between gap-3 text-sm font-black">
+                      <span className={isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}>ราคา</span>
+                      <span className="inline-flex items-center gap-1.5 text-amber-500 dark:text-yellow-400 hacker:text-green-400">
+                        <CoinIcon size={18} /> {confirmItem.price.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 text-sm font-black">
+                      <span className={isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}>เหรียญคงเหลือ</span>
+                      <span className="inline-flex items-center gap-1.5 text-amber-500 dark:text-yellow-400 hacker:text-green-400">
+                        <CoinIcon size={18} /> {coinsLeft.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setConfirmItem(null)}
+                      disabled={busy}
+                      className={`btn-squishy flex-1 py-3.5 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm transition-colors disabled:opacity-60 ${isHacker ? 'bg-[#111] border-green-800 text-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/70' : 'bg-white border-orange-200 text-orange-500'}`}
+                    >
+                      ยกเลิก
+                    </button>
+                    <button
+                      onClick={() => handleBuy(confirmItem)}
+                      disabled={busy}
+                      className="btn-shine shine-plain btn-squishy flex-1 py-3.5 rounded-2xl text-sm font-black uppercase tracking-widest border-4 shadow-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 bg-orange-500 dark:bg-yellow-400 hacker:bg-green-500 border-white dark:border-yellow-300 hacker:border-green-400 text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a]"
+                    >
+                      {busy ? '...' : <><Check size={18} strokeWidth={4} /> ยืนยัน</>}
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -618,7 +691,7 @@ export default function ShopPage() {
             </button>
           ) : (
             <button
-              onClick={(e) => { e.stopPropagation(); handleBuy(item); }}
+              onClick={(e) => { e.stopPropagation(); setConfirmItem(item); }}
               disabled={busy || !canAfford}
               title={canAfford ? 'ซื้อของชิ้นนี้' : 'เหรียญไม่พอ'}
               className={`btn-squishy px-4 py-2.5 rounded-2xl text-[10px] md:text-xs font-black uppercase tracking-widest border-4 shadow-sm flex items-center gap-1.5 transition-colors ${canAfford
