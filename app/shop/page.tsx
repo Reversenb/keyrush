@@ -14,7 +14,8 @@ import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import { PageSkeleton, SkelGridCards, skCard, sk } from '@/components/skeleton';
 import {
-  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart, CircleUserRound, Flame
+  ShoppingBag, Tag, Palette, Check, Lock, Sparkles, AlertCircle, Package, MousePointer2, X, ShoppingCart, CircleUserRound, Flame,
+  ArrowDownNarrowWide, ArrowDownWideNarrow
 } from 'lucide-react';
 import CoinIcon from '@/components/CoinIcon';
 import { apiFetch, clearUserState } from '@/lib/api';
@@ -63,6 +64,8 @@ export default function ShopPage() {
   const [selectedTitle, setSelectedTitle] = useState<ShopItem | null>(null);
   // 🛒 ของที่รอยืนยันการซื้อ — กดปุ่มซื้อแล้วจะมาโผล่ที่นี่ก่อน ยังไม่ยิง API
   const [confirmItem, setConfirmItem] = useState<ShopItem | null>(null);
+  // 💰 เรียงตามราคา — เริ่มที่ถูกสุดก่อน (ของเริ่มต้นที่ซื้อไหวจะอยู่บนสุด)
+  const [sortAsc, setSortAsc] = useState(true);
 
   useEffect(() => setMounted(true), []);
 
@@ -224,7 +227,11 @@ export default function ShopPage() {
   );
 
   // ใช้แท็บ (ฉายา/ธีมเว็บ) ชุดเดียวกันทั้งสองมุมมอง — คลังกรองเฉพาะของที่เป็นเจ้าของ
-  const visible = items.filter((i) => i.type === tab);
+  // เรียงตามราคา (ราคาเท่ากันเรียงตามชื่อ ให้ลำดับนิ่ง ไม่สลับไปมาตอน re-render)
+  const visible = items
+    .filter((i) => i.type === tab)
+    .slice() // กัน sort ไปกลับ array ต้นฉบับใน state
+    .sort((a, b) => (sortAsc ? a.price - b.price : b.price - a.price) || a.name.localeCompare(b.name));
   const invVisible = visible.filter((i) => ownedIds.includes(i.id));
   const ownedCountOf = (t: ShopItem['type']) => items.filter((i) => i.type === t && ownedIds.includes(i.id)).length;
   const equippedFor = (i: ShopItem) =>
@@ -383,6 +390,23 @@ export default function ShopPage() {
           <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>
             <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
             {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('cursor')})</span>}
+          </button>
+        </div>
+
+        {/* 💰 ปุ่มสลับการเรียงราคา ถูก↔แพง (มีผลทั้งร้านและคลัง) */}
+        <div className="w-full max-w-2xl flex justify-end -mt-2">
+          <button
+            onClick={() => setSortAsc((v) => !v)}
+            title={sortAsc ? 'กำลังเรียงจากถูกไปแพง — กดเพื่อสลับ' : 'กำลังเรียงจากแพงไปถูก — กดเพื่อสลับ'}
+            className={`btn-shine shine-plain btn-squishy flex items-center gap-2 px-4 py-2.5 rounded-2xl border-4 font-black text-[10px] md:text-xs uppercase tracking-widest transition-colors ${isHacker
+              ? 'bg-[#0a0a0a] border-green-800 text-green-500 shadow-[0_4px_0_#14532d]'
+              : isDark
+                ? 'bg-[#1E1B2E] border-[#382E54] text-yellow-400 shadow-[0_4px_0_#0a0a0a]'
+                : 'bg-white border-orange-200 text-orange-500 shadow-[0_4px_0_#fed7aa]'
+              }`}
+          >
+            {sortAsc ? <ArrowDownNarrowWide size={16} strokeWidth={3} /> : <ArrowDownWideNarrow size={16} strokeWidth={3} />}
+            <span>{sortAsc ? 'ถูกสุดก่อน' : 'แพงสุดก่อน'}</span>
           </button>
         </div>
 
