@@ -84,7 +84,20 @@ export default function ShopPage() {
       }
       const data = await res.json();
       if (data.success && data.data) {
-        setItems(data.data.items || []);
+        // 🛡️ กัน id ซ้ำจากแคตตาล็อกฝั่ง server — เก็บเฉพาะตัวแรกที่เจอ
+        // ถ้าปล่อยผ่าน React จะเตือน "two children with the same key" แล้วการ์ดอาจซ้ำ/หายไปหนึ่งใบ
+        // (id ซ้ำเป็นบั๊กของแคตตาล็อกที่ต้องไปแก้ที่ต้นทาง — ที่นี่แค่กันไม่ให้ UI พังตาม)
+        const rawItems: ShopItem[] = data.data.items || [];
+        const seen = new Set<string>();
+        const uniqueItems = rawItems.filter((i) => {
+          if (seen.has(i.id)) {
+            console.warn(`⚠️ แคตตาล็อกร้านมี id ซ้ำ: ${i.id} — ข้ามตัวที่ซ้ำไป`);
+            return false;
+          }
+          seen.add(i.id);
+          return true;
+        });
+        setItems(uniqueItems);
         setOwnedIds(data.data.ownedIds || []);
         setCoins(data.data.coins || 0);
         setEquippedTitle(data.data.equippedTitle ?? null);
