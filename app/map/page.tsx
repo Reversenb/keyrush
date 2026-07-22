@@ -10,7 +10,7 @@ import { apiFetch } from '@/lib/api';
 import ModePreview from '@/components/ModePreviews';
 
 import {
-    Map as MapIcon, Lock, Play, Zap, Trophy,
+    Map as MapIcon, Lock, Play, Zap,
     Terminal, ShieldCheck, Flag, Dumbbell
 } from 'lucide-react';
 
@@ -45,16 +45,6 @@ const MAP_MODES = [
         isLocked: false,
         link: '/training',
         colorTheme: 'emerald',
-    },
-    {
-        id: 'arena',
-        title: 'Hacker Arena',
-        subtitle: 'Mode 04',
-        desc: 'ประลองความเร็วในการพิมพ์กับสายลับคนอื่นๆ บนกระดานผู้นำระดับโลก ใครจะไวกว่ากัน? (เร็วๆ นี้)',
-        icon: Trophy,
-        isLocked: true,
-        link: '#',
-        colorTheme: 'slate',
     }
 ];
 

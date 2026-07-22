@@ -370,25 +370,6 @@ function GameModesContent() {
         { icon: <BookOpen size={13} strokeWidth={3} />, label: 'เลือกหมวดฝึกเองได้' },
       ],
     },
-    {
-      icon: <Trophy size={26} strokeWidth={3} />,
-      name: 'Hacker Arena',
-      tagline: 'ประลองความเร็วกับสายลับคนอื่นแบบเรียลไทม์ (เร็วๆ นี้)',
-      href: '#',
-      preview: 'arena',
-      comingSoon: true,
-      accent: 'text-pink-500 dark:text-pink-400 hacker:text-green-500',
-      accentBg: 'bg-pink-100 dark:bg-pink-400/10 hacker:bg-green-900/20',
-      steps: [
-        'จับคู่กับสายลับคนอื่นที่ออนไลน์อยู่ แล้วรับโจทย์คำสั่งชุดเดียวกัน',
-        'พิมพ์แข่งกันสดๆ ใครพิมพ์ถูกและเร็วกว่าเป็นฝ่ายชนะ',
-        'สะสมชัยชนะเพื่อไต่กระดานผู้นำระดับโลก',
-      ],
-      rules: [
-        { icon: <Trophy size={13} strokeWidth={3} />, label: 'แข่งขันแบบเรียลไทม์' },
-        { icon: <Zap size={13} strokeWidth={3} />, label: 'ชนะได้แต้มไต่อันดับ' },
-      ],
-    },
   ];
 
   return (
