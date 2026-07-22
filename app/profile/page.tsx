@@ -503,8 +503,8 @@ export default function ProfilePage() {
                     <label className="text-xs text-orange-500 dark:text-yellow-500 hacker:text-green-600 font-black uppercase tracking-widest transition-colors duration-500">
                       Bio / Status
                     </label>
-                    <span className={`text-xs font-black ${bio.length >= 150 ? 'text-red-500' : 'text-orange-300 dark:text-white/30 hacker:text-green-600/50'} transition-colors duration-500`}>
-                      [{bio.length}/150]
+                    <span className={`text-xs font-black ${bio.length >= 60 ? 'text-red-500' : 'text-orange-300 dark:text-white/30 hacker:text-green-600/50'} transition-colors duration-500`}>
+                      [{bio.length}/60]
                     </span>
                   </div>
                   <div className="relative flex items-start w-full bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] px-6 py-4 focus-within:border-orange-300 dark:focus-within:border-yellow-400 hacker:focus-within:border-green-500 transition-all shadow-sm">
@@ -515,7 +515,7 @@ export default function ProfilePage() {
                       className="bg-transparent outline-none text-orange-950 dark:text-white hacker:text-green-400 font-black w-full placeholder:text-orange-950/30 dark:placeholder:text-white/30 hacker:placeholder:text-green-600/30 text-lg resize-none custom-scrollbar transition-colors duration-500"
                       placeholder="เขียนอธิบายความเป็นตัวคุณ..."
                       rows={3}
-                      maxLength={150}
+                      maxLength={60}
                     />
                   </div>
                 </div>
