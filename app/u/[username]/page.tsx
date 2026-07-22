@@ -350,7 +350,9 @@ export default function PublicProfilePage() {
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* 🌟 Linux Stats */}
-          <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="glass-card p-8 relative overflow-hidden group hover:shadow-md transition-shadow">
+          {/* การ์ดสองใบเลื่อนขึ้นพร้อมกันแบบไล่จังหวะ (เดิมวิ่งเข้าประกบซ้าย-ขวา ดูกระโดดไปคนละทาง)
+              ใช้ทิศเดียวกับหัวโปรไฟล์ด้านบนและ Activity Log ด้านล่าง ทั้งหน้าจะไหลไปทางเดียวกัน */}
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.4, ease: 'easeOut' }} className="glass-card p-8 relative overflow-hidden group hover:shadow-md transition-shadow">
             <div className={`absolute top-0 right-0 p-4 transition-opacity ${isHacker ? 'opacity-[0.02] text-green-500 group-hover:opacity-10' : isDark ? 'opacity-5 text-yellow-500 group-hover:opacity-10' : 'opacity-5 text-orange-950 group-hover:opacity-10'}`}>
               <Terminal size={120} strokeWidth={2} />
             </div>
@@ -406,7 +408,7 @@ export default function PublicProfilePage() {
           </motion.div>
 
           {/* 🌟 Windows Stats */}
-          <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="glass-card p-8 relative overflow-hidden group hover:shadow-md transition-shadow">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.4, ease: 'easeOut' }} className="glass-card p-8 relative overflow-hidden group hover:shadow-md transition-shadow">
             <div className={`absolute top-0 right-0 p-4 transition-opacity ${isHacker ? 'opacity-[0.02] text-green-500 group-hover:opacity-10' : isDark ? 'opacity-5 text-blue-500 group-hover:opacity-10' : 'opacity-5 text-orange-950 group-hover:opacity-10'}`}>
               <Monitor size={120} strokeWidth={2} />
             </div>

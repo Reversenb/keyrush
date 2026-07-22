@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
-  Upload, ZoomOut, ZoomIn, LayoutDashboard, Save, CheckCircle, RefreshCw, Bot, AlertTriangle, X
+  Upload, ZoomOut, ZoomIn, User as UserIcon, Save, CheckCircle, RefreshCw, Bot, AlertTriangle, X
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { frameClass } from '@/lib/frames';
@@ -187,7 +187,7 @@ export default function ProfilePage() {
 
   if (loading) return (
     <PageSkeleton maxW="max-w-5xl">
-      {/* Header: หัวข้อ USER PROFILE ซ้าย + ปุ่ม Dashboard/Save ขวา (โครงเดียวกับหน้าจริง) */}
+      {/* Header: หัวข้อ USER PROFILE ซ้าย + ปุ่ม Profile/Save ขวา (โครงเดียวกับหน้าจริง) */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 md:mb-8 gap-4 mt-2 md:mt-6">
         <div className={`${sk} rounded-2xl h-10 md:h-14 w-64 md:w-96 max-w-full`} />
         <div className="flex flex-row w-full lg:w-auto gap-3">
@@ -376,17 +376,24 @@ export default function ProfilePage() {
 
             {/* Action Buttons */}
             <div className="flex flex-row w-full lg:w-auto gap-3">
+              {/* ไปดูโปรไฟล์สาธารณะของตัวเอง — ใช้ชื่อชุดเดียวกับที่ Leaderboard ลิงก์มา
+                  (backend /profile/public/:username รับได้ทั้ง username และ displayName)
+                  ใช้ค่าที่เซฟแล้วจาก user ไม่ใช่ช่องกรอก displayName เพราะถ้ายังไม่กด Save
+                  ชื่อใหม่ยังไม่มีใน DB จะกดแล้วเจอ 404 */}
               <button
-                onClick={() => router.push('/dashboard')}
-                className="flex-1 lg:flex-none px-4 md:px-6 py-3 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] text-orange-600 dark:text-white hacker:text-green-500 shadow-[0_4px_0_#fed7aa] dark:shadow-[0_4px_0_#000] hacker:shadow-[0_4px_0_#000] rounded-2xl md:rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 btn-squishy text-xs md:text-sm"
+                onClick={() => router.push(`/u/${encodeURIComponent(user?.displayName || user?.username?.split('@')[0] || '')}`)}
+                disabled={!user}
+                // เงา 3D หนา 6px เท่าปุ่ม Save ให้สองปุ่มดูเป็นชุดเดียวกัน
+                // ใช้ #000 กับธีมมืด/hacker เพราะ globals.css map shadow-[0_6px_0_#000] ให้ dragon ไว้แล้ว
+                className="flex-1 lg:flex-none px-4 md:px-6 py-3 bg-white dark:bg-[#1E1B2E] hacker:bg-[#0a0a0a] border-4 border-orange-100 dark:border-[#4B3965] hacker:border-[#166534] text-orange-600 dark:text-white hacker:text-green-500 shadow-[0_6px_0_#fed7aa] dark:shadow-[0_6px_0_#000] hacker:shadow-[0_6px_0_#000] rounded-2xl md:rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 btn-squishy btn-shine shine-plain text-xs md:text-sm disabled:opacity-50"
               >
-                <LayoutDashboard size={18} strokeWidth={3} className="hidden sm:block" /> Dashboard
+                <UserIcon size={18} strokeWidth={3} className="hidden sm:block" /> Profile
               </button>
 
               <button
                 onClick={handleSave}
                 disabled={saving || saveSuccess}
-                className={`flex-1 lg:flex-none px-4 md:px-8 py-3 rounded-2xl md:rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 border-4 disabled:cursor-not-allowed btn-squishy text-xs md:text-sm
+                className={`btn-shine shine-plain flex-1 lg:flex-none px-4 md:px-8 py-3 rounded-2xl md:rounded-[24px] font-black transition-all uppercase tracking-widest flex items-center justify-center gap-2 border-4 disabled:cursor-not-allowed btn-squishy text-xs md:text-sm
                   ${saveSuccess
                     ? 'bg-green-100 dark:bg-green-900/30 hacker:bg-green-900/30 text-green-600 dark:text-green-400 hacker:text-green-400 border-white dark:border-green-800 hacker:border-green-800 shadow-sm'
                     : isHacker
@@ -402,7 +409,7 @@ export default function ProfilePage() {
                 ) : saveSuccess ? (
                   <><CheckCircle size={18} strokeWidth={3} /> <span className="hidden sm:inline">Saved</span></>
                 ) : (
-                  <><Save size={18} strokeWidth={3} /> Save <span className="hidden sm:inline">Profile</span></>
+                  <><Save size={18} strokeWidth={3} /> Save</>
                 )}
               </button>
             </div>
