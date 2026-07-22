@@ -496,11 +496,14 @@ export default function ShopPage() {
                     {selectedTitle.desc}
                   </div>
 
-                  {/* ราคา + ปุ่มซื้อ/ใส่/ถอด (ชุดเดียวกับการ์ด แต่ใหญ่เต็มความกว้าง) */}
+                  {/* ราคา + ปุ่มซื้อ/ใส่/ถอด (ชุดเดียวกับการ์ด แต่ใหญ่เต็มความกว้าง)
+                      popup นี้เปิดจากคลังได้ด้วย → ซ่อนราคาให้ตรงกับการ์ดในคลัง */}
                   <div className="flex items-center gap-4">
-                    <span className="inline-flex items-center gap-2 text-xl font-black shrink-0 text-amber-500 dark:text-yellow-400 hacker:text-green-400">
-                      <CoinIcon size={24} /> {selectedTitle.price.toLocaleString()}
-                    </span>
+                    {view !== 'inventory' && (
+                      <span className="inline-flex items-center gap-2 text-xl font-black shrink-0 text-amber-500 dark:text-yellow-400 hacker:text-green-400">
+                        <CoinIcon size={24} /> {selectedTitle.price.toLocaleString()}
+                      </span>
+                    )}
                     {owned ? (
                       <button
                         onClick={() => handleEquip(selectedTitle, equipped)}
@@ -716,10 +719,13 @@ export default function ShopPage() {
           <p className="text-[11px] md:text-xs font-bold leading-relaxed text-orange-700 dark:text-white/60 hacker:text-green-600 mt-1">{item.desc}</p>
         </div>
 
-        <div className="flex items-center justify-between gap-3 mt-auto pt-2">
-          <span className="inline-flex items-center gap-1.5 text-sm font-black text-amber-500 dark:text-yellow-400 hacker:text-green-400">
-            <CoinIcon size={17} /> {item.price.toLocaleString()}
-          </span>
+        {/* โหมดคลัง: ซื้อไปแล้วเลยไม่ต้องโชว์ราคา — ดันปุ่มใส่/ถอดไปชิดขวาแทน */}
+        <div className={`flex items-center gap-3 mt-auto pt-2 ${view === 'inventory' ? 'justify-end' : 'justify-between'}`}>
+          {view !== 'inventory' && (
+            <span className="inline-flex items-center gap-1.5 text-sm font-black text-amber-500 dark:text-yellow-400 hacker:text-green-400">
+              <CoinIcon size={17} /> {item.price.toLocaleString()}
+            </span>
+          )}
 
           {owned ? (
             <button
