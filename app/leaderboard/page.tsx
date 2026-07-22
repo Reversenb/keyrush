@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { Terminal, Monitor, Globe, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal, ChevronDown, Check } from 'lucide-react';
+import { Terminal, Monitor, Globe, Trophy, AlertCircle, Crown, Sparkles, Zap, Users, Medal, ChevronDown, Check, Flame } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { apiFetch } from '@/lib/api';
 import { getRankByExp } from '@/lib/ranks';
@@ -590,6 +590,16 @@ export default function LeaderboardPage() {
                                   {getPlayerName(player)}
                                 </Link>
                                 {isMe && <span className={`text-[9px] md:text-[10px] px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg text-[#1E1B2E] font-black uppercase tracking-widest flex-shrink-0 ${styles.bgMain}`}>You</span>}
+                                {/* 🔥 วันฝึกต่อเนื่อง — ซ่อนเมื่อ 0 จะได้ไม่รกกระดาน */}
+                                {(player.streak ?? 0) > 0 && (
+                                  <span
+                                    title={`ฝึกต่อเนื่อง ${player.streak} วัน`}
+                                    className="shrink-0 inline-flex items-center gap-0.5 text-[9px] md:text-[10px] font-black tabular-nums px-1.5 py-0.5 rounded-lg border-2 bg-orange-100 border-orange-200 text-orange-600 dark:bg-yellow-400/15 dark:border-yellow-500/30 dark:text-yellow-400 hacker:bg-green-900/30 hacker:border-green-800 hacker:text-green-400"
+                                  >
+                                    <Flame size={10} strokeWidth={3} fill="currentColor" />
+                                    {player.streak}
+                                  </span>
+                                )}
                               </p>
                               {/* 🏷️ ฉายาจากร้านค้า */}
                               {player.title && (

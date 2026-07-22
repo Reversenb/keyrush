@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import { PageSkeleton, skCard, sk } from '@/components/skeleton';
 import {
   AlertTriangle, ArrowLeft, Star, Calendar,
-  Terminal, Monitor, Trophy, Medal, MessageSquare
+  Terminal, Monitor, Trophy, Medal, MessageSquare, Flame
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { frameClass } from '@/lib/frames';
@@ -286,6 +286,17 @@ export default function PublicProfilePage() {
               <span className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-[12px] border-4 inline-block w-max mx-auto md:mx-0 shadow-sm transition-colors duration-500 ${mainRankTheme.style}`}>
                 {mainRankTheme.title}
               </span>
+
+              {/* 🔥 วันฝึกต่อเนื่อง — ซ่อนเมื่อ 0 (สตรีคขาดแล้วไม่ต้องประจาน) */}
+              {(profileData.streak ?? 0) > 0 && (
+                <span
+                  title={`ฝึกต่อเนื่อง ${profileData.streak} วัน — เว้นได้ไม่เกิน 3 วัน`}
+                  className={`px-4 py-1.5 text-[10px] font-black tracking-widest rounded-[12px] border-4 inline-flex items-center gap-1.5 w-max mx-auto md:mx-0 shadow-sm transition-colors duration-500 ${isHacker ? 'bg-green-900/30 border-green-800 text-green-400' : isDark ? 'bg-yellow-400/15 border-yellow-500/30 text-yellow-400' : 'bg-orange-100 border-white text-orange-600'}`}
+                >
+                  <Flame size={12} strokeWidth={3} fill="currentColor" />
+                  {profileData.streak} วันต่อเนื่อง
+                </span>
+              )}
 
               {/* 🏷️ ฉายาจากร้านค้า (ถ้าใส่อยู่) */}
               {profileData.title && (

@@ -320,7 +320,7 @@ export default function ShopPage() {
                     className="mt-1.5 md:mt-2 text-[11px] md:text-sm font-bold text-orange-500 dark:text-yellow-500 hacker:text-green-600"
                   >
                     {view === 'inventory'
-                      ? 'ของที่ซื้อไว้ทั้งหมด — กดใส่ / ถอดได้เลย 🎒'
+                      ? 'ของที่ซื้อไว้ทั้งหมด — กดใส่ / ถอดได้เลย ✨'
                       : 'ใช้เหรียญที่ได้จากการเล่น แลกของตกแต่งสุดเท่ ✨'}
                   </motion.p>
                 </AnimatePresence>
@@ -384,26 +384,26 @@ export default function ShopPage() {
         <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6">
           {/* แท็บประเภทของ — ใช้ชุดเดียวกันทั้งร้านและคลัง (กดสลับ ไม่ต้องเลื่อน) */}
           <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex gap-2 md:gap-3 w-full max-w-2xl">
-          <button onClick={() => setTab('title')} className={tabBtn(tab === 'title')}>
-            <Tag size={16} strokeWidth={3} /> ฉายา
-            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('title')})</span>}
-          </button>
-          <button onClick={() => setTab('theme')} className={tabBtn(tab === 'theme')}>
-            <Palette size={16} strokeWidth={3} /> ธีมเว็บ
-            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('theme')})</span>}
-          </button>
-          <button onClick={() => setTab('frame')} className={tabBtn(tab === 'frame')}>
-            <CircleUserRound size={16} strokeWidth={3} /> กรอบรูป
-            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('frame')})</span>}
-          </button>
-          <button onClick={() => setTab('row')} className={tabBtn(tab === 'row')}>
-            <Flame size={16} strokeWidth={3} /> เอฟเฟกต์
-            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('row')})</span>}
-          </button>
-          <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>
-            <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
-            {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('cursor')})</span>}
-          </button>
+            <button onClick={() => setTab('title')} className={tabBtn(tab === 'title')}>
+              <Tag size={16} strokeWidth={3} /> ฉายา
+              {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('title')})</span>}
+            </button>
+            <button onClick={() => setTab('theme')} className={tabBtn(tab === 'theme')}>
+              <Palette size={16} strokeWidth={3} /> ธีมเว็บ
+              {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('theme')})</span>}
+            </button>
+            <button onClick={() => setTab('frame')} className={tabBtn(tab === 'frame')}>
+              <CircleUserRound size={16} strokeWidth={3} /> กรอบรูป
+              {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('frame')})</span>}
+            </button>
+            <button onClick={() => setTab('row')} className={tabBtn(tab === 'row')}>
+              <Flame size={16} strokeWidth={3} /> เอฟเฟกต์
+              {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('row')})</span>}
+            </button>
+            <button onClick={() => setTab('cursor')} className={tabBtn(tab === 'cursor')}>
+              <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
+              {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('cursor')})</span>}
+            </button>
           </div>
 
           {/* 💰 ปุ่มสลับการเรียงราคา ถูก↔แพง (มีผลทั้งร้านและคลัง) */}
