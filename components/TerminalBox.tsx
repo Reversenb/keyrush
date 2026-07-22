@@ -179,6 +179,19 @@ const TerminalBox = forwardRef<TerminalHandle, TerminalBoxProps>(({
     termInstance.current = term;
     fitAddonInstance.current = fitAddon;
 
+    // ⌨️ บล็อก Tab แบบเงียบๆ (ไม่ขึ้นข้อความเตือน)
+    // ถ้าปล่อยไว้ xterm จะมองว่าเป็นตัวอักษรพิมพ์ได้ (key = '\t' ยาว 1 ตัว)
+    // แล้วยัดแท็บลงบรรทัดคำสั่ง → คำตอบไม่มีวันตรงเฉลย และเบราว์เซอร์ยังย้ายโฟกัสหลุดออกจาก Terminal ด้วย
+    // คืน false = สั่งให้ xterm ไม่ต้องประมวลผลคีย์นี้เลย ส่วน preventDefault กันโฟกัสกระโดด
+    // (Space ไม่โดนแตะ ยังเว้นวรรคได้ตามปกติ)
+    term.attachCustomKeyEventHandler((ev) => {
+      if (ev.key === 'Tab' || ev.keyCode === 9) {
+        ev.preventDefault();
+        return false;
+      }
+      return true;
+    });
+
     let isTerminalOpened = false;
 
     const resizeObserver = new ResizeObserver(() => {
