@@ -17,6 +17,7 @@ import TerminalControls from '@/components/TerminalControls';
 import { apiFetch, clearUserState, logout } from '@/lib/api';
 import { simulateCommand } from '@/lib/commandSim';
 import type { ActiveEffect } from '@/components/VirtualFileSystemPanel';
+import { DEFAULT_TERMINAL_PREFS, loadTerminalPrefs, saveTerminalPrefs } from '@/lib/prefs';
 
 // =========================================================================
 const TerminalBox = dynamic(() => import('@/components/TerminalBox'), {
@@ -110,13 +111,45 @@ export default function GamePage() {
   const [accuracy, setAccuracy] = useState(100);
 
   // -- Terminal Style States --
-  const [terminalColor, setTerminalColor] = useState('orange');
-  const [terminalSize, setTerminalSize] = useState(15);
-  const [terminalBg, setTerminalBg] = useState('#050505');
+  // ⚙️ ค่าหน้าตาเทอร์มินัล — จำไว้ใน localStorage ใช้ร่วมกับหน้า Training
+  // ⚠️ เริ่มด้วยค่า default เสมอ แล้วค่อยโหลดของจริงใน useEffect
+  //    (อ่าน localStorage ตอน render แรกไม่ได้ เพราะ server ไม่มี → hydration mismatch)
+  const [terminalColor, setTerminalColor] = useState(DEFAULT_TERMINAL_PREFS.color);
+  const [terminalSize, setTerminalSize] = useState(DEFAULT_TERMINAL_PREFS.size);
+  const [terminalBg, setTerminalBg] = useState(DEFAULT_TERMINAL_PREFS.bg);
+  // ⚠️ ต้องเป็น useState ไม่ใช่ useRef — StrictMode ใน dev รัน effect ตอน mount 2 รอบ
+  //    ถ้าใช้ ref ธงจะเป็น true ตั้งแต่รอบแรก แล้ว effect เซฟจะเขียนค่า default ทับของที่เพิ่งโหลดมา
+  //    (รอบ 2 จะอ่านค่าที่ถูกทับไปแล้ว = ค่าที่ผู้เล่นตั้งไว้หายเกลี้ยง)
+  //    ใช้ state แทน → render แรกยังเป็น false เสมอ effect เซฟจึงข้ามไปจนกว่าค่าจริงจะลง state
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+  // ผู้เล่นเคยเลือกสีเองไหม — ถ้าเคย effect ธีมด้านล่างจะไม่ทับสีที่เลือกไว้
+  const isCustomRef = useRef(false);
 
-  // 🌟 ให้ terminal เปลี่ยนชุดสีตามธีมเว็บอัตโนมัติ (ผู้เล่นยังปรับเองต่อได้ผ่านแผงสี)
   useEffect(() => {
-    if (!currentTheme) return;
+    const p = loadTerminalPrefs();
+    setTerminalColor(p.color);
+    setTerminalSize(p.size);
+    setTerminalBg(p.bg);
+    isCustomRef.current = p.custom;
+    setPrefsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    // กันเขียนทับด้วยค่า default ตอน mount ก่อนที่ค่าจริงจะโหลดเสร็จ
+    if (!prefsLoaded) return;
+    saveTerminalPrefs({ color: terminalColor, size: terminalSize, bg: terminalBg, custom: isCustomRef.current });
+  }, [prefsLoaded, terminalColor, terminalSize, terminalBg]);
+
+  // ตัวห่อ setter ที่ส่งให้แผงปรับสี — แยกจาก setter ตรงๆ เพื่อให้รู้ว่า "ผู้เล่นเป็นคนเปลี่ยน"
+  // (ถ้าใช้ setter ดิบ จะแยกไม่ออกว่าสีเปลี่ยนเพราะผู้เล่นเลือก หรือเพราะ effect ธีมสั่ง)
+  const pickTerminalColor = (c: string) => { isCustomRef.current = true; setTerminalColor(c); };
+  const pickTerminalBg = (b: string) => { isCustomRef.current = true; setTerminalBg(b); };
+
+  // 🌟 ให้ terminal เปลี่ยนชุดสีตามธีมเว็บอัตโนมัติ
+  // ⚠️ ข้ามไปถ้าผู้เล่นเคยเลือกสีเอง ไม่งั้นจะทับค่าที่เพิ่งโหลดมาจาก localStorage ทุกครั้งที่เข้าหน้า
+  //    (เลือกสีไว้สวยแค่ไหน พอกลับเข้ามาก็โดนธีมรีเซ็ตทิ้งหมด)
+  useEffect(() => {
+    if (!currentTheme || isCustomRef.current) return;
     if (currentTheme === 'dragon') { setTerminalColor('red'); setTerminalBg('#140303'); }
     else if (currentTheme === 'sakura') { setTerminalColor('pink'); setTerminalBg('#1a0f16'); }
     else if (currentTheme === 'sky') { setTerminalColor('cyan'); setTerminalBg('#081620'); }
@@ -389,6 +422,13 @@ export default function GamePage() {
   const themeText = isHacker ? 'text-green-500' : isDark ? (isLinux ? 'text-yellow-400' : 'text-blue-400') : (isLinux ? 'text-orange-500' : 'text-blue-500');
   const themeBg = isHacker ? 'bg-green-600' : isDark ? (isLinux ? 'bg-yellow-400' : 'bg-blue-500') : (isLinux ? 'bg-orange-500' : 'bg-blue-500');
   const themeBorder = isHacker ? 'border-green-600' : isDark ? (isLinux ? 'border-yellow-400' : 'border-blue-400') : (isLinux ? 'border-orange-500' : 'border-blue-500');
+  // เงา 3D ทึบใต้ปุ่ม (สีเข้มกว่าพื้นปุ่มหนึ่งระดับ) — ใช้เฉพาะ hex ที่ globals.css map ไว้ให้
+  // ธีมพรีเมียมแล้ว (#ca8a04 → amethyst, #14532d → dragon) ไม่งั้นเงาจะค้างสีเดิม
+  const themeShadow3D = isHacker
+    ? 'shadow-[0_8px_0_#14532d]'
+    : isDark
+      ? (isLinux ? 'shadow-[0_8px_0_#ca8a04]' : 'shadow-[0_8px_0_#1d4ed8]')
+      : (isLinux ? 'shadow-[0_8px_0_#c2410c]' : 'shadow-[0_8px_0_#1d4ed8]');
 
   const wpmTextHex = isHacker ? (isDragon ? '#ef4444' : '#22c55e') : isDark ? '#ffffff' : '#431407';
   const highlightHex = isHacker ? (isDragon ? '#f87171' : '#4ade80') : isDark ? (isLinux ? (isAmethyst ? '#c084fc' : '#facc15') : '#60a5fa') : currentTheme === 'sky' ? '#0ea5e9' : currentTheme === 'mint' ? '#10b981' : (isLinux ? '#f97316' : '#3b82f6');
@@ -607,9 +647,9 @@ export default function GamePage() {
               terminalSize={terminalSize}
               setTerminalSize={setTerminalSize}
               terminalColor={terminalColor}
-              setTerminalColor={setTerminalColor}
+              setTerminalColor={pickTerminalColor}
               terminalBg={terminalBg}
-              setTerminalBg={setTerminalBg}
+              setTerminalBg={pickTerminalBg}
             />
 
             <div className="flex-1 relative overflow-hidden p-2 transition-colors duration-300" style={{ backgroundColor: terminalBg }}>
@@ -621,7 +661,12 @@ export default function GamePage() {
               <AnimatePresence>
                 {showProceedButton && (
                   <motion.div initial={{ opacity: 0, y: 30, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40">
-                    <button onClick={() => { setShowProceedButton(false); setShowNextLevel(true); }} className={`px-8 py-4 rounded-[24px] font-black uppercase tracking-widest text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] shadow-xl transition-all btn-squishy flex items-center gap-3 border-4 border-white dark:border-transparent hacker:border-transparent ${themeBg} ${isHacker ? 'hover:bg-green-500' : isDark ? (isLinux ? 'hover:bg-yellow-300' : 'hover:bg-blue-400') : (isLinux ? 'hover:bg-orange-400' : 'hover:bg-blue-400')}`}>
+                    {/* ปุ่มไปด่านถัดไป — เงา 3D ทึบ + แสงกวาดซ้าย→ขวา (ชุดเดียวกับปุ่มหลักทั้งเว็บ)
+                        เดิมใช้ shadow-xl ซึ่งเป็นเงาฟุ้ง ดูไม่เข้าพวกกับปุ่ม 3D ที่เหลือ */}
+                    <button
+                      onClick={() => { setShowProceedButton(false); setShowNextLevel(true); }}
+                      className={`btn-shine shine-plain btn-squishy px-8 py-4 rounded-[24px] font-black uppercase tracking-widest text-white dark:text-[#1E1B2E] hacker:text-[#0a0a0a] transition-all flex items-center gap-3 border-4 border-white dark:border-transparent hacker:border-transparent ${themeBg} ${themeShadow3D} ${isHacker ? 'hover:bg-green-500' : isDark ? (isLinux ? 'hover:bg-yellow-300' : 'hover:bg-blue-400') : (isLinux ? 'hover:bg-orange-400' : 'hover:bg-blue-400')}`}
+                    >
                       <BookOpen size={20} strokeWidth={3} /> NEXT STAGE <ArrowRight size={20} strokeWidth={3} />
                     </button>
                   </motion.div>
@@ -669,14 +714,14 @@ export default function GamePage() {
                 <button
                   onClick={() => setShowRevealConfirm(false)}
                   disabled={isRevealing}
-                  className={`flex-1 py-4 border-4 text-xs uppercase font-black tracking-widest rounded-[20px] transition-colors btn-squishy shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-green-600 hover:text-green-400 hover:border-green-700' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/50 hover:text-white hover:bg-[#382E54]' : 'bg-white border-orange-100 text-orange-400 hover:text-orange-600 hover:bg-orange-50'}`}
+                  className={`btn-shine shine-plain flex-1 py-4 border-4 text-xs uppercase font-black tracking-widest rounded-[20px] transition-colors btn-squishy ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-green-600 shadow-[0_8px_0_#14532d] hover:text-green-400 hover:border-green-700' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/50 shadow-[0_8px_0_#1E1B2E] hover:text-white hover:bg-[#382E54]' : 'bg-white border-orange-100 text-orange-400 shadow-[0_8px_0_#fed7aa] hover:text-orange-600 hover:bg-orange-50'}`}
                 >
                   ยกเลิก
                 </button>
                 <button
                   onClick={handleConfirmReveal}
                   disabled={isRevealing}
-                  className={`flex-1 py-4 border-4 text-xs uppercase font-black tracking-widest rounded-[20px] transition-colors btn-squishy shadow-sm text-white ${isRevealing ? 'opacity-60 cursor-wait' : ''} ${isHacker ? 'bg-rose-700 border-rose-600 hover:bg-rose-600' : isDark ? 'bg-rose-600 border-rose-500 hover:bg-rose-500' : 'bg-rose-500 border-white hover:bg-rose-400'}`}
+                  className={`btn-shine shine-plain flex-1 py-4 border-4 text-xs uppercase font-black tracking-widest rounded-[20px] transition-colors btn-squishy text-white ${isRevealing ? 'opacity-60 cursor-wait' : ''} ${isHacker ? 'bg-rose-700 border-rose-600 shadow-[0_8px_0_#881337] hover:bg-rose-600' : isDark ? 'bg-rose-600 border-rose-500 shadow-[0_8px_0_#9f1239] hover:bg-rose-500' : 'bg-rose-500 border-white shadow-[0_8px_0_rgba(225,29,72,0.2)] hover:bg-rose-400'}`}
                 >
                   {isRevealing ? 'กำลังขอเฉลย...' : 'ยืนยันดูเฉลย'}
                 </button>

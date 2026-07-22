@@ -22,6 +22,7 @@ import TerminalControls from '@/components/TerminalControls';
 import { apiFetch, clearUserState } from '@/lib/api';
 import { simulateCommand } from '@/lib/commandSim';
 import type { ActiveEffect } from '@/components/VirtualFileSystemPanel';
+import { DEFAULT_TERMINAL_PREFS, loadTerminalPrefs, saveTerminalPrefs } from '@/lib/prefs';
 
 const TerminalBox = dynamic(() => import('@/components/TerminalBox'), {
   ssr: false,
@@ -78,13 +79,41 @@ export default function TrainingPage() {
   const [accuracy, setAccuracy] = useState(100);
 
   // -- Terminal Style States --
-  const [terminalColor, setTerminalColor] = useState('orange');
-  const [terminalSize, setTerminalSize] = useState(15);
-  const [terminalBg, setTerminalBg] = useState('#050505');
+  // ⚙️ ค่าหน้าตาเทอร์มินัล — ใช้ localStorage ก้อนเดียวกับหน้า Campaign (ปรับที่ไหนก็จำเหมือนกัน)
+  const [terminalColor, setTerminalColor] = useState(DEFAULT_TERMINAL_PREFS.color);
+  const [terminalSize, setTerminalSize] = useState(DEFAULT_TERMINAL_PREFS.size);
+  const [terminalBg, setTerminalBg] = useState(DEFAULT_TERMINAL_PREFS.bg);
+  // ⚠️ ต้องเป็น useState ไม่ใช่ useRef — StrictMode ใน dev รัน effect ตอน mount 2 รอบ
+  //    ถ้าใช้ ref ธงจะเป็น true ตั้งแต่รอบแรก แล้ว effect เซฟจะเขียนค่า default ทับของที่เพิ่งโหลดมา
+  //    (รอบ 2 จะอ่านค่าที่ถูกทับไปแล้ว = ค่าที่ผู้เล่นตั้งไว้หายเกลี้ยง)
+  //    ใช้ state แทน → render แรกยังเป็น false เสมอ effect เซฟจึงข้ามไปจนกว่าค่าจริงจะลง state
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+  // ผู้เล่นเคยเลือกสีเองไหม — ถ้าเคย effect ธีมด้านล่างจะไม่ทับสีที่เลือกไว้
+  const isCustomRef = useRef(false);
+
+  useEffect(() => {
+    const p = loadTerminalPrefs();
+    setTerminalColor(p.color);
+    setTerminalSize(p.size);
+    setTerminalBg(p.bg);
+    isCustomRef.current = p.custom;
+    setPrefsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    // กันเขียนทับด้วยค่า default ตอน mount ก่อนที่ค่าจริงจะโหลดเสร็จ
+    if (!prefsLoaded) return;
+    saveTerminalPrefs({ color: terminalColor, size: terminalSize, bg: terminalBg, custom: isCustomRef.current });
+  }, [prefsLoaded, terminalColor, terminalSize, terminalBg]);
+
+  // ตัวห่อ setter ที่ส่งให้แผงปรับสี — ใช้แยกว่า "ผู้เล่นเป็นคนเปลี่ยน" ไม่ใช่ effect ธีม
+  const pickTerminalColor = (c: string) => { isCustomRef.current = true; setTerminalColor(c); };
+  const pickTerminalBg = (b: string) => { isCustomRef.current = true; setTerminalBg(b); };
 
   // 🌟 ให้ terminal เปลี่ยนชุดสีตามธีมเว็บอัตโนมัติ
+  // ⚠️ ข้ามถ้าผู้เล่นเคยเลือกสีเอง ไม่งั้นจะทับค่าที่โหลดจาก localStorage ทุกครั้งที่เข้าหน้า
   useEffect(() => {
-    if (!currentTheme) return;
+    if (!currentTheme || isCustomRef.current) return;
     if (currentTheme === 'dragon') { setTerminalColor('red'); setTerminalBg('#140303'); }
     else if (currentTheme === 'sakura') { setTerminalColor('pink'); setTerminalBg('#1a0f16'); }
     else if (currentTheme === 'sky') { setTerminalColor('cyan'); setTerminalBg('#081620'); }
@@ -408,9 +437,9 @@ export default function TrainingPage() {
               terminalSize={terminalSize}
               setTerminalSize={setTerminalSize}
               terminalColor={terminalColor}
-              setTerminalColor={setTerminalColor}
+              setTerminalColor={pickTerminalColor}
               terminalBg={terminalBg}
-              setTerminalBg={setTerminalBg}
+              setTerminalBg={pickTerminalBg}
             />
 
             <div className="flex-1 relative overflow-hidden p-2 transition-colors duration-300" style={{ backgroundColor: terminalBg }}>

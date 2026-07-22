@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { apiFetch, clearUserState } from '@/lib/api';
 import CoinIcon from '@/components/CoinIcon';
 import { isAnswerCorrect } from '@/lib/answerCheck';
+import { loadSurvivalKeyboard, saveSurvivalKeyboard } from '@/lib/prefs';
 
 interface CommandMission {
     id: string;
@@ -43,7 +44,10 @@ export default function Page() {
     const [flash, setFlash] = useState<'success' | 'error' | null>(null);
     const [addedTime, setAddedTime] = useState<number | null>(null);
     // เริ่มต้นปิดไว้ — ให้ผู้เล่นกดปุ่มคีย์บอร์ดเปิดเองถ้าต้องการตัวช่วย
+    // ⚠️ ค่าเริ่มต้นต้องเป็น false เสมอตอน render แรก แล้วค่อยโหลดของจริงใน useEffect
+    //    (อ่าน localStorage ตอน render ไม่ได้ เพราะ server ไม่มี → hydration mismatch)
     const [showKeyboard, setShowKeyboard] = useState<boolean>(false);
+    const [kbPrefLoaded, setKbPrefLoaded] = useState(false);
     const [kbColor, setKbColor] = useState<KbColor>('blue');
     const [selectedOS, setSelectedOS] = useState<'windows' | 'linux'>('linux');
 
@@ -92,6 +96,16 @@ export default function Page() {
     };
 
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // ⌨️ จำไว้ว่าผู้เล่นเปิด/ปิดแป้นพิมพ์ช่วยไว้ — เล่นรอบหน้าไม่ต้องมากดใหม่ทุกครั้ง
+    useEffect(() => {
+        setShowKeyboard(loadSurvivalKeyboard());
+        setKbPrefLoaded(true);
+    }, []);
+    useEffect(() => {
+        if (!kbPrefLoaded) return;
+        saveSurvivalKeyboard(showKeyboard);
+    }, [kbPrefLoaded, showKeyboard]);
 
     // 🛡️ ตรวจสอบการ Login ผ่าน cookie (ยิง endpoint ที่ต้อง auth — cookie แนบไปเองผ่าน proxy)
     useEffect(() => {

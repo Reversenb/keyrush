@@ -435,7 +435,7 @@ export default function CampaignPage() {
 
                       <button
                         onClick={handleEnterMission}
-                        className={`block w-full py-3.5 md:py-4 text-sm md:text-base font-black rounded-[20px] transition-all uppercase tracking-widest border-4 btn-squishy shadow-sm hover:scale-[1.03]
+                        className={`btn-shine shine-plain block w-full py-3.5 md:py-4 text-sm md:text-base font-black rounded-[20px] transition-all uppercase tracking-widest border-4 btn-squishy hover:scale-[1.03]
                           ${isHacker
                             ? 'bg-green-600 text-[#0a0a0a] border-green-500 shadow-[0_6px_0_#14532d] hover:bg-green-500'
                             : isDark
