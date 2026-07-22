@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, Fragment } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import Navbar from '@/components/Navbar';
 import {
   ChevronDown, PlusCircle, Database, Terminal, Monitor,
-  Search, X, Edit, Trash2, Heart, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, BookOpen, Target
+  Search, X, Edit, Trash2, Heart, CheckCircle2, AlertTriangle, XCircle, ShieldCheck, BookOpen, Target,
+  ArrowUpDown, GripVertical, ArrowLeftRight
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
@@ -169,6 +170,13 @@ export default function MissionControlCMS() {
   const [filterDifficulty, setFilterDifficulty] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // 🔀 เลือกโจทย์ 2 ข้อเพื่อสลับ Level กัน (เก็บ id ไว้สูงสุด 2 ตัว)
+  const [swapPick, setSwapPick] = useState<string[]>([]);
+  // ↕️ โหมดลากจัดลำดับ — เปิดได้เฉพาะตอนกรอง OS เดียว เพราะเลขด่านของแต่ละ OS เป็นคนละชุด
+  const [reorderOs, setReorderOs] = useState<'linux' | 'windows' | null>(null);
+  const [reorderList, setReorderList] = useState<any[]>([]);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   const [toast, setToast] = useState<{ show: boolean, message: string, type: 'success' | 'error' | 'warning' }>({ show: false, message: '', type: 'success' });
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean, id: string | null }>({ show: false, id: null });
@@ -390,6 +398,104 @@ export default function MissionControlCMS() {
   const favMissions = filteredMissions.filter(m => favorites.includes(m.id));
   const regularMissions = filteredMissions.filter(m => !favorites.includes(m.id));
 
+  // =======================================================================
+  // 🔀 สลับ Level ระหว่างโจทย์ 2 ข้อ
+  // =======================================================================
+  const togglePick = (mission: any) => {
+    setSwapPick(prev => {
+      if (prev.includes(mission.id)) return prev.filter(id => id !== mission.id);
+      if (prev.length === 0) return [mission.id];
+
+      // ตัวแรกที่เลือกไว้ต้องเป็น OS เดียวกัน ไม่งั้นสลับไม่ได้ (เลขด่านคนละชุด)
+      const first = missions.find(m => m.id === prev[0]);
+      if (first && first.os !== mission.os) {
+        showToast('สลับข้าม OS ไม่ได้ ต้องเป็นหมวดเดียวกัน', 'warning');
+        return prev;
+      }
+      return prev.length >= 2 ? [prev[0], mission.id] : [...prev, mission.id];
+    });
+  };
+
+  const handleSwap = async () => {
+    if (swapPick.length !== 2) return;
+    setIsLoading(true);
+    try {
+      const res = await apiFetch('/api/admin/missions/swap', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idA: swapPick[0], idB: swapPick[1] })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'สลับ Level สำเร็จ!', 'success');
+        setSwapPick([]);
+        await fetchAllData();
+      } else {
+        showToast(data.message || 'สลับไม่สำเร็จ', 'error');
+      }
+    } catch {
+      showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // =======================================================================
+  // ↕️ ลากจัดลำดับใหม่ทั้งหมวด
+  // ⚠️ ต้องส่งโจทย์ครบทั้ง OS นั้น (ไม่อิงตัวกรอง difficulty/ค้นหา)
+  //    เพราะ backend ไล่เลข 1..N ใหม่ทั้งหมวด ถ้าส่งไม่ครบเลขจะทับกัน
+  // =======================================================================
+  const openReorder = (os: 'linux' | 'windows') => {
+    setReorderOs(os);
+    setReorderList(missions.filter(m => m.os === os).sort((a, b) => a.level - b.level));
+  };
+
+  // ปุ่มติ๊กเลือกโจทย์เพื่อสลับ — โชว์เลข 1/2 ตามลำดับที่กด
+  const SwapPickButton = ({ mission }: { mission: any }) => {
+    const picked = swapPick.indexOf(mission.id);
+    return (
+      <button
+        onClick={(e) => { e.stopPropagation(); togglePick(mission); }}
+        title={picked >= 0 ? 'กดอีกครั้งเพื่อยกเลิกการเลือก' : 'เลือกเพื่อสลับ Level กับอีกข้อ'}
+        className={`relative p-3 rounded-[16px] transition-colors btn-squishy border-4 flex items-center justify-center shadow-sm ${picked >= 0
+          ? (isHacker ? 'bg-green-600 border-green-400 text-[#0a0a0a]' : isDark ? 'bg-yellow-400 border-yellow-300 text-[#1E1B2E]' : 'bg-orange-500 border-orange-400 text-white')
+          : (isHacker ? 'bg-[#0a0a0a] border-green-900 text-green-800 hover:text-green-400 hover:border-green-700' : isDark ? 'bg-[#1E1B2E] border-[#382E54] text-white/30 hover:text-yellow-400 hover:border-yellow-500/50' : 'bg-white border-white text-slate-400 hover:text-orange-500 hover:bg-orange-50')
+          }`}
+      >
+        <ArrowLeftRight size={20} strokeWidth={3} />
+        {picked >= 0 && (
+          <span className="absolute -top-2 -right-2 size-5 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center border-2 border-white">
+            {picked + 1}
+          </span>
+        )}
+      </button>
+    );
+  };
+
+  const handleSaveOrder = async () => {
+    if (!reorderOs) return;
+    setIsSavingOrder(true);
+    try {
+      const res = await apiFetch('/api/admin/missions/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ os: reorderOs, orderedIds: reorderList.map(m => m.id) })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'เรียงลำดับใหม่สำเร็จ!', 'success');
+        setReorderOs(null);
+        await fetchAllData();
+      } else {
+        showToast(data.message || 'เรียงลำดับไม่สำเร็จ', 'error');
+      }
+    } catch {
+      showToast('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ', 'error');
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
   if (!isMounted) return null;
 
   return (
@@ -449,6 +555,108 @@ export default function MissionControlCMS() {
                 </button>
                 <button onClick={confirmDeleteAction} className={`flex-1 py-4 rounded-[20px] font-black text-white border-4 transition-all uppercase tracking-widest text-xs btn-squishy ${isHacker ? 'bg-rose-700 border-rose-600 shadow-[0_8px_0_#881337] hover:bg-rose-600' : isDark ? 'bg-rose-600 border-rose-500 shadow-[0_8px_0_#9f1239] hover:bg-rose-500' : 'bg-rose-500 border-white shadow-[0_8px_0_rgba(225,29,72,0.2)] hover:bg-rose-400'}`}>
                   ลบเลย
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 🔀 แถบยืนยันการสลับ — โผล่เมื่อเลือกโจทย์ไว้แล้ว ลอยอยู่ล่างจอ ไม่บังตาราง */}
+      <AnimatePresence>
+        {adminMode === 'missions' && swapPick.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 40 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] w-[min(92vw,640px)]"
+          >
+            <div className={`flex items-center gap-3 p-3 pl-5 rounded-[24px] border-4 shadow-2xl backdrop-blur-xl ${isHacker ? 'bg-[#0a0a0a]/95 border-green-600' : isDark ? 'bg-[#1E1B2E]/95 border-yellow-400' : 'bg-white/95 border-orange-400'}`}>
+              <div className="flex-1 min-w-0">
+                <p className={`text-[10px] font-black uppercase tracking-widest ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>
+                  เลือกไว้ {swapPick.length}/2 ข้อ
+                </p>
+                <p className={`text-sm font-black truncate ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>
+                  {swapPick.map(id => {
+                    const m = missions.find(x => x.id === id);
+                    return m ? `LVL ${m.level} · ${m.title}` : '';
+                  }).join('  ↔  ') || '—'}
+                  {swapPick.length === 1 && <span className="opacity-50 font-bold"> — เลือกอีก 1 ข้อเพื่อสลับ</span>}
+                </p>
+              </div>
+              <button
+                onClick={() => setSwapPick([])}
+                className={`px-4 py-3 rounded-[16px] border-4 font-black text-[11px] uppercase tracking-widest btn-squishy shrink-0 ${isHacker ? 'bg-[#111] border-green-900 text-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/70' : 'bg-orange-50 border-white text-orange-500'}`}
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={handleSwap}
+                disabled={swapPick.length !== 2 || isLoading}
+                className={`px-5 py-3 rounded-[16px] border-4 font-black text-[11px] uppercase tracking-widest btn-squishy shrink-0 flex items-center gap-2 disabled:opacity-40 ${isHacker ? 'bg-green-500 border-green-400 text-[#0a0a0a]' : isDark ? 'bg-yellow-400 border-yellow-300 text-[#1E1B2E]' : 'bg-orange-500 border-orange-400 text-white'}`}
+              >
+                <ArrowLeftRight size={14} strokeWidth={3} /> {isLoading ? '...' : 'สลับ Level'}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ↕️ แผงลากจัดลำดับ — ใช้ Reorder ของ framer-motion (ไม่ต้องลงไลบรารีเพิ่ม)
+          แสดงเป็นลิสต์แยก ไม่ใช้ตารางเดิม เพราะลาก <tr> ใน <table> ตำแหน่งจะเพี้ยน */}
+      <AnimatePresence>
+        {reorderOs && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => !isSavingOrder && setReorderOs(null)}
+              className={`absolute inset-0 backdrop-blur-sm ${isHacker ? 'bg-black/80' : isDark ? 'bg-black/60' : 'bg-orange-950/40'}`}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }}
+              className={`relative w-full max-w-2xl max-h-[85vh] flex flex-col border-4 rounded-[32px] shadow-2xl ${isHacker ? 'bg-[#0a0a0a] border-green-600' : isDark ? 'bg-[#1E1B2E] border-yellow-400' : 'bg-white border-orange-400'}`}
+            >
+              <div className={`p-6 border-b-4 flex items-center justify-between gap-4 ${isHacker ? 'border-[#166534]' : isDark ? 'border-[#382E54]' : 'border-orange-100'}`}>
+                <div className="min-w-0">
+                  <p className={`text-[10px] font-black uppercase tracking-widest ${isHacker ? 'text-green-600' : isDark ? 'text-white/50' : 'text-orange-400'}`}>ลากเพื่อจัดลำดับ · {reorderOs.toUpperCase()}</p>
+                  <h3 className={`text-2xl font-black tracking-tight cute-header ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>เรียงลำดับโจทย์</h3>
+                </div>
+                <button onClick={() => setReorderOs(null)} disabled={isSavingOrder} className={`p-2 rounded-xl border-2 btn-squishy shrink-0 disabled:opacity-40 ${isHacker ? 'bg-[#111] border-green-800 text-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white/50' : 'bg-orange-50 border-orange-200 text-orange-400'}`}>
+                  <X size={22} strokeWidth={3} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+                <Reorder.Group axis="y" values={reorderList} onReorder={setReorderList} className="flex flex-col gap-2">
+                  {reorderList.map((m, i) => (
+                    <Reorder.Item
+                      key={m.id}
+                      value={m}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border-4 cursor-grab active:cursor-grabbing select-none ${isHacker ? 'bg-[#111] border-green-900' : isDark ? 'bg-[#2D223B] border-[#4B3965]' : 'bg-orange-50 border-white'}`}
+                    >
+                      <GripVertical size={20} strokeWidth={3} className={isHacker ? 'text-green-700' : isDark ? 'text-white/30' : 'text-orange-300'} />
+                      {/* เลขที่จะได้หลังบันทึก = ตำแหน่งในลิสต์ ไม่ใช่ level เดิม */}
+                      <span className={`shrink-0 w-14 text-center font-black text-lg cute-header ${isHacker ? 'text-green-400' : isDark ? 'text-yellow-400' : 'text-orange-500'}`}>
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className={`font-black truncate ${isHacker ? 'text-green-400' : isDark ? 'text-white' : 'text-orange-950'}`}>{m.title}</p>
+                        <code className={`text-xs font-bold ${isHacker ? 'text-green-700' : isDark ? 'text-white/40' : 'text-orange-400'}`}>{m.expectedCommand}</code>
+                      </div>
+                      {m.level !== i + 1 && (
+                        <span className="shrink-0 text-[10px] font-black px-2 py-1 rounded-lg bg-rose-500 text-white">
+                          {m.level} → {i + 1}
+                        </span>
+                      )}
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+              </div>
+
+              <div className={`p-5 border-t-4 flex gap-3 ${isHacker ? 'border-[#166534]' : isDark ? 'border-[#382E54]' : 'border-orange-100'}`}>
+                <button onClick={() => setReorderOs(null)} disabled={isSavingOrder} className={`flex-1 py-4 rounded-[20px] font-black border-4 uppercase tracking-widest text-xs btn-squishy disabled:opacity-40 ${isHacker ? 'bg-[#111] border-green-900 text-green-500' : isDark ? 'bg-[#2D223B] border-[#4B3965] text-white' : 'bg-orange-50 border-white text-orange-500'}`}>
+                  ยกเลิก
+                </button>
+                <button onClick={handleSaveOrder} disabled={isSavingOrder} className={`flex-1 py-4 rounded-[20px] font-black border-4 uppercase tracking-widest text-xs btn-squishy disabled:opacity-40 ${isHacker ? 'bg-green-500 border-green-400 text-[#0a0a0a]' : isDark ? 'bg-yellow-400 border-yellow-300 text-[#1E1B2E]' : 'bg-orange-500 border-orange-400 text-white'}`}>
+                  {isSavingOrder ? 'กำลังบันทึก...' : 'บันทึกลำดับใหม่'}
                 </button>
               </div>
             </motion.div>
@@ -547,6 +755,22 @@ export default function MissionControlCMS() {
                     {osType}
                   </button>
                 ))}
+                {/* ↕️ ปุ่มเปิดโหมดลากจัดลำดับ — ใช้ได้เฉพาะตอนเลือก OS เดียว
+                    เพราะ backend ไล่เลข 1..N ใหม่ทั้งหมวด ต้องรู้ว่าหมวดไหน */}
+                {adminMode === 'missions' && (
+                  <button
+                    onClick={() => filterOs === 'linux' || filterOs === 'windows'
+                      ? openReorder(filterOs)
+                      : showToast('เลือก OS เป็น linux หรือ windows ก่อน แล้วค่อยจัดลำดับ', 'warning')}
+                    title="ลากจัดลำดับโจทย์ใหม่ทั้งหมวด"
+                    className={`px-5 py-3 rounded-[16px] transition-all border-4 uppercase tracking-widest shrink-0 btn-squishy text-xs flex items-center gap-2 ${filterOs === 'all'
+                      ? (isHacker ? 'bg-[#111] text-green-900 border-[#166534]/50' : isDark ? 'bg-[#2D223B] text-white/25 border-[#4B3965]' : 'bg-white text-orange-200 border-white')
+                      : (isHacker ? 'bg-[#111] text-green-500 border-green-600 hover:bg-[#1a1a1a]' : isDark ? 'bg-[#2D223B] text-yellow-400 border-[#6b528f] hover:bg-[#382E54]' : 'bg-white text-orange-500 border-orange-300 hover:bg-orange-50')
+                      }`}
+                  >
+                    <ArrowUpDown size={14} strokeWidth={3} /> จัดลำดับ
+                  </button>
+                )}
               </div>
 
               {adminMode === 'missions' && (
@@ -666,6 +890,7 @@ export default function MissionControlCMS() {
                                   </td>
                                   <td className={`p-5 font-black text-lg ${isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-yellow-500'}`}>+{mission.rewardExp}</td>
                                   <td className="p-5 text-right flex justify-end gap-2">
+                                    <SwapPickButton mission={mission} />
                                     <button onClick={(e) => toggleFavorite(e, mission.id)} className={`p-3 rounded-[16px] transition-all duration-300 btn-squishy border-4 flex items-center justify-center shadow-sm ${isHacker ? 'text-pink-500 bg-pink-900/30 border-pink-800' : isDark ? 'text-pink-400 bg-pink-500/20 border-pink-500/30' : 'text-pink-500 bg-pink-100 border-white'}`} title="Unfavorite"><Heart size={20} strokeWidth={3} className="fill-pink-500" /></button>
                                     <button onClick={(e) => openEditModal(e, mission)} className={`p-3 rounded-[16px] transition-colors flex items-center justify-center btn-squishy border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-blue-500 hover:border-blue-800 hover:bg-blue-900/20' : isDark ? 'bg-[#1E1B2E] border-[#382E54] text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/20' : 'bg-white border-white text-blue-500 hover:bg-blue-100'}`} title="Edit Mission"><Edit size={20} strokeWidth={3} /></button>
                                     <button onClick={(e) => { e.stopPropagation(); promptDelete(mission.id); }} className={`p-3 rounded-[16px] transition-colors flex items-center justify-center btn-squishy border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-rose-500 hover:border-rose-800 hover:bg-rose-900/20' : isDark ? 'bg-[#1E1B2E] border-[#382E54] text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/20' : 'bg-white border-white text-rose-500 hover:bg-rose-100'}`} title="Delete Mission"><Trash2 size={20} strokeWidth={3} /></button>
@@ -734,6 +959,7 @@ export default function MissionControlCMS() {
                               </td>
                               <td className={`p-5 font-black text-lg ${isHacker ? 'text-green-500' : isDark ? 'text-yellow-400' : 'text-yellow-500'}`}>+{mission.rewardExp}</td>
                               <td className="p-5 text-right flex justify-end gap-2">
+                                <SwapPickButton mission={mission} />
                                 <button onClick={(e) => toggleFavorite(e, mission.id)} className={`p-3 rounded-[16px] transition-all duration-300 btn-squishy border-4 flex items-center justify-center shadow-sm ${isHacker ? 'text-green-800 bg-[#0a0a0a] border-green-900 hover:text-pink-500 hover:border-pink-800' : isDark ? 'text-white/30 bg-[#1E1B2E] border-[#382E54] hover:text-pink-400 hover:border-pink-500/50' : 'text-slate-400 bg-white border-white hover:text-pink-500 hover:bg-pink-50'}`} title="Add to Favorites"><Heart size={20} strokeWidth={3} /></button>
                                 <button onClick={(e) => openEditModal(e, mission)} className={`p-3 rounded-[16px] transition-colors flex items-center justify-center btn-squishy border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-blue-500 hover:border-blue-800 hover:bg-blue-900/20' : isDark ? 'bg-[#1E1B2E] border-[#382E54] text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/20' : 'bg-white border-white text-blue-500 hover:bg-blue-100'}`} title="Edit Mission"><Edit size={20} strokeWidth={3} /></button>
                                 <button onClick={(e) => { e.stopPropagation(); promptDelete(mission.id); }} className={`p-3 rounded-[16px] transition-colors flex items-center justify-center btn-squishy border-4 shadow-sm ${isHacker ? 'bg-[#0a0a0a] border-green-900 text-rose-500 hover:border-rose-800 hover:bg-rose-900/20' : isDark ? 'bg-[#1E1B2E] border-[#382E54] text-rose-400 hover:border-rose-500/50 hover:bg-rose-500/20' : 'bg-white border-white text-rose-500 hover:bg-rose-100'}`} title="Delete Mission"><Trash2 size={20} strokeWidth={3} /></button>
