@@ -11,7 +11,7 @@ import {
   Rocket, Terminal, Monitor, Medal, HelpCircle, BookOpen,
   Target, Trophy, ChevronRight, Search, X,
   Gamepad2, Map as MapIcon, Clock, Zap, Brain, Play, History as HistoryIcon,
-  Dumbbell, Lock
+  Dumbbell, Lock, Sparkles
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { RANKS } from '@/lib/ranks';
@@ -278,7 +278,7 @@ function GettingStartedContent() {
       </h2>
       <div className="text-orange-800 dark:text-white/70 hacker:text-white/70 space-y-6 leading-relaxed text-sm md:text-base font-bold transition-colors">
         <p>
-          ยินดีต้อนรับสู่ <strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">KeyRush</strong> แพลตฟอร์มฝึกฝนทักษะการใช้งาน Command Line Interface (CLI) สำหรับสายลับไซเบอร์ ระบบนี้ถูกออกแบบมาเพื่อพัฒนาความเร็วและความแม่นยำในการพิมพ์คำสั่งทั้งระบบปฏิบัติการ <span className="text-orange-600 dark:text-orange-400 hacker:text-green-400 font-black">Linux</span> และ <span className="text-blue-500 dark:text-blue-400 hacker:text-blue-400 font-black">Windows</span>
+          ยินดีต้อนรับสู่ <strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">KeyRush</strong> แพลตฟอร์มฝึกฝนทักษะการใช้งาน Command Line Interface (CLI) สำหรับสายลับไซเบอร์ ระบบนี้ถูกออกแบบมาเพื่อพัฒนาความเร็วและความแม่นยำในการพิมพ์คำสั่งทั้งระบบปฏิบัติการ <span className="text-orange-600 dark:text-orange-400 hacker:text-green-400 font-black">Linux</span> และ <span className="text-blue-500 dark:text-blue-400 hacker:text-blue-400 font-black">Windows</span> โดยพิมพ์ใน Terminal จำลองที่แสดงผลของคำสั่งเหมือนของจริง
         </p>
         <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] p-6 md:p-8 my-6 shadow-sm transition-colors">
           <h3 className="text-orange-950 dark:text-white hacker:text-white font-black text-lg mb-4 flex items-center gap-2 transition-colors">
@@ -286,13 +286,67 @@ function GettingStartedContent() {
           </h3>
           <ul className="space-y-4 ml-2 text-orange-800 dark:text-white/70 hacker:text-white/70 font-bold transition-colors">
             <li className="flex items-start gap-3">
-              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> พิมพ์คำสั่งที่ถูกต้องตามโจทย์ให้เร็วที่สุด
+              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> พิมพ์คำสั่งที่ถูกต้องตามโจทย์ให้เร็วที่สุด (ระบบไม่สนตัวพิมพ์เล็ก-ใหญ่)
             </li>
             <li className="flex items-start gap-3">
-              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> เก็บสะสม <strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black mx-1 transition-colors">EXP</strong> เพื่อเลื่อนระดับ (Clearance Levels)
+              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> เก็บสะสม <strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black mx-1 transition-colors">EXP</strong> เพื่อเลื่อนระดับ — แยกสายกันระหว่าง Linux และ Windows
             </li>
             <li className="flex items-start gap-3">
-              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> ไต่อันดับใน <strong className="text-yellow-500 dark:text-yellow-400 hacker:text-green-500 font-black mx-1 transition-colors">Global Rankings</strong> แข่งขันกับผู้เล่นคนอื่นๆ
+              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> ไต่ <strong className="text-yellow-500 dark:text-yellow-400 hacker:text-green-500 font-black mx-1 transition-colors">แรงค์ทั้ง 8 ขั้น</strong> จาก Rookie จนถึง Keyrush Master
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-orange-400 dark:text-yellow-500 hacker:text-green-500 mt-1 transition-colors">✨</span> แข่งกับสายลับคนอื่นบน <strong className="text-yellow-500 dark:text-yellow-400 hacker:text-green-500 font-black mx-1 transition-colors">Leaderboard</strong> แยก Linux / Windows / รวม
+            </li>
+          </ul>
+        </div>
+
+        {/* 🎮 3 โหมดที่เล่นได้ — เนื้อหาละเอียดอยู่แท็บ Game Modes */}
+        <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] p-6 md:p-8 my-6 shadow-sm transition-colors">
+          <h3 className="text-orange-950 dark:text-white hacker:text-white font-black text-lg mb-4 flex items-center gap-2 transition-colors">
+            <Gamepad2 className="text-purple-500 dark:text-purple-400 hacker:text-green-500 transition-colors" strokeWidth={3} /> โหมดการเล่น 3 แบบ
+          </h3>
+          <ul className="space-y-4 ml-2 text-orange-800 dark:text-white/70 hacker:text-white/70 font-bold transition-colors">
+            <li className="flex items-start gap-3">
+              <MapIcon size={18} strokeWidth={3} className="shrink-0 mt-0.5 text-orange-500 dark:text-yellow-400 hacker:text-green-500" />
+              <span><strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">Campaign</strong> — ไต่ด่านตามแผนที่ทีละเลเวล ได้ EXP และเหรียญ ติดตรงไหนมีคำใบ้กับเฉลยช่วย</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Clock size={18} strokeWidth={3} className="shrink-0 mt-0.5 text-rose-500 dark:text-rose-400 hacker:text-green-500" />
+              <span><strong className="text-rose-500 dark:text-rose-400 hacker:text-green-500 font-black">Survival</strong> — จับเวลา 60 วินาที จำโจทย์แล้วพิมพ์ให้ทัน ตอบถูกได้เวลาเพิ่ม ยิ่งต่อคอมโบยิ่งได้เยอะ</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Dumbbell size={18} strokeWidth={3} className="shrink-0 mt-0.5 text-emerald-500 dark:text-emerald-400 hacker:text-green-500" />
+              <span><strong className="text-emerald-500 dark:text-emerald-400 hacker:text-green-500 font-black">Training</strong> — สนามซ้อมอิสระ ไม่มีเวลาจับ ไม่ได้และไม่เสีย EXP พิมพ์เล่นได้ตามใจ</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* 🔥 สตรีค + 🪙 เหรียญ/ร้านค้า — ฟีเจอร์ที่เพิ่มมาทีหลัง */}
+        <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 border-4 border-white dark:border-[#382E54] hacker:border-green-800 rounded-[24px] p-6 md:p-8 my-6 shadow-sm transition-colors">
+          <h3 className="text-orange-950 dark:text-white hacker:text-white font-black text-lg mb-4 flex items-center gap-2 transition-colors">
+            <Sparkles className="text-amber-500 dark:text-yellow-400 hacker:text-green-500 transition-colors" strokeWidth={3} /> เล่นแล้วได้อะไรอีก
+          </h3>
+          <ul className="space-y-4 ml-2 text-orange-800 dark:text-white/70 hacker:text-white/70 font-bold transition-colors">
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 shrink-0">🔥</span>
+              <span>
+                <strong className="text-orange-600 dark:text-yellow-400 hacker:text-green-500 font-black">วันฝึกต่อเนื่อง (Streak)</strong> — เข้ามาฝึกอย่างน้อย 1 ครั้งภายใน 3 วันเพื่อรักษาไฟไว้
+                <span className="opacity-70"> เว้นครบ 4 วันเมื่อไหร่ตัวเลขจะกลับไปเริ่มที่ 0 ใหม่</span> ดูได้ที่ Dashboard, Leaderboard และหน้าโปรไฟล์
+              </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 shrink-0">🪙</span>
+              <span>
+                <strong className="text-amber-500 dark:text-yellow-400 hacker:text-green-500 font-black">เหรียญ</strong> — ได้จากการผ่านด่านและโหมด Survival
+                เอาไปซื้อของตกแต่งในร้าน: ฉายาข้างชื่อ, ธีมทั้งเว็บ, เอฟเฟกต์เมาส์, กรอบรูปโปรไฟล์ และเอฟเฟกต์แถวบน Leaderboard
+              </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-0.5 shrink-0">📊</span>
+              <span>
+                <strong className="text-blue-500 dark:text-blue-400 hacker:text-green-500 font-black">สถิติของตัวเอง</strong> — WPM และความแม่นยำถูกเก็บทุกรอบ
+                ดูกราฟย้อนหลังได้ที่ Dashboard และดูรายวันผ่านปฏิทินในหน้า History
+              </span>
             </li>
           </ul>
         </div>
