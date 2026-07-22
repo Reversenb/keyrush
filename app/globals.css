@@ -917,6 +917,165 @@
   100% { transform: translateX(3px);  filter: drop-shadow(-2px 0 0 rgba(244,63,94,0.7)) drop-shadow(2px 0 0 rgba(34,211,238,0.7)); }
 }
 
+/* =========================================================================
+   🌌 AURORA VEIL — ม่านแสงเหนือพลิ้วไหว เปลี่ยนเฉดสีไปเรื่อยๆ
+   ========================================================================= */
+.kr-row-aurora::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  /* ม่าน 3 ชั้นเอียงคนละองศา ความกว้างต่างกัน → ไหวไม่พร้อมกันเหมือนแสงเหนือจริง */
+  background:
+    linear-gradient(105deg, transparent 6%, rgba(52,211,153,0.60) 17%, transparent 30%),
+    linear-gradient(84deg,  transparent 28%, rgba(34,211,238,0.52) 43%, transparent 58%),
+    linear-gradient(118deg, transparent 54%, rgba(167,139,250,0.55) 69%, transparent 84%);
+  background-size: 210% 100%, 240% 100%, 190% 100%;
+  filter: blur(3px) saturate(1.5);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-aurora-wave var(--kr-sway, 6.2s) ease-in-out infinite alternate,
+    kr-aurora-hue 9s linear infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s, 0s;
+}
+.kr-row-aurora::before {
+  background: linear-gradient(90deg, rgba(52,211,153,0.20), rgba(34,211,238,0.14) 50%, rgba(167,139,250,0.18));
+  box-shadow: inset 0 0 30px rgba(52,211,153,0.40);
+}
+@keyframes kr-aurora-wave {
+  0%   { background-position: -30% 0, 130% 0, 20% 0; }
+  100% { background-position: 130% 0, -30% 0, 90% 0; }
+}
+@keyframes kr-aurora-hue {
+  0%   { filter: blur(3px) saturate(1.5) hue-rotate(0deg); }
+  100% { filter: blur(3px) saturate(1.5) hue-rotate(360deg); }
+}
+
+/* =========================================================================
+   ☄️ METEOR SHOWER — ฝนดาวตกพุ่งเฉียง หัวสว่างลากหางยาว
+   ========================================================================= */
+.kr-row-meteor::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  /* แต่ละดวง = เส้นเฉียงหัวขาวไล่เป็นหางฟ้า ตำแหน่ง/ความยาวไม่เท่ากัน */
+  background:
+    linear-gradient(212deg, transparent 42%, rgba(255,255,255,0.98) 47%, rgba(56,189,248,0.75) 50%, transparent 57%),
+    linear-gradient(212deg, transparent 62%, rgba(255,255,255,0.85) 66%, rgba(129,140,248,0.65) 69%, transparent 75%),
+    linear-gradient(212deg, transparent 20%, rgba(255,255,255,0.75) 24%, rgba(56,189,248,0.55) 27%, transparent 33%);
+  background-size: 300px 170px, 240px 150px, 380px 190px;
+  filter: drop-shadow(0 0 6px rgba(125,211,252,0.9));
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-meteor-fall var(--kr-sway, 2.6s) linear infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-meteor::before {
+  background: linear-gradient(90deg, rgba(30,58,138,0.30), rgba(56,189,248,0.16) 55%, transparent);
+  box-shadow: inset 0 0 28px rgba(56,189,248,0.45);
+}
+/* เลื่อนเฉียงลงซ้าย → ทิศเดียวกับองศาของเส้น ดาวจึงวิ่งตามแนวหางพอดี */
+@keyframes kr-meteor-fall {
+  0%   { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position: -300px 170px, -240px 150px, -380px 190px; }
+}
+
+/* =========================================================================
+   💎 CRYSTAL PRISM — เกล็ดคริสตัลหักเหแสง เปลี่ยนสีตามมุม + ประกายวิบ
+   ========================================================================= */
+.kr-row-crystal::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    /* เกล็ดเหลี่ยม = แถบเฉียงคมๆ สลับมุม */
+    linear-gradient(66deg,  transparent 18%, rgba(255,255,255,0.85) 23%, rgba(165,243,252,0.5) 27%, transparent 32%),
+    linear-gradient(-58deg, transparent 46%, rgba(224,231,255,0.8) 51%, rgba(196,181,253,0.5) 55%, transparent 60%),
+    linear-gradient(72deg,  transparent 70%, rgba(255,255,255,0.75) 75%, rgba(165,243,252,0.45) 79%, transparent 84%);
+  background-size: 200% 100%, 200% 100%, 200% 100%;
+  filter: saturate(1.3) brightness(1.1);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-crystal-refract 12s cubic-bezier(0.4, 0, 0.2, 1) infinite,
+    kr-crystal-spark var(--kr-flick, 1.1s) ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-crystal::before {
+  background: linear-gradient(90deg, rgba(165,243,252,0.24), rgba(224,231,255,0.16) 50%, rgba(196,181,253,0.20));
+  box-shadow: inset 0 0 30px rgba(165,243,252,0.50);
+}
+@keyframes kr-crystal-refract {
+  0%        { background-position: -120% 0, 120% 0, -60% 0; }
+  30%, 100% { background-position: 120% 0, -120% 0, 160% 0; }
+}
+@keyframes kr-crystal-spark {
+  0%   { filter: saturate(1.3) brightness(1.05) drop-shadow(0 0 4px rgba(165,243,252,0.6)); }
+  100% { filter: saturate(1.6) brightness(1.35) drop-shadow(0 0 14px rgba(224,231,255,1)); }
+}
+
+/* =========================================================================
+   🔥 PHOENIX RISING — ขี้เถ้าเรืองแสงลอยขึ้น + คลื่นเพลิงทองกวาดผ่าน
+   ========================================================================= */
+.kr-row-phoenix::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  /* ประกายไฟ = จุดกลมเรืองแสงขนาดต่างกัน (ลอยขึ้นด้วย kr-phoenix-rise) */
+  background:
+    radial-gradient(circle 3px at 14% 78%, rgba(254,243,199,0.95), rgba(245,158,11,0.5) 55%, transparent 70%),
+    radial-gradient(circle 2px at 32% 46%, rgba(255,255,255,0.9), rgba(239,68,68,0.5) 55%, transparent 70%),
+    radial-gradient(circle 4px at 55% 82%, rgba(254,243,199,0.9), rgba(249,115,22,0.5) 55%, transparent 70%),
+    radial-gradient(circle 2px at 72% 34%, rgba(255,255,255,0.85), rgba(245,158,11,0.45) 55%, transparent 70%),
+    radial-gradient(circle 3px at 88% 66%, rgba(254,243,199,0.9), rgba(239,68,68,0.45) 55%, transparent 70%);
+  background-size: 170px 120px;
+  filter: drop-shadow(0 0 5px rgba(251,146,60,0.85));
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-phoenix-rise var(--kr-sway, 4.4s) linear infinite;
+  animation-delay: var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-phoenix::before {
+  background: linear-gradient(90deg, rgba(127,29,29,0.34), rgba(245,158,11,0.20) 45%, rgba(254,243,199,0.14) 75%, transparent);
+  box-shadow: inset 0 0 30px rgba(249,115,22,0.55);
+}
+/* ลอยขึ้น = เลื่อน background ขึ้นทีละรอบ (ค่าลบ = ขึ้นบน) */
+@keyframes kr-phoenix-rise {
+  0%   { background-position: 0 120px; }
+  100% { background-position: 40px -120px; }
+}
+
+/* =========================================================================
+   🌠 NEBULA DRIFT — กลุ่มเมฆจักรวาลลอยช้าๆ พร้อมดาวกะพริบ
+   ========================================================================= */
+.kr-row-nebula::after {
+  top: 0; bottom: 0; left: 0; width: 100%; height: 100%;
+  transform: none;
+  background:
+    /* ดาวเล็กๆ กะพริบ */
+    radial-gradient(circle 1.5px at 18% 30%, rgba(255,255,255,1), transparent 60%),
+    radial-gradient(circle 1px   at 42% 70%, rgba(255,255,255,0.9), transparent 60%),
+    radial-gradient(circle 1.5px at 66% 24%, rgba(255,255,255,1), transparent 60%),
+    radial-gradient(circle 1px   at 84% 60%, rgba(255,255,255,0.85), transparent 60%),
+    /* เมฆจักรวาล 2 ก้อน สีคนละโทน */
+    radial-gradient(ellipse 90px 40px at 30% 55%, rgba(217,70,239,0.42), transparent 70%),
+    radial-gradient(ellipse 110px 46px at 72% 45%, rgba(99,102,241,0.40), transparent 72%);
+  background-size: 260px 140px, 260px 140px, 260px 140px, 260px 140px, 100% 100%, 100% 100%;
+  filter: blur(0.5px) saturate(1.4);
+  animation:
+    kr-row-fireshow 12s ease-in-out infinite,
+    kr-nebula-drift 12s ease-in-out infinite,
+    kr-nebula-twinkle var(--kr-flick, 1.7s) ease-in-out infinite alternate;
+  animation-delay: var(--kr-row-delay, 0s), var(--kr-row-delay, 0s), 0s;
+}
+.kr-row-nebula::before {
+  background: linear-gradient(90deg, rgba(30,27,75,0.42), rgba(217,70,239,0.16) 50%, rgba(99,102,241,0.20));
+  box-shadow: inset 0 0 32px rgba(139,92,246,0.50);
+}
+/* เมฆเลื่อนช้าๆ ส่วนชั้นดาวเลื่อนคนละจังหวะ → ได้ความรู้สึกลึกแบบ parallax */
+@keyframes kr-nebula-drift {
+  0%        { background-position: 0 0, 0 0, 0 0, 0 0, -12% 0, 112% 0; }
+  30%, 100% { background-position: -60px 0, -40px 0, -80px 0, -30px 0, 112% 0, -12% 0; }
+}
+@keyframes kr-nebula-twinkle {
+  0%   { filter: blur(0.5px) saturate(1.3) brightness(0.9); }
+  100% { filter: blur(0.5px) saturate(1.6) brightness(1.3); }
+}
+
 /* ผู้ใช้ที่ตั้งค่า "ลดการเคลื่อนไหว" ในระบบ
    ⚠️ ห้ามซ่อนเอฟเฟกต์ทิ้ง — ผู้ใช้จ่ายเหรียญซื้อมา ต้องได้เห็นของที่ซื้อ
       (เคยใช้ display:none ตรงนี้ แล้วเครื่องที่ปิดอนิเมชันของ Windows เห็นแค่สีจางๆ)
