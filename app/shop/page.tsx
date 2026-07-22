@@ -293,23 +293,37 @@ export default function ShopPage() {
               >
                 <ShoppingBag className="w-8 h-8 md:w-10 md:h-10" strokeWidth={3} />
               </motion.div>
+              {/* หัวข้อสลับข้อความตามมุมมอง — key={view} ทำให้ตัวเก่าเลื่อนออก ตัวใหม่เลื่อนเข้า
+                  mode="wait" กันสองบรรทัดซ้อนกันระหว่างสลับ */}
               <div className="min-w-0">
-                <motion.h1
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.12, duration: 0.45, ease: 'easeOut' }}
-                  className="text-3xl md:text-5xl font-black tracking-tighter uppercase text-orange-950 dark:text-white hacker:text-white cute-header leading-none"
-                >
-                  KeyRush <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">Shop</span>
-                </motion.h1>
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.24, duration: 0.4, ease: 'easeOut' }}
-                  className="mt-1.5 md:mt-2 text-[11px] md:text-sm font-bold text-orange-500 dark:text-yellow-500 hacker:text-green-600"
-                >
-                  ใช้เหรียญที่ได้จากการเล่น แลกของตกแต่งสุดเท่ ✨
-                </motion.p>
+                <AnimatePresence mode="wait">
+                  <motion.h1
+                    key={view}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="text-3xl md:text-5xl font-black tracking-tighter uppercase text-orange-950 dark:text-white hacker:text-white cute-header leading-none"
+                  >
+                    {view === 'inventory'
+                      ? <>คลัง<span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">ของฉัน</span></>
+                      : <>KeyRush <span className="text-orange-500 dark:text-yellow-400 hacker:text-green-500">Shop</span></>}
+                  </motion.h1>
+                </AnimatePresence>
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={view}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.3, delay: 0.06, ease: 'easeOut' }}
+                    className="mt-1.5 md:mt-2 text-[11px] md:text-sm font-bold text-orange-500 dark:text-yellow-500 hacker:text-green-600"
+                  >
+                    {view === 'inventory'
+                      ? 'ของที่ซื้อไว้ทั้งหมด — กดใส่ / ถอดได้เลย 🎒'
+                      : 'ใช้เหรียญที่ได้จากการเล่น แลกของตกแต่งสุดเท่ ✨'}
+                  </motion.p>
+                </AnimatePresence>
               </div>
             </div>
 
@@ -357,20 +371,19 @@ export default function ShopPage() {
         </div>
 
         {/* หัวข้อคลัง (เฉพาะโหมดคลัง) */}
+        {/* หัวข้อคลังย่อยถูกยุบไปรวมกับหัวหลักด้านบนแล้ว (ไม่งั้นขึ้น "คลังของฉัน" ซ้ำสองที่)
+            เหลือไว้แค่ตัวนับจำนวนชิ้น */}
         {view === 'inventory' && (
-          <div className="flex items-center gap-3">
-            <div className="size-10 md:size-11 rounded-2xl border-4 border-white dark:border-[#4B3965] hacker:border-green-700 bg-orange-100 dark:bg-yellow-400/10 hacker:bg-green-900/20 text-orange-500 dark:text-yellow-400 hacker:text-green-500 flex items-center justify-center shadow-sm">
-              <Package size={20} strokeWidth={3} />
-            </div>
-            <div>
-              <h2 className="text-xl md:text-2xl font-black tracking-tight uppercase text-orange-950 dark:text-white hacker:text-white cute-header leading-none">คลังของฉัน</h2>
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-orange-400 dark:text-white/40 hacker:text-green-700 mt-1">ของที่ซื้อแล้ว {ownedIds.length} ชิ้น — กดใส่ / ถอดได้เลย</p>
-            </div>
-          </div>
+          <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-orange-400 dark:text-white/40 hacker:text-green-700">
+            ของที่ซื้อแล้ว {ownedIds.length} ชิ้น
+          </p>
         )}
 
-        {/* แท็บประเภทของ — ใช้ชุดเดียวกันทั้งร้านและคลัง (กดสลับ ไม่ต้องเลื่อน) */}
-        <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex gap-2 md:gap-3 w-full max-w-2xl">
+        {/* แถวหมวดสินค้า + ปุ่มเรียงราคา — อยู่แถวเดียวกัน ปุ่มเรียงชิดขวาสุด
+            (ตรงกับปุ่มคลังของฉันด้านบน เพราะใช้ w-full ชุดเดียวกับหัวร้าน) */}
+        <div className="w-full flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6">
+          {/* แท็บประเภทของ — ใช้ชุดเดียวกันทั้งร้านและคลัง (กดสลับ ไม่ต้องเลื่อน) */}
+          <div className="bg-white/80 dark:bg-[#1E1B2E]/80 hacker:bg-[#0a0a0a]/80 backdrop-blur-md p-2 md:p-3 rounded-[24px] md:rounded-[32px] border-4 border-white dark:border-[#382E54] hacker:border-[#166534] flex gap-2 md:gap-3 w-full max-w-2xl">
           <button onClick={() => setTab('title')} className={tabBtn(tab === 'title')}>
             <Tag size={16} strokeWidth={3} /> ฉายา
             {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('title')})</span>}
@@ -391,23 +404,26 @@ export default function ShopPage() {
             <MousePointer2 size={16} strokeWidth={3} /> เอฟเฟกต์
             {view === 'inventory' && <span className="ml-0.5 opacity-70 hidden sm:inline">({ownedCountOf('cursor')})</span>}
           </button>
-        </div>
+          </div>
 
-        {/* 💰 ปุ่มสลับการเรียงราคา ถูก↔แพง (มีผลทั้งร้านและคลัง) */}
-        <div className="w-full max-w-2xl flex justify-end -mt-2">
-          <button
-            onClick={() => setSortAsc((v) => !v)}
-            title={sortAsc ? 'กำลังเรียงจากถูกไปแพง — กดเพื่อสลับ' : 'กำลังเรียงจากแพงไปถูก — กดเพื่อสลับ'}
-            className={`btn-shine shine-plain btn-squishy flex items-center gap-2 px-4 py-2.5 rounded-2xl border-4 font-black text-[10px] md:text-xs uppercase tracking-widest transition-colors ${isHacker
-              ? 'bg-[#0a0a0a] border-green-800 text-green-500 shadow-[0_4px_0_#14532d]'
-              : isDark
-                ? 'bg-[#1E1B2E] border-[#382E54] text-yellow-400 shadow-[0_4px_0_#0a0a0a]'
-                : 'bg-white border-orange-200 text-orange-500 shadow-[0_4px_0_#fed7aa]'
-              }`}
-          >
-            {sortAsc ? <ArrowDownNarrowWide size={16} strokeWidth={3} /> : <ArrowDownWideNarrow size={16} strokeWidth={3} />}
-            <span>{sortAsc ? 'ถูกสุดก่อน' : 'แพงสุดก่อน'}</span>
-          </button>
+          {/* 💰 ปุ่มสลับการเรียงราคา ถูก↔แพง (มีผลทั้งร้านและคลัง) */}
+          <div className="flex justify-end shrink-0">
+            <button
+              onClick={() => setSortAsc((v) => !v)}
+              // ป้ายบอก "สิ่งที่จะเกิดเมื่อกด" ไม่ใช่สถานะปัจจุบัน
+              // → ตอนนี้เรียงถูกก่อน ปุ่มจึงเขียนว่า "แพงสุดก่อน" กดแล้วได้อย่างที่เขียน
+              title={sortAsc ? 'ตอนนี้เรียงจากถูกไปแพง — กดเพื่อดูแพงสุดก่อน' : 'ตอนนี้เรียงจากแพงไปถูก — กดเพื่อดูถูกสุดก่อน'}
+              className={`btn-shine shine-plain btn-squishy flex items-center gap-2 px-4 py-2.5 rounded-2xl border-4 font-black text-[10px] md:text-xs uppercase tracking-widest transition-colors ${isHacker
+                ? 'bg-[#0a0a0a] border-green-800 text-green-500 shadow-[0_4px_0_#14532d]'
+                : isDark
+                  ? 'bg-[#1E1B2E] border-[#382E54] text-yellow-400 shadow-[0_4px_0_#0a0a0a]'
+                  : 'bg-white border-orange-200 text-orange-500 shadow-[0_4px_0_#fed7aa]'
+                }`}
+            >
+              {sortAsc ? <ArrowDownWideNarrow size={16} strokeWidth={3} /> : <ArrowDownNarrowWide size={16} strokeWidth={3} />}
+              <span>{sortAsc ? 'แพงสุดก่อน' : 'ถูกสุดก่อน'}</span>
+            </button>
+          </div>
         </div>
 
         {/* รายการสินค้า — grid เดียว กรองตามแท็บทั้งสองมุมมอง */}
@@ -615,10 +631,13 @@ export default function ShopPage() {
 
     return (
       <motion.div
-        key={item.id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: i * 0.05 }}
+        // ใส่ view ใน key ด้วย → สลับร้าน↔คลังแล้วการ์ดถูกสร้างใหม่ อนิเมชันไล่โผล่จึงเล่นซ้ำ
+        // (ถ้า key เป็น item.id เฉยๆ การ์ดที่มีอยู่แล้วจะถูก reuse แล้วนิ่งสนิท)
+        key={`${view}-${item.id}`}
+        initial={{ opacity: 0, y: 20, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        // หน่วงสูงสุด 0.5 วิ ไม่งั้นหมวดที่มีของ 24 ชิ้น ใบท้ายๆ จะรอนานเกินไป
+        transition={{ delay: Math.min(i * 0.04, 0.5), duration: 0.35, ease: 'easeOut' }}
         onClick={() => { if (item.type === 'title') setSelectedTitle(item); }}
         title={item.type === 'title' ? 'กดเพื่อดูแบบขยาย' : undefined}
         className={`glass-card p-5 md:p-6 flex flex-col gap-3 shadow-sm relative overflow-hidden ${equipped ? 'ring-4 ring-orange-400 dark:ring-yellow-400 hacker:ring-green-500' : ''} ${item.type === 'title' ? 'cursor-pointer hover:-translate-y-1 transition-transform' : ''}`}

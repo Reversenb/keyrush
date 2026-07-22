@@ -74,10 +74,11 @@ Login ด้วย Google → เลือก OS → เลือกด่าน
 - แสดง UI ให้ผู้ใช้ใช้งาน (Gamified Terminal + Virtual File System Animation)
 - จับ Keystroke ที่พิมพ์เข้า Terminal จริง คำนวณ WPM และ Accuracy แบบ Real-time
   (ใช้ "เวลาพิมพ์จริง" — หยุดพัก/สลับแท็บไม่ทำให้ค่าเพี้ยน)
-- จำลองผลของคำสั่ง ~100 คำสั่ง (Linux/Windows) ผ่าน Command Simulation Engine
+- จำลองผลของคำสั่ง ~96 คำสั่ง (Linux/Windows) ผ่าน Command Simulation Engine
 - เรียก API ผ่าน fetch wrapper กลางที่แนบ Cookie + CSRF Header ให้อัตโนมัติ
-- แสดงข้อมูล Mission, Progress, Documents, History (พร้อมปฏิทิน), Leaderboard
-- จัดการ routing เช่น /dashboard, /campaignpage, /campaignplay, /docs, /history, /leaderboard
+- แสดงข้อมูล Mission, Progress, Documents, History (พร้อมปฏิทิน), Leaderboard, Shop
+- จัดการ routing เช่น /dashboard, /campaignpage, /campaignplay, /survival, /training,
+  /shop, /docs, /history, /leaderboard, /ranks, /profile, /u/[username], /admin/missions
 ```
 
 ### Backend (`keyrush-backend/`)
@@ -101,8 +102,11 @@ Login ด้วย Google → เลือก OS → เลือกด่าน
 - ตรวจสอบสิทธิ์ผู้ใช้จาก Cookie + ตรวจ CSRF Token ทุก POST/PUT/DELETE
 - ตรวจคำตอบของด่าน (server-authoritative) — เฉลยไม่ถูกส่งให้ Client ล่วงหน้า
 - คำนวณ EXP ที่ได้จริง (หักเหลือ 20% ถาวรถ้าผู้เล่นกดดูเฉลยของด่านนั้น)
+- ตรวจคำตอบโหมด Survival ทีละข้อและนับแต้มเองผ่าน rolling token
+- เป็นเจ้าของราคาสินค้าในร้าน (client ส่งมาแค่ itemId) และคิดสตรีควันฝึกต่อเนื่อง
+- กรองคำหยาบใน displayName / bio
 - Query / Create / Update / Delete ข้อมูลผ่าน Prisma + D1
-- จัดการ business logic: Auth, Mission, Progress, Leaderboard, Documents, Admin CMS
+- จัดการ business logic: Auth, Mission, Survival, Shop, Progress, Leaderboard, Documents, Admin CMS
 ```
 
 ---
@@ -142,13 +146,14 @@ Presentation Layer
 - Next.js / React UI + xterm.js Terminal + Framer Motion Animation
 
 Simulation Layer (Client)
-- lib/commandSim.ts — จำลองผลของคำสั่ง ~100 คำสั่ง (output + Virtual File System)
+- lib/commandSim.ts — จำลองผลของคำสั่ง ~96 คำสั่ง (output + Virtual File System)
 
 API Layer
 - Hono Serverless REST API (ผ่าน Next.js Rewrites Proxy)
 
 Business Logic Layer
-- Auth (Cookie + CSRF), Mission Verify (Anti-cheat), Progress, Leaderboard, Documents, Admin CMS
+- Auth (Cookie + CSRF), Mission Verify (Anti-cheat), Survival (Rolling Token),
+  Shop (ราคาอยู่ฝั่ง server), Streak, Progress, Leaderboard, Documents, Admin CMS
 
 Data Access Layer
 - Prisma ORM
@@ -183,24 +188,29 @@ Database Layer
 |---|---|
 | Google Login | เข้าสู่ระบบผ่านบัญชี Google (ไม่มีระบบ Password) — Session เก็บใน HttpOnly Cookie |
 | Campaign Mode | เล่นด่านฝึกคำสั่ง Linux / Windows ใน Terminal จำลอง xterm.js |
-| Command Simulation | พิมพ์คำสั่งแล้วเห็น "ผลจริง" — output สมจริง (ping ทยอยตอบทีละบรรทัด, ps แสดงตาราง ฯลฯ) พร้อมภาพจำลองไฟล์/โฟลเดอร์เปลี่ยนตามคำสั่ง (สร้าง ลบ ย้าย บีบอัด ตั้งสิทธิ์ ครอบคลุม ~100 คำสั่ง แยก 9 หมวดอนิเมชัน) |
+| Command Simulation | พิมพ์คำสั่งแล้วเห็น "ผลจริง" — output สมจริง (ping ทยอยตอบทีละบรรทัด, ps แสดงตาราง ฯลฯ) พร้อมภาพจำลองไฟล์/โฟลเดอร์เปลี่ยนตามคำสั่ง (สร้าง ลบ ย้าย บีบอัด ตั้งสิทธิ์ ครอบคลุม ~96 คำสั่ง แยก 9 หมวดอนิเมชัน) |
 | WPM / Accuracy | คำนวณจากคีย์ที่พิมพ์เข้า Terminal จริง (มาตรฐาน 1 word = 5 ตัวอักษร) ใช้เวลาพิมพ์จริง — พัก/สลับแท็บไม่ทำให้ค่าตก |
 | Hint & ดูเฉลย | ขอคำใบ้ฟรี หรือกด "ดูเฉลย" (มี dialog ยืนยัน) แลกกับ EXP ของด่านนั้นเหลือ 20% ถาวร |
 | Progress Tracking | เก็บ Level และ EXP แยกตาม OS พร้อมแสดง EXP ที่ได้จริงต่อรอบ (เต็มหรือโดนหัก) |
-| Dashboard | สถิติส่วนตัว — กราฟ WPM (แกนมาตรฐาน + เส้นค่าเฉลี่ย + tooltip), วงแหวน Accuracy ตามเกณฑ์คุณภาพ |
+| Dashboard | สถิติส่วนตัว — กราฟ WPM (แกนมาตรฐาน + เส้นค่าเฉลี่ย + tooltip), วงแหวน Accuracy ตามเกณฑ์คุณภาพ, การ์ดสรุป (วันต่อเนื่อง / Total XP / เหรียญ / แรงค์) |
 | History + ปฏิทิน | ประวัติการเล่นย้อนหลัง พร้อมปฏิทินรายเดือน (วันไหนเล่นเยอะสีเข้ม) จิ้มวันเพื่อกรองดูเฉพาะวันนั้น |
 | Documents | คู่มือคำสั่ง Linux / Windows CMD จากฐานข้อมูลจริง |
+| Survival Mode | โหมดจับเวลา 60 วิ — จำโจทย์แล้วพิมพ์ให้ทัน ตอบถูกได้เวลาเพิ่ม เก็บ EXP + เหรียญ (server ตรวจทุกข้อด้วย rolling token) |
+| Training Mode | โหมดฝึกอิสระ ไม่มีผลต่อ Level |
 | Leaderboard | อันดับผู้เล่นแยก Linux / Windows / Combined |
-| Ranks | ระบบแรงค์ 7 ระดับตาม EXP รวม (Rookie → Root Master) |
+| Ranks | ระบบแรงค์ 8 ระดับตาม EXP รวม (Rookie → Keyrush Master) |
+| วันฝึกต่อเนื่อง (Streak) | นับวันที่เข้ามาฝึกต่อเนื่อง เว้นได้ไม่เกิน 3 วัน เกินกว่านั้นรีเซ็ต — โชว์บน Dashboard และข้างชื่อใน dropdown โปรไฟล์ |
+| Shop | ใช้เหรียญที่ได้จากการเล่นซื้อของตกแต่ง — ฉายา, ธีมเว็บ, เอฟเฟกต์เมาส์, กรอบรูปโปรไฟล์, เอฟเฟกต์แถว Leaderboard (มี popup ยืนยันก่อนซื้อ + เรียงตามราคาได้) |
 | Profile | แก้ไขชื่อ, Bio, เลือก Bot Avatar 50 แบบ หรืออัปโหลดรูปพร้อม Crop |
 | Public Profile | ดูโปรไฟล์ผู้เล่นคนอื่นผ่าน `/u/[username]` |
-| ธีม 3 แบบ | Cute (ส้ม) / Dark (ม่วง-เหลือง) / Hacker (ดำ-เขียว) — Terminal เปลี่ยนชุดสีตามธีมอัตโนมัติ |
+| ธีม | ฟรี 2 แบบ — Cute (ส้ม) / Dark (ม่วง-เหลือง) · ซื้อจากร้านอีก 6 แบบ — Hacker, Sakura, Red Dragon, Amethyst Night, Sky Blue, Mint (Terminal เปลี่ยนชุดสีตามธีมอัตโนมัติ) |
 
 ### Admin
 
 | ฟีเจอร์ | รายละเอียด |
 |---|---|
 | Mission Management | เพิ่ม แก้ไข ลบ Mission (โจทย์, เฉลย, คำใบ้, EXP) |
+| จัดลำดับด่าน | สลับ Level ระหว่าง 2 ข้อ (เลือกจากปุ่มในตาราง) หรือลากวางเรียงใหม่ทั้งหมวดแล้วให้ระบบไล่เลข 1..N ให้ |
 | Docs Management | เพิ่ม แก้ไข ลบ เอกสารคำสั่งในหน้า Documents |
 | Admin Authorization | ตรวจสอบ role จากข้อมูลผู้ใช้ฝั่ง Server ก่อนเข้าใช้งาน — user ธรรมดาเข้าไม่ได้ |
 | Favorite Mission | บันทึก Mission ที่สนใจ |
@@ -329,29 +339,41 @@ keyrush-frontend/
 │   ├── map/                (เลือกโหมดการเล่น)
 │   ├── campaignpage/       (แผนที่ด่าน Campaign)
 │   ├── campaignplay/       (หน้าเล่นเกม — Terminal + Simulation + Verify)
+│   ├── survival/           (โหมด Survival จับเวลา 60 วิ)
+│   ├── training/           (โหมดฝึกอิสระ)
+│   ├── shop/               (ร้านค้า — ฉายา/ธีม/เมาส์/กรอบ/เอฟเฟกต์แถว)
 │   ├── history/            (ประวัติการเล่น + ปฏิทินกรองรายวัน)
 │   ├── docs/               (คู่มือคำสั่ง Linux / Windows)
 │   ├── leaderboard/        (ตารางอันดับ)
-│   ├── ranks/              (ระบบแรงค์ 7 ระดับ)
+│   ├── ranks/              (ระบบแรงค์ 8 ระดับ)
 │   ├── profile/            (แก้ไขโปรไฟล์ / เลือก Avatar)
 │   ├── u/[username]/       (โปรไฟล์สาธารณะ)
-│   └── admin/missions/     (Admin CMS จัดการ Mission และ Docs)
+│   ├── admin/missions/     (Admin CMS จัดการ Mission และ Docs + จัดลำดับด่าน)
+│   └── globals.css         (ธีมทั้งหมด + เอฟเฟกต์กรอบรูป/แถว Leaderboard)
 ├── components/
-│   ├── Navbar.tsx              (เมนูหลัก — sync ข้อมูลผู้ใช้กับ Backend)
+│   ├── Navbar.tsx              (เมนูหลัก — sync ข้อมูลผู้ใช้กับ Backend, สลับธีม, สตรีค)
 │   ├── TerminalBox.tsx         (xterm.js Terminal + ธีมสี + รายงานคีย์สำหรับ WPM)
 │   ├── TerminalControls.tsx    (แผงปรับสี/ขนาดฟอนต์ Terminal)
 │   ├── VirtualFileSystemPanel.tsx (ภาพจำลองไฟล์/โฟลเดอร์ + อนิเมชัน 9 หมวด + Hint/เฉลย)
 │   ├── MissionClearedModal.tsx (สรุปผลจบด่าน — เกรด, EXP ที่ได้จริง)
+│   ├── CursorGlow.tsx          (เอฟเฟกต์เทรลตามเมาส์ที่ซื้อจากร้าน)
+│   ├── ThemeProvider.tsx       (ลงทะเบียนธีมทั้งหมดให้ next-themes)
 │   └── ...
 ├── lib/
-│   ├── api.ts        (fetch wrapper กลาง — credentials + CSRF + 401 handler + logout)
-│   ├── commandSim.ts (Command Simulation Engine ~100 คำสั่ง)
-│   └── ranks.ts      (ข้อมูลแรงค์กลาง — แก้ที่เดียวมีผลทุกหน้า)
+│   ├── api.ts          (fetch wrapper กลาง — credentials + CSRF + 401 handler + logout)
+│   ├── commandSim.ts   (Command Simulation Engine ~96 คำสั่ง)
+│   ├── ranks.ts        (ข้อมูลแรงค์กลาง — แก้ที่เดียวมีผลทุกหน้า)
+│   ├── answerCheck.ts  (กติกาตรวจคำตอบ — ต้องตรงกับฝั่ง backend เป๊ะ)
+│   ├── frames.ts       (allowlist กรอบรูป → ชื่อคลาส .kr-frame-*)
+│   └── rowEffects.ts   (allowlist เอฟเฟกต์แถว → ชื่อคลาส .kr-row-*)
 ├── public/
 ├── next.config.ts    (API Proxy rewrites + Security Headers)
 ├── package.json
 └── tsconfig.json
 ```
+
+> **หมายเหตุ:** ของตกแต่งที่ซื้อจากร้าน (กรอบรูป / เอฟเฟกต์แถว / ธีม) ถูกวาดด้วย CSS ล้วนใน `app/globals.css`
+> ฝั่ง TS มีแค่ allowlist แปลง id → ชื่อคลาส — **เพิ่มของใหม่ต้องแก้ทั้ง `items.ts` ฝั่ง backend, allowlist ใน `lib/` และ CSS** ไม่งั้นของจะไม่โผล่
 
 ### Backend (Serverless)
 
@@ -368,7 +390,7 @@ keyrush-backend/
 │   │   ├── user.ts
 │   │   └── ...
 │   └── seed.ts (สคริปต์เสกข้อมูล)
-├── wrangler.toml (ตั้งค่า Cloudflare Workers & D1)
+├── wrangler.jsonc (ตั้งค่า Cloudflare Workers & D1)
 ├── package.json
 └── tsconfig.json
 ```
@@ -394,7 +416,25 @@ linuxLevel
 linuxExp
 windowsLevel
 windowsExp
+coins                 (เหรียญสำหรับร้านค้า — ได้จากการเล่นเท่านั้น)
+equippedTitle         (itemId ของฉายาที่ใส่อยู่)
+equippedTheme         (itemId ของธีมเว็บที่ใส่อยู่)
+equippedCursor        (itemId ของเอฟเฟกต์เมาส์ที่ใส่อยู่)
+equippedFrame         (itemId ของกรอบรูปที่ใส่อยู่)
+equippedRow           (itemId ของเอฟเฟกต์แถวที่ใส่อยู่)
+tokenVersion
 adminFavorites
+createdAt
+```
+
+### UserItem
+
+ของที่ผู้เล่นซื้อไว้ — เก็บแค่ `itemId` ราคาและประเภทอ่านจากโค้ดฝั่ง server เสมอ (`src/shop/items.ts`)
+
+```
+id
+userId
+itemId
 createdAt
 ```
 
@@ -426,8 +466,12 @@ level
 wpm
 accuracy
 earnedExp
+earnedCoins
 createdAt
 ```
+
+> **สตรีค (วันฝึกต่อเนื่อง) ไม่มีคอลัมน์ใน DB** — Backend คิดสดจาก `PlayHistory` ทุกครั้งที่เรียก `/api/user/progress`
+> ตัดวันตามเวลาไทย (UTC+7) เว้นได้ไม่เกิน 3 วัน เกินกว่านั้นรีเซ็ตเป็น 0
 
 ---
 
@@ -447,11 +491,28 @@ createdAt
 
 | Method | Endpoint | รายละเอียด |
 |---|---|---|
-| GET | `/api/user/progress` | ดึงข้อมูลผู้ใช้และ progress (ใช้เช็คสถานะ login ด้วย) |
+| GET | `/api/user/progress` | ดึงข้อมูลผู้ใช้และ progress (ใช้เช็คสถานะ login ด้วย) — รวม `coins`, ของที่ใส่อยู่ และ `streak` |
 | PUT | `/api/user/progress` | บันทึก progress — ต้องแนบ `clearanceToken` จากการ verify, ตอบ `earnedExp` ที่ได้จริง |
 | GET | `/api/user/stats` | ดึงสถิติ WPM / Accuracy และประวัติการเล่นล่าสุด (recentLessons) |
-| PUT | `/api/user/profile` | แก้ไข displayName / avatar / bio |
+| GET | `/api/user/history` | ประวัติการเล่นย้อนหลังสูงสุด 500 รายการ (ใช้กับปฏิทินหน้า History) |
+| PUT | `/api/user/profile` | แก้ไข displayName / avatar / bio (server กรองคำหยาบ) |
 | GET | `/api/user/profile/public/:username` | ดู public profile |
+
+### Survival
+
+| Method | Endpoint | รายละเอียด |
+|---|---|---|
+| GET | `/api/survival/start` | เริ่มเกม — ได้ชุดโจทย์ + ตั๋วเริ่มเกม (`?os=linux\|windows`) |
+| POST | `/api/survival/answer` | ส่งคำตอบทีละข้อ — server ตรวจและนับแต้มเอง แล้วคืนตั๋วใบใหม่ (rolling token) |
+| POST | `/api/survival/submit` | จบเกม — อ่านแต้มจากตั๋ว แจก EXP + เหรียญ |
+
+### Shop
+
+| Method | Endpoint | รายละเอียด |
+|---|---|---|
+| GET | `/api/shop` | ของในร้าน + เหรียญคงเหลือ + ของที่มี/ใส่อยู่ |
+| POST | `/api/shop/buy` | ซื้อของ — client ส่งแค่ `itemId` ราคาอ่านจาก server เสมอ |
+| POST | `/api/shop/equip` | ใส่ / ถอดของ (`?type=` เพื่อถอด) |
 
 ### Mission
 
@@ -480,7 +541,9 @@ createdAt
 |---|---|---|
 | GET | `/api/admin/missions` | ดึง mission ทั้งหมด (พร้อมเฉลย — admin เท่านั้น) |
 | POST | `/api/admin/missions` | สร้าง mission ใหม่ |
-| PUT | `/api/admin/missions/:id` | แก้ไข mission |
+| PUT | `/api/admin/missions/swap` | สลับ `level` ของ mission 2 ข้อ (ต้อง OS เดียวกัน) |
+| PUT | `/api/admin/missions/reorder` | เรียงลำดับใหม่ทั้งหมวด — ส่ง `orderedIds` ครบทุกข้อของ OS นั้น |
+| PUT | `/api/admin/missions/:id` | แก้ไข mission (เนื้อหาเท่านั้น ไม่รวม `level`) |
 | DELETE | `/api/admin/missions/:id` | ลบ mission |
 | POST | `/api/admin/docs` | สร้างเอกสารคำสั่งใหม่ |
 | PUT | `/api/admin/docs/:id` | แก้ไขเอกสารคำสั่ง |
@@ -608,18 +671,20 @@ npx tsc --noEmit   # ตรวจ type ทั้งโปรเจกต์
 | หัวข้อ | รายละเอียด |
 |---|---|
 | Command Simulation | การจำลองผลคำสั่งฝั่ง Client เป็นการจำลองเพื่อการเรียนรู้ (ไม่ใช่ Shell จริง) — output บางคำสั่งเป็นข้อมูลตัวอย่าง |
-| History Calendar | ปฏิทินแสดงข้อมูลจากประวัติล่าสุดที่ Backend ส่งมา (recentLessons) — วันที่เก่ากว่านั้นจะไม่แสดงจุดกิจกรรม |
+| History Calendar | ดึงประวัติสูงสุด 500 รายการล่าสุด — เล่นเกินกว่านั้นวันเก่าๆ จะไม่แสดงจุดกิจกรรม |
+| ตรวจคำตอบไม่สนตัวพิมพ์ | ยึดตามเครื่องที่ผู้เรียนใช้จริง (Git Bash / WSL / macOS / Windows ระบบไฟล์ไม่แยกตัวพิมพ์) — แต่บนเซิร์ฟเวอร์ Linux แท้ (ext4) ตัวพิมพ์ใหญ่จะใช้ไม่ได้จริง |
+| WPM / Accuracy | คำนวณฝั่ง Frontend แล้วส่งให้ Backend เก็บ — เป็นสถิติส่วนตัว **ไม่มีผลต่อ Leaderboard** (จัดอันดับด้วย EXP) จึงไม่ใช่ความเสี่ยงเชิงระบบ |
+| Rate Limiter | เก็บสถิติใน memory ต่อ isolate ของ Worker — ของจริงจึงหลวมกว่าตัวเลขที่ตั้งไว้ (ต้องใช้ Durable Objects ถึงจะแม่น) |
 | Session | JWT อายุ 4 ชั่วโมง — หมดอายุต้อง Login ใหม่ (ออกแบบเพื่อความปลอดภัย) |
 | Analytics | บาง metric ยังต้องเพิ่มระบบ log เช่น retention, retry count |
 | Serverless DB Limits | Cloudflare D1 แพ็กเกจฟรีจำกัดจำนวน Read/Write ต่อวัน แต่เพียงพอต่อโปรเจกต์ขนาดกลาง |
 | Edge Function Size | โค้ด Backend เมื่อ Build ต้องมีขนาดไม่เกินโควต้าของ Cloudflare Workers |
-| Survival Mode / Hacker Arena | อยู่ระหว่างการวางแผนพัฒนาในเวอร์ชันถัดไป |
 
 ---
 
 ## สรุป
 
-KeyRush เป็นเว็บแอปสำหรับฝึกใช้คำสั่ง Terminal และ Command Line ผ่านรูปแบบภารกิจ โดยมีระบบยืนยันตัวตนด้วย Google OAuth + HttpOnly Cookie พร้อมการป้องกัน CSRF, ระบบตรวจคำตอบแบบ Server-authoritative พร้อมกลไกกันโกงสองชั้น (sessionToken / clearanceToken), ระบบจำลองผลคำสั่งพร้อมอนิเมชันครอบคลุมประมาณ 100 คำสั่ง, ระบบเก็บ EXP และ Level พร้อมบทลงโทษการดูเฉลย, ระบบสถิติและประวัติแบบปฏิทิน, ระบบจัดอันดับ, ระบบแรงค์ และระบบ Admin CMS
+KeyRush เป็นเว็บแอปสำหรับฝึกใช้คำสั่ง Terminal และ Command Line ผ่านรูปแบบภารกิจ โดยมีระบบยืนยันตัวตนด้วย Google OAuth + HttpOnly Cookie พร้อมการป้องกัน CSRF, ระบบตรวจคำตอบแบบ Server-authoritative พร้อมกลไกกันโกงสองชั้น (sessionToken / clearanceToken), ระบบจำลองผลคำสั่งพร้อมอนิเมชันครอบคลุมประมาณ 96 คำสั่ง, โหมด Campaign / Survival / Training, ระบบเก็บ EXP และ Level พร้อมบทลงโทษการดูเฉลย, ระบบเหรียญและร้านค้าของตกแต่ง (ฉายา / ธีม / เอฟเฟกต์เมาส์ / กรอบรูป / เอฟเฟกต์แถว), ระบบวันฝึกต่อเนื่อง, ระบบสถิติและประวัติแบบปฏิทิน, ระบบจัดอันดับ, ระบบแรงค์ 8 ระดับ และระบบ Admin CMS ที่จัดลำดับด่านได้
 
 - **Frontend** ทำหน้าที่เป็นส่วนติดต่อผู้ใช้ (Gamified Terminal ด้วย xterm.js + Framer Motion) เรียก API ผ่าน Proxy บนโดเมนตัวเองเพื่อความปลอดภัยของ Cookie
 - **Backend** ทำหน้าที่เป็น REST API Server แบบ Serverless เป็นผู้ตัดสินความถูกต้องของคำตอบและคะแนนแต่เพียงผู้เดียว
