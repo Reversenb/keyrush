@@ -10,6 +10,7 @@ import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import { apiFetch, clearUserState } from '@/lib/api';
 import CoinIcon from '@/components/CoinIcon';
+import { isAnswerCorrect } from '@/lib/answerCheck';
 
 interface CommandMission {
     id: string;
@@ -266,7 +267,10 @@ export default function Page() {
             // 📨 รายงานคำตอบให้ server นับแต้ม (ทั้งถูกและผิด — server ใช้คุม accuracy ด้วย)
             reportAnswer(input.trim());
 
-            if (input.trim() === expected) {
+            // ⚠️ กติกาตัวพิมพ์ต้องตรงกับ backend เป๊ะ (Keyrush-backend/src/lib/answerCheck.ts)
+            // Windows cmd ไม่สนตัวพิมพ์ (MKDIR = mkdir) ส่วน Linux สนเป๊ะ
+            // ถ้าสองฝั่งไม่ตรงกัน จอจะบอกผิดแต่ server นับให้ถูก (หรือกลับกัน)
+            if (isAnswerCorrect(selectedOS, input, expected || '')) {
                 setFlash('success');
                 // 🌟 โชว์คะแนน EXP หน้าบ้าน (ข้อละ 5)
                 setScore((prev) => prev + 5);
